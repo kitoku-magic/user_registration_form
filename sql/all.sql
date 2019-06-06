@@ -8,3 +8,5 @@ use `user_registration_form`;
 source sql/ddl.sql
 
 source sql/dml.sql
+
+source sql/load_data_local_infile_ken_all_csv.sql
