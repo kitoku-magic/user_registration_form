@@ -5,7 +5,7 @@
  *
  */
 
-$framework_base_path = 'フレームワークの基底ディレクトリ';
+$framework_base_path = '/opt/final_magic';
 
 // フレームワークのディレクトリを設定
 set_include_path(get_include_path() . PATH_SEPARATOR . $framework_base_path);
@@ -17,5 +17,5 @@ spl_autoload_register(array(new auto_loader(), 'load'));
 // コントローラーの処理実行
 $controller = new controller();
 $controller->set_framework_base_path($framework_base_path);
-$controller->set_base_path('アプリの基底ディレクトリ');
-$controller->execute('アプリの設定ファイル名');
+$controller->set_base_path('/opt/app/user_registration_form/php');
+$controller->execute('app_config.conf');
