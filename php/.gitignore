@@ -1,2 +1,4 @@
+app_config.conf
 /log/*
+/session/*
 !.gitkeep

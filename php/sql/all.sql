@@ -1,10 +1,10 @@
 drop database if exists `user_registration_form`;
 
-CREATE DATABASE `user_registration_form` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE DATABASE `user_registration_form` CHARACTER SET utf8 COLLATE utf8_general_ci;
 
 use `user_registration_form`;
 
--- mysql -uroot -p < sql/all.sqlで実行している前提
+-- mysql --local_infile=1 -uroot -p < sql/all.sqlで実行している前提
 source sql/ddl.sql
 
 source sql/dml.sql
