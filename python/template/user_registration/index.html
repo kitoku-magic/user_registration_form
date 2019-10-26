@@ -1,0 +1,25 @@
+{% extends 'layout.html' %}
+{% block body %}
+<form id="user_registration_first_input_form" action="/user_registration/first_complete" method="post">
+  <input type="hidden" name="csrf_token" value="{{ res['csrf_token'] }}" />
+  <div id="user_registration_first_input">
+    <p>
+      <span>メールアドレス：</span>
+      <span>
+        <input type="text" id="mail_address" name="mail_address" maxlength="128" size="35" value="{{ res['mail_address'] }}" onfocus="setBackGroundColor(this, '#d0ffd0');" onblur="setBackGroundColor(this, '#ffffff');" />
+      </span>
+    </p>
+    <p>
+      <span class="error_message">{{ res['mail_address_error'] }}</span>
+    </p>
+  </div>
+  <div id="submit">
+    <p><button type="submit" id="next_page" name="clicked_button" value="next_page" />送信</button></p>
+  </div>
+</form>
+<script type="text/javascript">
+  window.addEventListener('DOMContentLoaded', function() {
+    setFocus('mail_address');
+  });
+</script>
+{% endblock %}

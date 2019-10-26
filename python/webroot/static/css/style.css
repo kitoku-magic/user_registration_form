@@ -1,0 +1,363 @@
+/* 優先度中：デザインは配色を中心に現在グチャグチャ */
+@charset "utf-8";
+
+/***********************************************/
+/* 共通 */
+/***********************************************/
+
+body {
+  background-color: #efffff;
+  width: 100%;
+  height: 100%;
+  margin: 0px;
+  padding: 0px;
+  font-family: "ＭＳ Ｐ明朝", Arial, Helvetica, sans-serif;
+}
+
+ul {
+  margin: 0px;
+  padding: 0px;
+  list-style-type: none;
+}
+
+#layout {
+  width: 804px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/***********************************************/
+/* Header */
+/***********************************************/
+
+#header {
+  width: 804px;
+  height: 140px;
+  margin: 0px;
+  padding: 0px;
+  background-color: #dfefff;
+  color: #001f3f;
+}
+
+#header_company {
+  margin: 0px;
+  padding: 0px;
+  padding-top: 60px;
+  padding-bottom: 10px;
+  font-size: 30px;
+  text-align: center;
+}
+
+#header_catch_copy {
+  margin: 0px;
+  padding: 0px;
+  font-size: 14px;
+  text-align: center;
+}
+
+#top_menu {
+  width: 804px;
+  height: 40px;
+  margin: 0px;
+  margin-bottom: 10px;
+  padding: 0px;
+}
+
+#top_menu li {
+  width: 132px;
+  height: 40px;
+  margin: 0px;
+  padding: 0px;
+  font-size: 14px;
+  background-color: #bfcfff;
+  border: 1px solid #dfefff;
+  border-right: 1px solid #dfefff;
+  float: left;
+}
+
+#top_menu .global_navi {
+  color: #0f2f4f;
+  background-color: #9fafff;
+  border-top: 1px solid #1f2f3f;
+}
+
+#top_menu li a {
+  padding-top: 12px;
+  padding-bottom: 12px;
+  text-decoration: none;
+  color: #2f4f6f;
+  display: block;
+  text-align: center;
+}
+
+#top_menu li a:hover {
+  color: #0f2f4f;
+  background-color: #9fafff;
+  border-top: 1px solid #1f2f3f;
+}
+
+/***********************************************/
+/* Body */
+/***********************************************/
+
+#contents {
+  width: 700px;
+  margin: 0px;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 0px;
+  border: 2px solid #ff8fbf;
+  background-color: #ffbfff;
+}
+
+#user_registration_first_input {
+  width: 450px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+#user_information {
+  width: 335px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.error_message {
+  color: #ff0000;
+}
+
+.center_justification {
+  text-align: center;
+}
+
+#user_form_table {
+  width: 800px;
+  border-collapse: collapse;
+  margin-top: 30px;
+}
+
+#user_form_table th {
+  width: 250px;
+  border: 1px solid #ff8fbf;
+}
+
+#user_form_table td {
+  width: 550px;
+  border: 1px solid #ff8fbf;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  padding-left: 10px;
+}
+
+#user_form_table #user_form_midashi {
+  font-size: 20px;
+}
+
+/* 優先度中：ime-modeはChromeでは使えない模様 */
+/* メールアドレス */
+#email,
+/* パスワード */
+#password,
+/* 郵便番号 */
+#zip_code,
+/* 電話番号 */
+#telephone_number {
+  ime-mode: disabled;
+}
+
+/* 姓 */
+#last_name,
+/* 名 */
+#first_name,
+/* 姓（ふりがな） */
+#last_name_hiragana,
+/* 名（ふりがな） */
+#first_name_hiragana,
+/* 市区町村・丁目・番地 */
+#city_street_address,
+/* 建物名・室名 */
+#building_room_address,
+/* 職業その他 */
+#job_other,
+/* 備考 */
+#remarks {
+  ime-mode: active;
+}
+
+#submit {
+  width: 126px;
+  height: 100px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+#bottom_menu {
+  width: 700px;
+  height: 40px;
+  margin: 0px;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 0px;
+  background-color: #df1f4f;
+}
+
+#bottom_menu li {
+  width: 70px;
+  margin: 0px;
+  margin-left: 22px;
+  margin-right: 21px;
+  padding: 0px;
+  padding-top: 10px;
+  font-size: 12px;
+  float: left;
+  text-align: center;
+}
+
+#bottom_menu li a:link {
+  color: #ffeeee;
+}
+
+#bottom_menu li a:visited {
+  color: #ffeeee;
+}
+
+#bottom_menu li a:hover {
+  color: #ffaaaa;
+}
+
+#page_top {
+  width: 700px;
+  height: 30px;
+  margin: 0px;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 0px;
+}
+
+#page_top p {
+  text-align: center;
+  font-size: 12px;
+}
+
+#page_top p a:link {
+  color: #440022;
+}
+
+#page_top p a:visited {
+  color: #220011;
+}
+
+#page_top p a:hover {
+  color: #880044;
+}
+
+#commodity_search_layout {
+  text-align: center;
+}
+
+#commodity_search_midashi {
+  font-size: 20px;
+  font-weight: bold;
+}
+
+/* キーワード */
+#keyword {
+  ime-mode: active;
+}
+
+/* 最安価格 */
+#min_price,
+/* 最高価格 */
+#max_price, {
+  ime-mode: disabled;
+}
+
+#commodity_list_midashi {
+  font-size: 20px;
+  font-weight: bold;
+}
+
+#commodity_list_table {
+  margin-left: auto;
+  margin-right: auto;
+  border-collapse: collapse;
+}
+
+#commodity_list_table td {
+  border: 1px solid #000000;
+}
+
+#commodity_list_table #commodity_name_header {
+  width: 201px;
+}
+
+#commodity_list_table #price_header {
+  width: 100px;
+}
+
+#commodity_list_table #quantity_header {
+  width: 101px;
+}
+
+#commodity_list_table #commodity_name {
+  width: 201px;
+  text-align: left;
+}
+
+#commodity_list_table #price {
+  width: 100px;
+  text-align: right;
+}
+
+#commodity_list_table #quantity {
+  width: 101px;
+  text-align: right;
+}
+
+#error {
+  width: 450px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/***********************************************/
+/* Footer */
+/***********************************************/
+
+#footer {
+  width: 804px;
+  height: 125px;
+  margin: 0px;
+  padding: 0px;
+  padding-top: 10px;
+  background-color: #ff5588;
+  border-top: 7px solid #df0000;
+  color: #ffdfdf;
+}
+
+#footer_company {
+  font-size: 14px;
+  font-weight: bold;
+  line-height: 0%;
+  padding-left: 30px;
+}
+
+#footer p a:link {
+  color: #ffdfdf;
+}
+
+#footer p a:visited {
+  color: #ffdfdf;
+}
+
+#footer p a:hover {
+  color: #ffbfbf;
+}
+
+#copy_right {
+  width: 804px;
+  padding-top: 11px;
+  border-top: 1px solid #6f003f;
+  text-align: center;
+  font-size: 12px;
+}
