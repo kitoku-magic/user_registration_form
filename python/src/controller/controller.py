@@ -4,20 +4,12 @@ from flask import render_template, request, make_response, session
 
 class controller:
     __request = {}
-    __post_data = {}
     __response_data = {}
     __template_file_name = ''
     def __init__(self):
         self.__request = request
-        # リクエストされたデータを、扱いやすくする為に辞書型に変換する
-        if self.__request.method == 'POST':
-            fields = [k for k in self.__request.form]
-            values = [self.__request.form[k] for k in self.__request.form]
-            self.__post_data = dict(zip(fields, values))
     def get_request(self):
         return self.__request
-    def get_post_data(self):
-        return self.__post_data
     def set_response_data(self, name, value):
         self.__response_data[name] = value
     def set_template_file_name(self, template_file_name):

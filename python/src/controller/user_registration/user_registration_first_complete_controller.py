@@ -6,7 +6,7 @@ class user_registration_first_complete_controller(controller):
         self.set_response_data('title', 'メールアドレス入力完了')
         # CSRFトークンをチェックする
         super().check_csrf_token()
-        post_data = self.get_post_data()
+        post_data = self.get_request().form
         # メールアドレスのバリデーション（桁数と書式チェックのみ）
         # メアドがテーブルに存在していて、アカウントが登録済みなら、メール文言を変える
         # メールを送信する

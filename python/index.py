@@ -3,8 +3,6 @@ import sys
 
 from flask import Flask
 from jinja2 import FileSystemLoader
-import uwsgi
-from uwsgidecorators import filemon
 
 base_path = '/opt/app/user_registration_form/python'
 
@@ -14,24 +12,17 @@ sys.path.append(base_path + '/src/')
 from controller.user_registration.user_registration_first_input_controller import user_registration_first_input_controller
 from controller.user_registration.user_registration_first_complete_controller import user_registration_first_complete_controller
 
-# ファイルの変更を検知したら、uwsgiを再起動する
-#target_directories = [
-#    base_path + '/src',
-#    base_path + '/src/controller',
-#    base_path + '/src/controller/user_registration',
-#    base_path + '/template',
-#    base_path + '/template/user_registration',
-#    base_path + '/webroot',
-#    base_path + '/webroot/static',
-#    base_path + '/webroot/static/css',
-#    base_path + '/webroot/static/script',
-#]
-#for target_directory in target_directories:
-#    filemon(target_directory)(uwsgi.reload)
+config_type = {
+    'testing':  'config.testing',
+    'development':  'config.development',
+    'production': 'config.production',
+    'default': 'config.development'
+}
 
-app = Flask(__name__)
+app = Flask(__name__, instance_relative_config=True)
 # 設定ファイルから情報読み込み
-app.config.from_pyfile(base_path + '/src/config/config.py')
+app.config.from_object(config_type.get(os.getenv('FLASK_APP_ENV', 'default')))
+app.config.from_pyfile('sensitive_data.py', silent=False)
 
 # jinja2のtemplateディレクトリの場所を変更する
 # 省略した場合はこのファイルと同階層の "templates" になる
