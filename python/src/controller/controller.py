@@ -3,14 +3,13 @@ import secrets
 from flask import render_template, request, make_response, session
 
 class controller:
-    __request = {}
-    __response_data = {}
-    __template_file_name = ''
     def __init__(self):
         self.__request = request
+        self.__response_data = {}
+        self.__template_file_name = ''
     def get_request(self):
         return self.__request
-    def set_response_data(self, name, value):
+    def add_response_data(self, name, value):
         self.__response_data[name] = value
     def set_template_file_name(self, template_file_name):
         self.__template_file_name = template_file_name
@@ -26,7 +25,7 @@ class controller:
             #r.headers['Pragma'] = 'no-cache'
             #r.headers['Expires'] = '0'
         except Exception as e:
-            self.set_response_data('title', 'エラー')
+            self.add_response_data('title', 'エラー')
             http_response = render_template('error.html', res=self.__response_data)
             r = make_response(http_response)
         finally:
@@ -34,7 +33,7 @@ class controller:
     def create_csrf_token(self):
         csrf_token = secrets.token_hex(64)
         session['csrf_token'] = csrf_token
-        self.set_response_data('csrf_token', csrf_token)
+        self.add_response_data('csrf_token', csrf_token)
     def check_csrf_token(self):
         post_csrf_token = self.get_request().form.get('csrf_token', type=str)
         session_csrf_token = session.get('csrf_token')

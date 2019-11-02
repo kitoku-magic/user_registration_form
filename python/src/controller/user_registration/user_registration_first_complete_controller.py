@@ -1,9 +1,9 @@
-from controller.controller import controller
+from src.controller.controller import controller
 
 class user_registration_first_complete_controller(controller):
     def execute(self):
         # 入力されたメールアドレス宛にメールを送信する
-        self.set_response_data('title', 'メールアドレス入力完了')
+        self.add_response_data('title', 'メールアドレス入力完了')
         # CSRFトークンをチェックする
         super().check_csrf_token()
         post_data = self.get_request().form
