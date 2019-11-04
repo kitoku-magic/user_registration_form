@@ -97,7 +97,8 @@ create table `user` (
   `is_personal_information_provide_agreed` tinyint(1) unsigned DEFAULT 0 NOT NULL comment '個人情報提供の同意状況',
   `created_at` bigint unsigned DEFAULT 0 NOT NULL comment '作成日時のタイムスタンプ',
   `updated_at` bigint unsigned DEFAULT 0 NOT NULL comment '更新日時のタイムスタンプ',
-  PRIMARY KEY(`user_id`)
+  PRIMARY KEY(`user_id`),
+  UNIQUE KEY `uniq_user_mail_address` (`mail_address`)
 ) ENGINE=InnoDB comment='ユーザー';
 
 

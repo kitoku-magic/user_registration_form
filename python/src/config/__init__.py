@@ -5,6 +5,7 @@ class config(object):
     TESTING = False
     SECRET_KEY = secrets.token_hex(64)
     SESSION_COOKIE_SECURE = False
+    PG_CHARACTER_SET = 'utf-8'
 
 class testing(config):
     TESTING = True

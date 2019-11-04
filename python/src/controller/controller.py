@@ -37,6 +37,7 @@ class controller:
     def check_csrf_token(self):
         post_csrf_token = self.get_request().form.get('csrf_token', type=str)
         session_csrf_token = session.get('csrf_token')
+        session.pop('csrf_token', None)
         if post_csrf_token is not None and session_csrf_token is not None:
             if post_csrf_token == session_csrf_token:
                 return True
