@@ -26,7 +26,7 @@ class user_registration_first_complete_controller(controller):
 ご注意下さい。'''
                 is_db_success = True
             else:
-                token = secrets.token_hex(128)
+                token = secrets.token_hex(64)
                 body = '''メールアドレスの入力、ありがとうございます。
 以下のURLより、登録を継続して下さい。
 
@@ -36,16 +36,15 @@ class user_registration_first_complete_controller(controller):
                 body += '&t=' + token
                 # トークンを発行した場合には、DBに保存する
                 user_obj.token = token
+                #user_obj.begin()
                 try:
-                    print(user_obj.__dict__)
-                    ret = user_obj.insert([user_obj])
+                    user_obj.insert_raw(user_obj, ['mail_address', 'token', 'remarks'])
+                    #user_obj.insert(user, [user_obj])
                     is_db_success = True
                 except Exception as e:
                     user_obj.rollback()
-                    print(str(e))
             # メールを送信する
             is_mail_send = False
-            print(is_db_success)
             if True == is_db_success:
                 try:
                     msg = Message(title, sender=sender, recipients=[recipients])
@@ -53,7 +52,7 @@ class user_registration_first_complete_controller(controller):
                     setting.mail.send(msg)
                     is_mail_send = True
                 except Exception as e:
-                    print(str(e))
+                    pass
             error_message = ''
             if True == is_db_success:
                 if True == is_mail_send:

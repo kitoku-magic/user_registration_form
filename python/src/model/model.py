@@ -25,9 +25,26 @@ class model(db.Model):
         if 0 < len(params):
             query = query.filter(text(where)).params(params)
         return query.all()
-    def insert(self, insert_data):
-        self.get_db_instance().session.add_all(insert_data)
+    def insert_raw(self, obj, columns):
+        #self.get_db_instance().session.add_all(insert_data)
+        #insert_list = list()
+        #for d in insert_data:
+            #insert_list.append(d.__dict__)
+        #self.get_db_instance().session.execute(table.__table__.insert(), insert_list)
+        sql = 'INSERT INTO ' + obj.__tablename__ + '('
+        values = ''
+        bind_values = {}
+        for column in columns:
+            sql += column + ', '
+            values += ':' + column + ', '
+            bind_values[column] = getattr(obj, column)
+        sql = sql.rstrip(', ')
+        values = values.rstrip(', ')
+        sql += ') VALUES(' + values + ');'
+        self.get_db_instance().session.execute(sql, bind_values)
         self.get_db_instance().session.flush()
+    def begin(self):
+        self.get_db_instance().session.begin(subtransactions=True)
     def commit(self):
         self.get_db_instance().session.commit()
     def rollback(self):

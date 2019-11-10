@@ -30,7 +30,7 @@ class controller:
         finally:
             return r
     def create_csrf_token(self):
-        csrf_token = secrets.token_hex(128)
+        csrf_token = secrets.token_hex(64)
         session['csrf_token'] = csrf_token
         self.add_response_data('csrf_token', csrf_token)
     def check_csrf_token(self):
