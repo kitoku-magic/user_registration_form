@@ -1,9 +1,0 @@
-# TODO: utf8mb4に対応しているのは、pymysqlのみ？
-SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://{user}:{password}@{host}/{db_name}?charset={charset}'.format(**{
-    'user': 'ユーザー名',
-    'password': 'パスワード',
-    'host': 'ホスト名',
-    'db_name': 'データベース名',
-    'charset': 'utf8mb4'
-})
-SQLALCHEMY_TRACK_MODIFICATIONS = True

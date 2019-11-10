@@ -1,5 +1,5 @@
 *__pycache__/*
-/instance/sensitive_data.py
+/src/instance/__init__.py
 /log/*
 /socket/*
 !.gitkeep

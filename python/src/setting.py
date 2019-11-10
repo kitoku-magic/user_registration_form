@@ -1,7 +1,7 @@
 import os
-import sys
 
 from flask import Flask
+from flask_mail import Mail
 from jinja2 import FileSystemLoader
 
 from src.database import db
@@ -17,10 +17,17 @@ config_type = {
     'default': 'src.config.development'
 }
 
-app = Flask(__name__, instance_relative_config=True)
+sensitive_config_type = {
+    'testing':  'src.instance.testing',
+    'development':  'src.instance.development',
+    'production': 'src.instance.production',
+    'default': 'src.instance.development'
+}
+
+app = Flask(__name__)
 # 設定ファイルから情報読み込み
 app.config.from_object(config_type.get(os.getenv('FLASK_APP_ENV', 'default')))
-app.config.from_pyfile('sensitive_data.py', silent=False)
+app.config.from_object(sensitive_config_type.get(os.getenv('FLASK_APP_ENV', 'default')))
 
 # jinja2のtemplateディレクトリの場所を変更する
 # 省略した場合はこのファイルと同階層の "templates" になる
@@ -28,7 +35,10 @@ app.jinja_loader = FileSystemLoader(
     os.path.join(base_path, 'template')
 )
 
+mail = Mail()
+
 db.init_app(app)
+mail.init_app(app)
 
 # 各リクエストに応じた処理を実行
 @app.route('/', methods=['GET'])

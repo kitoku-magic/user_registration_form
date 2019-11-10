@@ -1,0 +1,42 @@
+class config(object):
+    URI_SCHEME = 'URIスキーム'
+    HOST_NAME = 'ホスト名'
+    SQL_CONNECTION_STRING = 'mysql+pymysql://{user}:{password}@{host}/{db_name}?charset={charset}'
+    # TODO: utf8mb4に対応しているのは、pymysqlのみ？
+    SQLALCHEMY_DATABASE_URI = SQL_CONNECTION_STRING.format(**{
+        'user': 'DBユーザー名',
+        'password': 'DBパスワード',
+        'host': 'DBホスト名',
+        'db_name': 'DBデータベース名',
+        'charset': 'DBキャラクターセット名'
+    })
+    SQLALCHEMY_TRACK_MODIFICATIONS = True
+    MAIL_SERVER = 'メールサーバー名'
+    MAIL_PORT = ポート番号
+    MAIL_USE_TLS = True
+    MAIL_USERNAME = 'メールユーザー名'
+    MAIL_PASSWORD = 'メールパスワード'
+    SENDER_MAIL_ADDRESS = '送信元メールアドレス'
+
+class testing(config):
+    SECRET_KEY = 'シークレットキー'
+
+class development(config):
+    SECRET_KEY = 'シークレットキー'
+    HOST_NAME = 'ホスト名'
+
+class production(config):
+    SECRET_KEY = 'シークレットキー'
+    URI_SCHEME = 'URIスキーム'
+    HOST_NAME = 'ホスト名'
+    # TODO: utf8mb4に対応しているのは、pymysqlのみ？
+    SQLALCHEMY_DATABASE_URI = config.SQL_CONNECTION_STRING.format(**{
+        'user': 'DBユーザー名',
+        'password': 'DBパスワード',
+        'host': 'DBホスト名',
+        'db_name': 'DBデータベース名',
+        'charset': 'DBキャラクターセット名'
+    })
+    MAIL_SERVER = 'メールサーバー名'
+    MAIL_USERNAME = 'メールユーザー名'
+    MAIL_PASSWORD = 'メールパスワード'

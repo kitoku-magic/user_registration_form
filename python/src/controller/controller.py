@@ -1,6 +1,4 @@
-import secrets
-
-from flask import render_template, request, make_response, session
+from src.controller import *
 
 class controller:
     def __init__(self):
@@ -25,13 +23,14 @@ class controller:
             #r.headers['Pragma'] = 'no-cache'
             #r.headers['Expires'] = '0'
         except Exception as e:
+            print(str(e))
             self.add_response_data('title', 'エラー')
             http_response = render_template('error.html', res=self.__response_data)
             r = make_response(http_response)
         finally:
             return r
     def create_csrf_token(self):
-        csrf_token = secrets.token_hex(64)
+        csrf_token = secrets.token_hex(128)
         session['csrf_token'] = csrf_token
         self.add_response_data('csrf_token', csrf_token)
     def check_csrf_token(self):

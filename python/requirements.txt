@@ -1,4 +1,5 @@
-flask
-uwsgi
+Flask
+uWSGI
 PyMySQL
-flask-sqlalchemy
+Flask-SQLAlchemy
+Flask-Mail

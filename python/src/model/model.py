@@ -25,3 +25,10 @@ class model(db.Model):
         if 0 < len(params):
             query = query.filter(text(where)).params(params)
         return query.all()
+    def insert(self, insert_data):
+        self.get_db_instance().session.add_all(insert_data)
+        self.get_db_instance().session.flush()
+    def commit(self):
+        self.get_db_instance().session.commit()
+    def rollback(self):
+        self.get_db_instance().session.rollback()

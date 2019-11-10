@@ -14,3 +14,5 @@ from .model import model
 from .timestamp_mixin import timestamp_mixin
 from .user import user
 from .zip_address import zip_address
+
+from src import setting

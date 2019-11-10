@@ -1,4 +1,4 @@
-from src.controller.controller import controller
+from src.controller.user_registration import *
 
 class user_registration_first_input_controller(controller):
     def execute(self):
