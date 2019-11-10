@@ -14,7 +14,7 @@ class user_registration_first_complete_controller(controller):
         if True == validate_errors['result']:
             template_file_name = 'user_registration/first_complete'
             # メールアドレスがテーブルに存在していて、アカウントが登録済みなら、メール文言を変える
-            data = user_obj.find(user.mail_address, 'mail_address = :mail_address AND registration_status = :registration_status', {'mail_address': user_obj.mail_address, 'registration_status': 1})
+            data = user_obj.find(user.mail_address, 'mail_address = :mail_address', {'mail_address': user_obj.mail_address})
             title = 'メール送信のお知らせ'
             sender = setting.app.config['SENDER_MAIL_ADDRESS']
             recipients = user_obj.mail_address
@@ -43,6 +43,7 @@ class user_registration_first_complete_controller(controller):
                     is_db_success = True
                 except Exception as e:
                     user_obj.rollback()
+                    print(str(e))
             # メールを送信する
             is_mail_send = False
             if True == is_db_success:

@@ -28,6 +28,8 @@ class user(timestamp_mixin, model):
         super().__init__()
         # BLOB型はデフォルト値が設定出来ない為
         self.remarks = bytearray('', 'utf-8')
+        self.created_at = 0
+        self.updated_at = 0
     @validates('mail_address')
     def validate_mail_address(self, key, value):
         # TODO: この辺は、app.configから取りたい

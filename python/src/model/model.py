@@ -1,3 +1,6 @@
+import time
+import math
+
 from src.database import db
 from src.model import *
 
@@ -31,6 +34,13 @@ class model(db.Model):
         #for d in insert_data:
             #insert_list.append(d.__dict__)
         #self.get_db_instance().session.execute(table.__table__.insert(), insert_list)
+        obj_dict = obj.__dict__
+        if 'created_at' in obj_dict:
+            obj.created_at = math.floor(time.time())
+            columns.append('created_at')
+        if 'updated_at' in obj_dict:
+            obj.updated_at = math.floor(time.time())
+            columns.append('updated_at')
         sql = 'INSERT INTO ' + obj.__tablename__ + '('
         values = ''
         bind_values = {}
