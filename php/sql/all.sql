@@ -1,6 +1,6 @@
 drop database if exists `user_registration_form`;
 
-CREATE DATABASE `user_registration_form` CHARACTER SET utf8 COLLATE utf8_general_ci;
+CREATE DATABASE `user_registration_form` CHARACTER SET utf8 COLLATE utf8_bin;
 
 use `user_registration_form`;
 
