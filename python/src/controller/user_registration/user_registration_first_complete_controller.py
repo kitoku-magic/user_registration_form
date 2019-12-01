@@ -31,7 +31,7 @@ class user_registration_first_complete_controller(controller):
 以下のURLより、登録を継続して下さい。
 
 '''
-                body += setting.app.config['URI_SCHEME'] + '://' + setting.app.config['HOST_NAME'] + 'user_registration/input?m='
+                body += setting.app.config['URI_SCHEME'] + '://' + setting.app.config['HOST_NAME'] + '/user_registration/input?m='
                 body += recipients
                 body += '&t=' + token
                 # トークンを発行した場合には、DBに保存する

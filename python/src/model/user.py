@@ -27,7 +27,7 @@ class user(timestamp_mixin, model):
     def __init__(self):
         super().__init__()
         # BLOB型はデフォルト値が設定出来ない為
-        self.remarks = bytearray('', 'utf-8')
+        self.remarks = ''
         self.created_at = 0
         self.updated_at = 0
     @validates('mail_address')
