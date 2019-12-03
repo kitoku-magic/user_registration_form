@@ -1,3 +1,5 @@
+import traceback
+
 from src.controller import *
 
 class controller:
@@ -23,7 +25,7 @@ class controller:
             #r.headers['Pragma'] = 'no-cache'
             #r.headers['Expires'] = '0'
         except Exception as e:
-            print(str(e))
+            print(traceback.format_exc())
             self.add_response_data('title', 'エラー')
             http_response = render_template('error.html', res=self.__response_data)
             r = make_response(http_response)

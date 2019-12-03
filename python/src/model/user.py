@@ -3,7 +3,7 @@ from src.model import *
 class user(timestamp_mixin, model):
     mail_address_length = 512
     user_id = model.get_db_instance(model).Column(BIGINT(unsigned = True), nullable = False, autoincrement = True, primary_key = True)
-    mail_address = model.get_db_instance(model).Column(VARBINARY(mail_address_length), nullable = False, server_default = '', unique = True)
+    mail_address = model.get_db_instance(model).Column(my_varbinary(mail_address_length), nullable = False, server_default = '', unique = True)
     token = model.get_db_instance(model).Column(VARBINARY(128), nullable = False, server_default = '')
     registration_status = model.get_db_instance(model).Column(TINYINT(unsigned = True), nullable = False, server_default = '0')
     last_name = model.get_db_instance(model).Column(VARBINARY(32), nullable = False, server_default = '')
