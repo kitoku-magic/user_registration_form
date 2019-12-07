@@ -6,6 +6,7 @@ from sqlalchemy.dialects.mysql import (
     BOOLEAN,
     BLOB,
 )
+
 from sqlalchemy.types import TypeDecorator
 from sqlalchemy import text
 from sqlalchemy.ext.declarative import declared_attr
