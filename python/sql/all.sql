@@ -7,6 +7,6 @@ use `user_registration_form_python`;
 -- mysql -uroot -p < sql/all.sqlで実行している前提
 source sql/ddl.sql
 
--- source sql/dml.sql
+source sql/dml.sql
 
--- source sql/load_data_local_infile_ken_all_csv.sql
+source sql/load_data_local_infile_ken_all_csv.sql

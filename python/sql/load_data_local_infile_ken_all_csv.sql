@@ -1,9 +1,7 @@
 use `user_registration_form_python`
 
-TRUNCATE TABLE zip_address;
-
 LOAD DATA LOCAL INFILE './sql/ken_all.csv'
-INTO TABLE zip_address
+INTO TABLE zip_addresses
 FIELDS
   TERMINATED BY ','
   OPTIONALLY ENCLOSED BY '"'
@@ -13,7 +11,7 @@ IGNORE 0 LINES
   (@field1, @field2, @field3, @field4, @field5, @field6, @field7, @field8, @field9)
 SET
   zip_code = @field3,
-  prefectures_id =
+  prefecture_id =
     CASE
       WHEN @field7 = '北海道' THEN 1
       WHEN @field7 = '青森県' THEN 2
@@ -65,4 +63,6 @@ SET
       ELSE NULL
     END,
   city_district_county = trim(@field8),
-  town_village_address = CASE right(@field3, 2) WHEN '00' THEN '' ELSE trim(@field9) END;
+  town_village_address = CASE right(@field3, 2) WHEN '00' THEN '' ELSE trim(@field9) END,
+  created_at = UNIX_TIMESTAMP(),
+  updated_at = UNIX_TIMESTAMP();
