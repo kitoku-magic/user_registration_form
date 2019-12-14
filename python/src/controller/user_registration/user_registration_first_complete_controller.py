@@ -15,7 +15,7 @@ class user_registration_first_complete_controller(controller):
             template_file_name = 'user_registration/first_complete'
             # 既に、ユーザー登録済みなら、メール文言を変える
             users_data = pre_users_obj.find(
-                    ('users.user_id',),
+                    ('user_id',),
                     'users',
                     'mail_address = %s AND registration_status = %s',
                     (pre_users_obj.mail_address, 1)
@@ -23,6 +23,7 @@ class user_registration_first_complete_controller(controller):
             sender = setting.app.config['SENDER_MAIL_ADDRESS']
             recipients = pre_users_obj.mail_address
             token = ''
+            is_db_success = False
             if users_data is None:
                 body = '''メールアドレスの入力、ありがとうございます。
 以下のURLより、登録を継続して下さい。
@@ -33,40 +34,40 @@ class user_registration_first_complete_controller(controller):
                 body += setting.app.config['URI_SCHEME'] + '://' + setting.app.config['HOST_NAME'] + '/user_registration/input?m='
                 body += recipients
                 body += '&t=' + token
+                # まだ、事前情報が未登録なら、登録する
+                pre_users_data = pre_users_obj.find(
+                    ('pre_user_id',),
+                    'pre_users',
+                    'mail_address = %s',
+                    (pre_users_obj.mail_address,)
+                )
+                if pre_users_data is None:
+                    #pre_users_obj.begin()
+                    try:
+                        row_count = pre_users_obj.insert(['mail_address', 'token'])
+                        if row_count > 0:
+                            is_db_success = True
+                    except Exception as e:
+                        print(e)
+                        is_db_success = False
+                else:
+                    #pre_users_obj.begin()
+                    try:
+                        row_count = pre_users_obj.update(
+                            ['token'],
+                            'pre_user_id = %s',
+                            (pre_users_data[0],)
+                        )
+                        if row_count > 0:
+                            is_db_success = True
+                    except Exception as e:
+                        print(e)
+                        is_db_success = False
             else:
                 body = '''メール入力画面でメールを入力されましたか？
 誰かが、貴方のメールアドレスを入力したかもしれません。
 ご注意下さい。'''
-            # まだ、事前情報が未登録なら、登録する
-            pre_users_data = pre_users_obj.find(
-                    ('pre_users.pre_user_id',),
-                    'pre_users',
-                    'mail_address = %s',
-                    (pre_users_obj.mail_address,)
-            )
-            is_db_success = False
-            if pre_users_data is None:
-                #pre_users_obj.begin()
-                try:
-                    row_count = pre_users_obj.insert(['mail_address', 'token'])
-                    if row_count > 0:
-                        is_db_success = True
-                except Exception as e:
-                    print(e)
-                    is_db_success = False
-            else:
-                #pre_users_obj.begin()
-                try:
-                    row_count = pre_users_obj.update(
-                        ['token'],
-                        'pre_user_id = %s',
-                        (pre_users_data[0],)
-                    )
-                    if row_count > 0:
-                        is_db_success = True
-                except Exception as e:
-                    print(e)
-                    is_db_success = False
+                is_db_success = True
             # メールを送信する
             title = 'メール送信のお知らせ'
             is_mail_send = False
