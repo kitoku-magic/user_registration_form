@@ -92,6 +92,19 @@ CREATE TABLE `sexes` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='性別マスタ';
 
 
+DROP TABLE IF EXISTS `pre_users`;
+
+CREATE TABLE `pre_users` (
+  `pre_user_id` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT 'ユーザーID',
+  `mail_address` varbinary(512) NOT NULL DEFAULT '' COMMENT 'メールアドレス',
+  `token` varbinary(128) NOT NULL DEFAULT '' COMMENT 'トークン値',
+  `created_at` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT '作成日時のタイムスタンプ',
+  `updated_at` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT '更新日時のタイムスタンプ',
+  PRIMARY KEY (`pre_user_id`),
+  UNIQUE KEY `pre_users_mail_address_unique` (`mail_address`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='ユーザー事前登録情報';
+
+
 DROP TABLE IF EXISTS `users`;
 
 CREATE TABLE `users` (

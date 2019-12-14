@@ -8,47 +8,67 @@ class user_registration_first_complete_controller(controller):
         super().check_csrf_token()
         post_data = self.get_request().form
         # メールアドレスのバリデーション
-        user_obj = user()
-        user_obj.set_request_to_model({'mail_address': ''}, post_data)
-        validate_errors = user_obj.get_validate_errors()
+        pre_users_obj = pre_users()
+        pre_users_obj.set_request_to_model({'mail_address': ''}, post_data)
+        validate_errors = pre_users_obj.get_validate_errors()
         if True == validate_errors['result']:
             template_file_name = 'user_registration/first_complete'
-            # メールアドレスがテーブルに存在していて、アカウントが登録済みなら、メール文言を変える
-            data = user_obj.find(
-                    ('user.mail_address',),
-                    'user',
-                    'mail_address = %s',
-                    (user_obj.mail_address,)
+            # 既に、ユーザー登録済みなら、メール文言を変える
+            users_data = pre_users_obj.find(
+                    ('users.user_id',),
+                    'users',
+                    'mail_address = %s AND registration_status = %s',
+                    (pre_users_obj.mail_address, 1)
             )
-            title = 'メール送信のお知らせ'
             sender = setting.app.config['SENDER_MAIL_ADDRESS']
-            recipients = user_obj.mail_address
+            recipients = pre_users_obj.mail_address
             token = ''
-            is_db_success = False
-            if data is None:
-                token = secrets.token_hex(64)
+            if users_data is None:
                 body = '''メールアドレスの入力、ありがとうございます。
 以下のURLより、登録を継続して下さい。
 
 '''
+                token = secrets.token_hex(64)
+                pre_users_obj.token = token
                 body += setting.app.config['URI_SCHEME'] + '://' + setting.app.config['HOST_NAME'] + '/user_registration/input?m='
                 body += recipients
                 body += '&t=' + token
-                # トークンを発行した場合には、DBに保存する
-                user_obj.token = token
-                #user_obj.begin()
-                try:
-                    row_count = user_obj.insert(user_obj, ['mail_address', 'token', 'remarks'])
-                    if row_count > 0:
-                        is_db_success = True
-                except Exception as e:
-                    is_db_success = False
             else:
                 body = '''メール入力画面でメールを入力されましたか？
 誰かが、貴方のメールアドレスを入力したかもしれません。
 ご注意下さい。'''
-                is_db_success = True
+            # まだ、事前情報が未登録なら、登録する
+            pre_users_data = pre_users_obj.find(
+                    ('pre_users.pre_user_id',),
+                    'pre_users',
+                    'mail_address = %s',
+                    (pre_users_obj.mail_address,)
+            )
+            is_db_success = False
+            if pre_users_data is None:
+                #pre_users_obj.begin()
+                try:
+                    row_count = pre_users_obj.insert(['mail_address', 'token'])
+                    if row_count > 0:
+                        is_db_success = True
+                except Exception as e:
+                    print(e)
+                    is_db_success = False
+            else:
+                #pre_users_obj.begin()
+                try:
+                    row_count = pre_users_obj.update(
+                        ['token'],
+                        'pre_user_id = %s',
+                        (pre_users_data[0],)
+                    )
+                    if row_count > 0:
+                        is_db_success = True
+                except Exception as e:
+                    print(e)
+                    is_db_success = False
             # メールを送信する
+            title = 'メール送信のお知らせ'
             is_mail_send = False
             if True == is_db_success:
                 try:
@@ -57,16 +77,17 @@ class user_registration_first_complete_controller(controller):
                     setting.mail.send(msg)
                     is_mail_send = True
                 except Exception as e:
+                    print(e)
                     is_mail_send = False
             error_message = ''
             if True == is_db_success:
                 if True == is_mail_send:
-                    user_obj.commit()
+                    pre_users_obj.commit()
                 else:
-                    user_obj.rollback()
+                    pre_users_obj.rollback()
                     error_message = 'メールの送信に失敗しました。'
             else:
-                user_obj.rollback()
+                pre_users_obj.rollback()
                 error_message = 'データベースへの登録に失敗しました。'
             if '' != error_message:
                 raise Exception(error_message)
