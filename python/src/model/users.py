@@ -25,7 +25,7 @@ class users(timestamp_mixin, model):
     remarks = model.get_db_instance(model).Column(BLOB, nullable = False)
     is_personal_information_provide_agreed = model.get_db_instance(model).Column(BOOLEAN, nullable = False, server_default = '0')
     def __init__(self):
-        super().__init__()
+        model.__init__(self)
         # BLOB型はデフォルト値が設定出来ない為
         self.remarks = ''
     @validates('mail_address')

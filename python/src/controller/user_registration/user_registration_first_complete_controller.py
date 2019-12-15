@@ -24,6 +24,7 @@ class user_registration_first_complete_controller(controller):
             recipients = pre_users_obj.mail_address
             token = ''
             is_db_success = False
+            pre_users_obj.begin()
             if users_data is None:
                 body = '''メールアドレスの入力、ありがとうございます。
 以下のURLより、登録を継続して下さい。
@@ -42,7 +43,6 @@ class user_registration_first_complete_controller(controller):
                     (pre_users_obj.mail_address,)
                 )
                 if pre_users_data is None:
-                    #pre_users_obj.begin()
                     try:
                         row_count = pre_users_obj.insert(['mail_address', 'token'])
                         if row_count > 0:
@@ -51,7 +51,6 @@ class user_registration_first_complete_controller(controller):
                         print(e)
                         is_db_success = False
                 else:
-                    #pre_users_obj.begin()
                     try:
                         row_count = pre_users_obj.update(
                             ['token'],

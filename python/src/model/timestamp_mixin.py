@@ -3,7 +3,6 @@ from src.model import *
 class timestamp_mixin(model):
     __abstract__ = True
     def __init__(self):
-        super().__init__()
         self.created_at = 0
         self.updated_at = 0
     @declared_attr

@@ -95,10 +95,8 @@ class model(db.Model):
         return self.__cursor.rowcount
     def last_insert_id(self):
         return self.__cursor.lastrowid
-    def begin(self, subtransactions = False):
-        pass
-        #self.__db_connection.begin()
-        #self.get_db_instance().session.begin(subtransactions)
+    def begin(self, consistent_snapshot=False, isolation_level=None, readonly=None):
+        self.__db_connection.start_transaction(consistent_snapshot, isolation_level, readonly)
     def commit(self):
         self.__db_connection.commit()
         #self.get_db_instance().session.commit()
