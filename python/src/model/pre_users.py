@@ -1,13 +1,8 @@
 from src.model import *
 
-class pre_users(timestamp_mixin, model):
-    mail_address_length = 512
-    token_length = 128
-    pre_user_id = model.get_db_instance(model).Column(BIGINT(unsigned = True), nullable = False, autoincrement = True, primary_key = True)
-    mail_address = model.get_db_instance(model).Column(VARBINARY(mail_address_length), nullable = False, server_default = '', unique = True)
-    token = model.get_db_instance(model).Column(VARBINARY(token_length), nullable = False, server_default = '')
+class pre_users(pre_users_base):
     def __init__(self):
-        model.__init__(self)
+        super().__init__()
     @validates('mail_address')
     def validate_mail_address(self, key, value):
         # TODO: この辺は、app.configから取りたい
