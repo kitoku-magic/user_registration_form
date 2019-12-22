@@ -31,6 +31,7 @@ for table in Base.classes:
     body = ''
     f = open(base_path, mode='w')
     body += 'from src.model import *\n'
+    body += 'from src.model.generate import *\n'
     body += '\n'
     body += 'class ' + local_class_name + '('
     length_body = ''
@@ -47,7 +48,7 @@ for table in Base.classes:
             data_type_attr_list.append('unsigned = ' + str(column.type.unsigned))
         if hasattr(column.type, 'length') and column.type.length is not None:
             # 桁数の数値は、定数にする
-            data_type_attr_list.append(column.name + '_length')
+            data_type_attr_list.append(local_class_name + '.' + column.name + '_length')
             length_body += '    ' + column.name + '_length = ' + str(column.type.length) + '\n'
         data_type += ', '.join(data_type_attr_list) + ')'
         column_attr_list.append(data_type)
@@ -85,7 +86,9 @@ for table in Base.classes:
         elif column.name == 'updated_at':
             updated_at_body += '    ' + column.name + ' = model.get_db_instance(model).Column(' + ', '.join(column_attr_list) + ')\n'
         else:
-            property_body += '    ' + column.name + ' = model.get_db_instance(model).Column(' + ', '.join(column_attr_list) + ')\n'
+            property_body += '    @declared_attr\n'
+            property_body += '    def ' + column.name + '(cls):\n'
+            property_body += '        return model.get_db_instance(model).Column(' + ', '.join(column_attr_list) + ')\n'
     # created_atとupdated_atが両方存在するか調べる
     if created_at_body != '':
         if updated_at_body != '':
@@ -95,23 +98,25 @@ for table in Base.classes:
     elif updated_at_body != '':
         property_body += updated_at_body
     body += 'model):\n'
-    body += "    __tablename__ = '" + local_table_name + "'\n"
-    body += length_body
+    body += "    __abstract__ = True\n"
+    body += length_body + '\n'
     body += property_body
     # リレーションの設定
     relation_body = ''
     many_variables_suffix = '_collection'
     for prop in inspect_table.relationships:
         foreign_table_name = prop.mapper.persist_selectable.name
-        foreign_class_name = foreign_table_name + '_base'
         # TODO: 1対1の場合、これでは動かなさそう
+        relation_body += '    @declared_attr\n'
         if prop.backref is None:
-            relation_body += '\n    ' + foreign_table_name + many_variables_suffix + " = model.get_db_instance(model).relationship('" + foreign_class_name + "', back_populates='" + local_table_name + "', cascade='save-update, merge, delete', uselist=True)"
+            relation_body += '    def ' + foreign_table_name + many_variables_suffix + '(cls):\n'
+            relation_body += "        return model.get_db_instance(model).relationship('" + foreign_table_name + "', back_populates='" + local_table_name + "', cascade='save-update, merge, delete', uselist=True)\n"
         else:
-            relation_body += '\n    ' + foreign_table_name + " = model.get_db_instance(model).relationship('" + foreign_class_name + "', back_populates='" + local_table_name + many_variables_suffix + "', uselist=False)"
+            relation_body += '    def ' + foreign_table_name + '(cls):\n'
+            relation_body += "        return model.get_db_instance(model).relationship('" + foreign_table_name + "', back_populates='" + local_table_name + many_variables_suffix + "', uselist=False)\n"
     body += relation_body
     # コンストラクタの設定
-    body += '\n    def __init__(self):\n'
+    body += '    def __init__(self):\n'
     body += '        model.__init__(self)\n'
     f.write(body)
     f.close()

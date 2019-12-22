@@ -1,5 +1,5 @@
 from src.model import *
 from src.model.generate import *
 
-class zip_addresses(zip_addresses_base):
+class jobs(jobs_base):
     pass
