@@ -35,6 +35,7 @@ for table in Base.classes:
     body += '\n'
     body += 'class ' + local_class_name + '('
     length_body = ''
+    length_property_body = ''
     property_body = ''
     created_at_body = ''
     updated_at_body = ''
@@ -48,8 +49,11 @@ for table in Base.classes:
             data_type_attr_list.append('unsigned = ' + str(column.type.unsigned))
         if hasattr(column.type, 'length') and column.type.length is not None:
             # 桁数の数値は、定数にする
-            data_type_attr_list.append(local_class_name + '.' + column.name + '_length')
-            length_body += '    ' + column.name + '_length = ' + str(column.type.length) + '\n'
+            upper_column_name = column.name.upper()
+            data_type_attr_list.append(local_class_name + '.__' + upper_column_name + '_LENGTH')
+            length_body += '    __' + upper_column_name + '_LENGTH = ' + str(column.type.length) + '\n'
+            length_property_body += '    def get_' + column.name + '_length(cls):\n'
+            length_property_body += '        return ' + local_class_name + '.__' + upper_column_name + '_LENGTH\n'
         data_type += ', '.join(data_type_attr_list) + ')'
         column_attr_list.append(data_type)
         # 外部キーの設定
@@ -100,6 +104,8 @@ for table in Base.classes:
     body += 'model):\n'
     body += "    __abstract__ = True\n"
     body += length_body + '\n'
+    if length_property_body != '':
+        body += length_property_body + '\n'
     body += property_body
     # リレーションの設定
     relation_body = ''
@@ -114,7 +120,7 @@ for table in Base.classes:
         else:
             relation_body += '    def ' + foreign_table_name + '(cls):\n'
             relation_body += "        return model.get_db_instance(model).relationship('" + foreign_table_name + "', back_populates='" + local_table_name + many_variables_suffix + "', uselist=False)\n"
-    body += relation_body
+    body += relation_body + '\n'
     # コンストラクタの設定
     body += '    def __init__(self):\n'
     body += '        model.__init__(self)\n'

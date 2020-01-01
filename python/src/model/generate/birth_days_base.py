@@ -13,5 +13,6 @@ class birth_days_base(timestamp_mixin, model):
     @declared_attr
     def users_collection(cls):
         return model.get_db_instance(model).relationship('users', back_populates='birth_days', cascade='save-update, merge, delete', uselist=True)
+
     def __init__(self):
         model.__init__(self)

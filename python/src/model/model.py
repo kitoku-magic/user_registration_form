@@ -7,9 +7,6 @@ from src.model import *
 class model(db.Model):
     __abstract__ = True
     __db_instance = db
-    __db_connection = None
-    __cursor = None
-    __validate_errors = {}
     def __init__(self):
         self.__validate_errors = {'result': True, 'error': []}
         self.__db_connection = self.__db_instance.engine.raw_connection()

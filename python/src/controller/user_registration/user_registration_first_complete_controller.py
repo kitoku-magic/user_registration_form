@@ -22,6 +22,7 @@ class user_registration_first_complete_controller(controller):
             )
             sender = setting.app.config['SENDER_MAIL_ADDRESS']
             recipients = pre_users_obj.mail_address
+            pre_user_id = 0
             token = ''
             is_db_success = False
             pre_users_obj.begin()
@@ -47,8 +48,9 @@ class user_registration_first_complete_controller(controller):
                         row_count = pre_users_obj.insert(['mail_address', 'token'])
                         if row_count > 0:
                             is_db_success = True
-                    except Exception as e:
-                        print(e)
+                            pre_user_id = pre_users_obj.last_insert_id()
+                    except Exception as exc:
+                        setting.app.logger.exception('{}'.format(exc))
                         is_db_success = False
                 else:
                     try:
@@ -59,8 +61,9 @@ class user_registration_first_complete_controller(controller):
                         )
                         if row_count > 0:
                             is_db_success = True
-                    except Exception as e:
-                        print(e)
+                            pre_user_id = pre_users_data[0]
+                    except Exception as exc:
+                        setting.app.logger.exception('{}'.format(exc))
                         is_db_success = False
             else:
                 body = '''メール入力画面でメールを入力されましたか？
@@ -76,8 +79,8 @@ class user_registration_first_complete_controller(controller):
                     msg.body = body
                     setting.mail.send(msg)
                     is_mail_send = True
-                except Exception as e:
-                    print(e)
+                except Exception as exc:
+                    setting.app.logger.exception('{}'.format(exc))
                     is_mail_send = False
             error_message = ''
             if True == is_db_success:
@@ -91,6 +94,7 @@ class user_registration_first_complete_controller(controller):
                 error_message = 'データベースへの登録に失敗しました。'
             if '' != error_message:
                 raise Exception(error_message)
+            setting.app.logger.info('pre_user_id:' + str(pre_user_id) + 'にメールを送信しました。')
         else:
             template_file_name = 'user_registration/index'
             # CSRFトークンを作成する

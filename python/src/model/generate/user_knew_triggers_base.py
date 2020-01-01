@@ -16,5 +16,6 @@ class user_knew_triggers_base(timestamp_mixin, model):
     @declared_attr
     def users(cls):
         return model.get_db_instance(model).relationship('users', back_populates='user_knew_triggers_collection', uselist=False)
+
     def __init__(self):
         model.__init__(self)

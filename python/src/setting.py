@@ -1,3 +1,5 @@
+import logging
+from logging.handlers import RotatingFileHandler
 import os
 
 from flask import Flask
@@ -28,6 +30,31 @@ app = Flask(__name__)
 # 設定ファイルから情報読み込み
 app.config.from_object(config_type.get(os.getenv('FLASK_APP_ENV', 'default')))
 app.config.from_object(sensitive_config_type.get(os.getenv('FLASK_APP_ENV', 'default')))
+
+# ログの設定
+formatter = logging.Formatter(
+    "[%(asctime)s] {%(pathname)s:%(lineno)d} %(levelname)s - %(message)s"
+)
+
+handler = RotatingFileHandler(
+    base_path + '/log/app.log',
+    maxBytes=app.config['LOG_MAX_BYTES'],
+    backupCount=app.config['LOG_BACKUP_COUNT']
+)
+handler.setFormatter(formatter)
+handler.setLevel(app.config['LOG_LEVEL'])
+
+for logger in (
+    app.logger,
+    logging.getLogger('sqlalchemy'),
+    # 以下のライブラリの正式名が不明
+    #logging.getLogger('flask'),
+    #logging.getLogger('mysql'),
+    #logging.getLogger('flask_mail'),
+    #logging.getLogger('flask_sqlalchemy'),
+    #logging.getLogger('mysql-connector-python'),
+):
+    logger.addHandler(handler)
 
 # jinja2のtemplateディレクトリの場所を変更する
 # 省略した場合はこのファイルと同階層の "templates" になる

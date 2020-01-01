@@ -10,7 +10,7 @@ class pre_users(pre_users_base):
         if value == '':
             errors['result'] = False
             errors['error'].append({'name': key, 'message': 'メールアドレスが未入力です'})
-        elif self.mail_address_length < len(value.encode(setting.app.config['PG_CHARACTER_SET'])):
+        elif self.get_mail_address_length() < len(value.encode(setting.app.config['PG_CHARACTER_SET'])):
             errors['result'] = False
             errors['error'].append({'name': key, 'message': 'メールアドレスは入力可能桁数を超えています'})
         elif '@' not in value:
