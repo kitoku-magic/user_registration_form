@@ -15,6 +15,7 @@ from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.orm import validates
 
 from src import setting
+from src.util.util import util
 
 from .model import model
 from .timestamp_mixin import timestamp_mixin

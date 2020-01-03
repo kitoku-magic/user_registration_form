@@ -3,7 +3,7 @@ from src.controller.user_registration import *
 class user_registration_first_complete_controller(controller):
     def execute(self):
         # 入力されたメールアドレス宛にメールを送信する
-        self.add_response_data('title', 'メールアドレス入力完了')
+        self.add_response_data('title', setting.app.config['USER_REGISTRATION_FIRST_COMPLETE_TITLE'])
         # CSRFトークンをチェックする
         super().check_csrf_token()
         post_data = self.get_request().form
@@ -18,7 +18,7 @@ class user_registration_first_complete_controller(controller):
                     ('user_id',),
                     'users',
                     'mail_address = %s AND registration_status = %s',
-                    (pre_users_obj.mail_address, 1)
+                    (pre_users_obj.mail_address, setting.app.config['USER_REGISTRATION_STATUS_REGISTERED'])
             )
             sender = setting.app.config['SENDER_MAIL_ADDRESS']
             recipients = pre_users_obj.mail_address
@@ -27,10 +27,7 @@ class user_registration_first_complete_controller(controller):
             is_db_success = False
             pre_users_obj.begin()
             if users_data is None:
-                body = '''メールアドレスの入力、ありがとうございます。
-以下のURLより、登録を継続して下さい。
-
-'''
+                body = setting.app.config['USER_REGISTRATION_FIRST_COMPLETE_REGISTERED_MESSAGE']
                 token = secrets.token_hex(64)
                 pre_users_obj.token = token
                 body += setting.app.config['URI_SCHEME'] + '://' + setting.app.config['HOST_NAME'] + '/user_registration/input?m='
@@ -66,12 +63,11 @@ class user_registration_first_complete_controller(controller):
                         setting.app.logger.exception('{}'.format(exc))
                         is_db_success = False
             else:
-                body = '''メール入力画面でメールを入力されましたか？
-誰かが、貴方のメールアドレスを入力したかもしれません。
-ご注意下さい。'''
+                body = setting.app.config['USER_REGISTRATION_FIRST_COMPLETE_ALREADY_REGISTERED_MESSAGE']
                 is_db_success = True
+                pre_user_id = users_data[0]
             # メールを送信する
-            title = 'メール送信のお知らせ'
+            title = setting.app.config['USER_REGISTRATION_FIRST_COMPLETE_MAIL_TITLE']
             is_mail_send = False
             if True == is_db_success:
                 try:

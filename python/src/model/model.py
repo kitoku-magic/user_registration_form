@@ -11,6 +11,7 @@ class model(db.Model):
         self.__validate_errors = {'result': True, 'error': []}
         self.__db_connection = self.__db_instance.engine.raw_connection()
         self.__cursor = self.__db_connection.cursor(prepared=True)
+
     @declared_attr
     def __tablename__(cls):
         return cls.__name__.lower()
@@ -100,3 +101,21 @@ class model(db.Model):
     def rollback(self):
         self.__db_connection.rollback()
         #self.get_db_instance().session.rollback()
+
+    @validates('mail_address')
+    def validate_mail_address(self, key, value):
+        errors = self.get_validate_errors()
+        ret = util.check_mail_address(value, self.get_mail_address_length())
+        if 1 == ret:
+            errors['result'] = False
+            errors['error'].append({'name': key, 'message': 'メールアドレスが未入力です'})
+        elif 2 == ret:
+            errors['result'] = False
+            errors['error'].append({'name': key, 'message': 'メールアドレスは入力可能桁数を超えています'})
+        elif 3 == ret:
+            errors['result'] = False
+            errors['error'].append({'name': key, 'message': 'メールアドレスの書式が不正です'})
+        elif 4 == ret:
+            errors['result'] = False
+            errors['error'].append({'name': key, 'message': 'メールアドレスのドメインが存在しません'})
+        return value
