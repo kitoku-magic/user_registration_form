@@ -6,20 +6,27 @@ from src.model.repository import *
 
 class repository():
     __db_instance = db
+    __db_connection = None
+    __cursor = None
+    def __new__(cls, main_entity):
+        #print('__new__')
+        #print(cls)
+        if cls.__db_connection is None:
+            cls.__db_connection = cls.__db_instance.engine.raw_connection()
+            cls.__cursor = cls.__db_connection.cursor(prepared=True)
+        return super().__new__(cls)
     def __init__(self, main_entity):
+        #print('__init__')
+        #print(self)
         self.__main_entity = main_entity
         self.__table_name = self.__main_entity.__tablename__
-        self.__validate_errors = {'result': True, 'error': []}
-        self.__db_connection = self.__db_instance.engine.raw_connection()
-        self.__cursor = self.__db_connection.cursor(prepared=True)
-    def get_db_instance(self):
-        return self.__db_instance
-    def get_db_connection(self):
-        return self.__db_connection
+        #self.__cursor = self.get_db_connection().cursor(prepared=True)
+    def get_db_instance(cls):
+        return cls.__db_instance
+    def get_db_connection(cls):
+        return cls.__db_connection
     def get_cursor(self):
         return self.__cursor
-    def get_validate_errors(self):
-        return self.__validate_errors
     def select(self, columns, where = '', params = (), for_update = False):
         sql = 'SELECT ' + ', '.join(columns)
         if self.__table_name is not None:
@@ -72,7 +79,6 @@ class repository():
         return self.execute_update(sql, bind_values)
     def set_timestamp(self, mode, columns):
         self_dict = self.__main_entity.__dict__
-        print(self_dict)
         if mode == 'ins':
             if 'created_at' in self_dict:
                 self.__main_entity.created_at = math.floor(time.time())
