@@ -8,50 +8,51 @@ class user_registration_first_complete_controller(controller):
         super().check_csrf_token()
         post_data = self.get_request().form
         # メールアドレスのバリデーション
-        pre_users_obj = pre_users()
-        pre_users_obj.set_request_to_model({'mail_address': ''}, post_data)
-        validate_errors = pre_users_obj.get_validate_errors()
+        pre_users_entity_obj = pre_users_entity()
+        pre_users_entity_obj.set_request_to_model({'mail_address': ''}, post_data)
+        validate_errors = pre_users_entity_obj.get_validate_errors()
         if True == validate_errors['result']:
             template_file_name = 'user_registration/first_complete'
+            users_repository_obj = users_repository(users_entity())
             # 既に、ユーザー登録済みなら、メール文言を変える
-            users_data = pre_users_obj.find(
+            users_data = users_repository_obj.find(
                     ('user_id',),
-                    'users',
                     'mail_address = %s AND registration_status = %s',
-                    (pre_users_obj.mail_address, setting.app.config['USER_REGISTRATION_STATUS_REGISTERED'])
+                    (pre_users_entity_obj.mail_address, setting.app.config['USER_REGISTRATION_STATUS_REGISTERED'])
             )
             sender = setting.app.config['SENDER_MAIL_ADDRESS']
-            recipients = pre_users_obj.mail_address
+            recipients = pre_users_entity_obj.mail_address
             pre_user_id = 0
             token = ''
             is_db_success = False
-            pre_users_obj.begin()
+            pre_users_repository_obj = pre_users_repository(pre_users_entity_obj)
+            pre_users_repository_obj.begin()
             if users_data is None:
                 body = setting.app.config['USER_REGISTRATION_FIRST_COMPLETE_REGISTERED_MESSAGE']
                 token = secrets.token_hex(64)
-                pre_users_obj.token = token
+                pre_users_entity_obj.token = token
                 body += setting.app.config['URI_SCHEME'] + '://' + setting.app.config['HOST_NAME'] + '/user_registration/input?m='
                 body += recipients
                 body += '&t=' + token
                 # まだ、事前情報が未登録なら、登録する
-                pre_users_data = pre_users_obj.find(
+                pre_users_data = pre_users_repository_obj.find(
                     ('pre_user_id',),
-                    'pre_users',
                     'mail_address = %s',
-                    (pre_users_obj.mail_address,)
+                    (pre_users_entity_obj.mail_address,),
+                    True
                 )
                 if pre_users_data is None:
                     try:
-                        row_count = pre_users_obj.insert(['mail_address', 'token'])
+                        row_count = pre_users_repository_obj.insert(['mail_address', 'token'])
                         if row_count > 0:
                             is_db_success = True
-                            pre_user_id = pre_users_obj.last_insert_id()
+                            pre_user_id = pre_users_repository_obj.last_insert_id()
                     except Exception as exc:
                         setting.app.logger.exception('{}'.format(exc))
                         is_db_success = False
                 else:
                     try:
-                        row_count = pre_users_obj.update(
+                        row_count = pre_users_repository_obj.update(
                             ['token'],
                             'pre_user_id = %s',
                             (pre_users_data[0],)
@@ -81,12 +82,12 @@ class user_registration_first_complete_controller(controller):
             error_message = ''
             if True == is_db_success:
                 if True == is_mail_send:
-                    pre_users_obj.commit()
+                    pre_users_repository_obj.commit()
                 else:
-                    pre_users_obj.rollback()
+                    pre_users_repository_obj.rollback()
                     error_message = 'メールの送信に失敗しました。'
             else:
-                pre_users_obj.rollback()
+                pre_users_repository_obj.rollback()
                 error_message = 'データベースへの登録に失敗しました。'
             if '' != error_message:
                 raise Exception(error_message)

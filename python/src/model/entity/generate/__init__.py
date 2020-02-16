@@ -1,0 +1,13 @@
+# このファイルと同じディレクトリ内にある他のファイルは自動生成されるので、編集不可
+
+from .prefectures_entity_base import prefectures_entity_base
+from .zip_addresses_entity_base import zip_addresses_entity_base
+from .contact_methods_entity_base import contact_methods_entity_base
+from .knew_triggers_entity_base import knew_triggers_entity_base
+from .birth_days_entity_base import birth_days_entity_base
+from .jobs_entity_base import jobs_entity_base
+from .sexes_entity_base import sexes_entity_base
+from .pre_users_entity_base import pre_users_entity_base
+from .users_entity_base import users_entity_base
+from .user_contact_methods_entity_base import user_contact_methods_entity_base
+from .user_knew_triggers_entity_base import user_knew_triggers_entity_base

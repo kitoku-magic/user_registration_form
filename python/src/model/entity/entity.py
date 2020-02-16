@@ -2,9 +2,9 @@ import time
 import math
 
 from src.database import db
-from src.model import *
+from src.model.entity import *
 
-class model(db.Model):
+class entity(db.Model):
     __abstract__ = True
     __db_instance = db
     def __init__(self):
@@ -14,7 +14,7 @@ class model(db.Model):
 
     @declared_attr
     def __tablename__(cls):
-        return cls.__name__.lower()
+        return cls.__name__.lower().replace('_entity', '')
     def get_db_instance(self):
         return self.__db_instance
     def get_db_connection(self):

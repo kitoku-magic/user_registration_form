@@ -25,13 +25,14 @@ for table in Base.classes:
     inspect_table = inspect(table)
     local_table_name = inspect_table.persist_selectable.name
     # 自動生成するファイル名とクラス名は、オリジナルから変えておく
-    local_class_name = local_table_name + '_base'
-    base_path = current_directory + '/../src/model/generate/'
+    local_class_name = local_table_name + '_entity_base'
+    base_path = current_directory + '/../src/model/entity/generate/'
     base_path += local_class_name + '.py'
     body = ''
     f = open(base_path, mode='w')
-    body += 'from src.model import *\n'
-    body += 'from src.model.generate import *\n'
+    body += 'from src.model.entity import *\n'
+    body += 'from src.model.entity.generate import *\n'
+    body += 'from src.model.repository import repository\n'
     body += '\n'
     body += 'class ' + local_class_name + '('
     length_body = ''
@@ -39,6 +40,7 @@ for table in Base.classes:
     property_body = ''
     created_at_body = ''
     updated_at_body = ''
+    is_use_timestamp_mixin = False
     columns = inspect_table.persist_selectable.columns._all_columns
     for column in columns:
         column_attr_list = []
@@ -59,7 +61,7 @@ for table in Base.classes:
         # 外部キーの設定
         if hasattr(column, 'foreign_keys') and len(column.foreign_keys) > 0:
             for foreign_key in column.foreign_keys:
-                column_attr_list.append("model.get_db_instance(model).ForeignKey('" + foreign_key._colspec + "')")
+                column_attr_list.append("repository.get_db_instance(repository).ForeignKey('" + foreign_key._colspec + "')")
         # NULLの設定
         if hasattr(column, 'nullable') and column.nullable is not None:
             column_attr_list.append('nullable = ' + str(column.nullable))
@@ -86,22 +88,23 @@ for table in Base.classes:
             column_attr_list.append("comment = '" + str(column.comment) + "'")
         # created_atとupdated_atが両方存在する場合は、専用のmixinを使うので、ここではまだ設定しない
         if column.name == 'created_at':
-            created_at_body += '    ' + column.name + ' = model.get_db_instance(model).Column(' + ', '.join(column_attr_list) + ')\n'
+            created_at_body += '    ' + column.name + ' = repository.get_db_instance(repository).Column(' + ', '.join(column_attr_list) + ')\n'
         elif column.name == 'updated_at':
-            updated_at_body += '    ' + column.name + ' = model.get_db_instance(model).Column(' + ', '.join(column_attr_list) + ')\n'
+            updated_at_body += '    ' + column.name + ' = repository.get_db_instance(repository).Column(' + ', '.join(column_attr_list) + ')\n'
         else:
             property_body += '    @declared_attr\n'
             property_body += '    def ' + column.name + '(cls):\n'
-            property_body += '        return model.get_db_instance(model).Column(' + ', '.join(column_attr_list) + ')\n'
+            property_body += '        return repository.get_db_instance(repository).Column(' + ', '.join(column_attr_list) + ')\n'
     # created_atとupdated_atが両方存在するか調べる
     if created_at_body != '':
         if updated_at_body != '':
-            body += 'timestamp_mixin, '
+            body += 'timestamp_mixin_entity, '
+            is_use_timestamp_mixin = True
         else:
             property_body += created_at_body
     elif updated_at_body != '':
         property_body += updated_at_body
-    body += 'model):\n'
+    body += 'entity):\n'
     body += "    __abstract__ = True\n"
     body += length_body + '\n'
     if length_property_body != '':
@@ -112,17 +115,22 @@ for table in Base.classes:
     many_variables_suffix = '_collection'
     for prop in inspect_table.relationships:
         foreign_table_name = prop.mapper.persist_selectable.name
+        foreign_class_name = foreign_table_name + '_entity'
         # TODO: 1対1の場合、これでは動かなさそう
         relation_body += '    @declared_attr\n'
         if prop.backref is None:
             relation_body += '    def ' + foreign_table_name + many_variables_suffix + '(cls):\n'
-            relation_body += "        return model.get_db_instance(model).relationship('" + foreign_table_name + "', back_populates='" + local_table_name + "', cascade='save-update, merge, delete', uselist=True)\n"
+            relation_body += "        return repository.get_db_instance(repository).relationship('" + foreign_class_name + "', back_populates='" + local_table_name + "', cascade='save-update, merge, delete', uselist=True)\n"
         else:
             relation_body += '    def ' + foreign_table_name + '(cls):\n'
-            relation_body += "        return model.get_db_instance(model).relationship('" + foreign_table_name + "', back_populates='" + local_table_name + many_variables_suffix + "', uselist=False)\n"
+            relation_body += "        return repository.get_db_instance(repository).relationship('" + foreign_class_name + "', back_populates='" + local_table_name + many_variables_suffix + "', uselist=False)\n"
     body += relation_body + '\n'
     # コンストラクタの設定
     body += '    def __init__(self):\n'
-    body += '        model.__init__(self)\n'
+    if is_use_timestamp_mixin == True:
+        super_class_name = 'timestamp_mixin_entity'
+    else:
+        super_class_name = 'entity'
+    body += '        ' + super_class_name + '.__init__(self)\n'
     f.write(body)
     f.close()
