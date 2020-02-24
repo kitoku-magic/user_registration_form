@@ -2,6 +2,7 @@ import time
 import math
 
 from src.database import db
+from src.db_connection import db_connection
 from src.model.repository import *
 
 class repository():
@@ -9,18 +10,13 @@ class repository():
     __db_connection = None
     __cursor = None
     def __new__(cls, main_entity):
-        #print('__new__')
-        #print(cls)
-        if cls.__db_connection is None:
-            cls.__db_connection = cls.__db_instance.engine.raw_connection()
-            cls.__cursor = cls.__db_connection.cursor(prepared=True)
+        db_connection_obj = db_connection()
+        cls.__db_connection = db_connection_obj.get_connection()
+        cls.__cursor = cls.__db_connection.cursor(prepared=True)
         return super().__new__(cls)
     def __init__(self, main_entity):
-        #print('__init__')
-        #print(self)
         self.__main_entity = main_entity
         self.__table_name = self.__main_entity.__tablename__
-        #self.__cursor = self.get_db_connection().cursor(prepared=True)
     def get_db_instance(cls):
         return cls.__db_instance
     def get_db_connection(cls):
