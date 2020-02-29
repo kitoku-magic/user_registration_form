@@ -7,6 +7,15 @@ class pre_users_entity_base(timestamp_mixin_entity, entity):
     __MAIL_ADDRESS_LENGTH = 512
     __TOKEN_LENGTH = 128
 
+    def get_all_properties(self):
+        return {
+            'pre_user_id' : 0,
+            'mail_address' : '',
+            'token' : '',
+            'created_at' : 0,
+            'updated_at' : 0,
+        }
+
     def get_mail_address_length(cls):
         return pre_users_entity_base.__MAIL_ADDRESS_LENGTH
     def get_token_length(cls):

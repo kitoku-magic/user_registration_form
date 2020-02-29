@@ -31,9 +31,9 @@ class user_registration_first_complete_controller(controller):
                 body = setting.app.config['USER_REGISTRATION_FIRST_COMPLETE_REGISTERED_MESSAGE']
                 token = secrets.token_hex(64)
                 pre_users_entity_obj.token = token
-                body += setting.app.config['URI_SCHEME'] + '://' + setting.app.config['HOST_NAME'] + '/user_registration/input?m='
+                body += setting.app.config['URI_SCHEME'] + '://' + setting.app.config['HOST_NAME'] + '/user_registration/input?mail_address='
                 body += recipients
-                body += '&t=' + token
+                body += '&token=' + token
                 # まだ、事前情報が未登録なら、登録する
                 pre_users_data = pre_users_repository_obj.find(
                     ('pre_user_id',),

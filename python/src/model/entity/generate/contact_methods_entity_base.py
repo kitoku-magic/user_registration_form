@@ -6,6 +6,15 @@ class contact_methods_entity_base(timestamp_mixin_entity, entity):
     __abstract__ = True
     __CONTACT_METHOD_NAME_LENGTH = 32
 
+    def get_all_properties(self):
+        return {
+            'contact_method_id' : 0,
+            'contact_method_name' : '',
+            'created_at' : 0,
+            'updated_at' : 0,
+            'user_contact_methods_collection' : [],
+        }
+
     def get_contact_method_name_length(cls):
         return contact_methods_entity_base.__CONTACT_METHOD_NAME_LENGTH
 

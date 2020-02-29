@@ -6,6 +6,15 @@ class jobs_entity_base(timestamp_mixin_entity, entity):
     __abstract__ = True
     __JOB_NAME_LENGTH = 32
 
+    def get_all_properties(self):
+        return {
+            'job_id' : 0,
+            'job_name' : '',
+            'created_at' : 0,
+            'updated_at' : 0,
+            'users_collection' : [],
+        }
+
     def get_job_name_length(cls):
         return jobs_entity_base.__JOB_NAME_LENGTH
 

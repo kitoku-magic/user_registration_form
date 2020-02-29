@@ -9,6 +9,7 @@ from jinja2 import FileSystemLoader
 from src.database import db
 from src.controller.user_registration.user_registration_first_input_controller import user_registration_first_input_controller
 from src.controller.user_registration.user_registration_first_complete_controller import user_registration_first_complete_controller
+from src.controller.user_registration.user_registration_input_controller import user_registration_input_controller
 
 base_path = '/opt/app/user_registration_form/python'
 
@@ -75,4 +76,8 @@ def index():
 @app.route('/user_registration/first_complete', methods=['POST'])
 def user_registration_first_complete():
     obj = user_registration_first_complete_controller()
+    return obj.run()
+@app.route('/user_registration/input', methods=['GET'])
+def user_registration_input():
+    obj = user_registration_input_controller()
     return obj.run()

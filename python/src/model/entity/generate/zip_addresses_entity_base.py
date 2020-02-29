@@ -8,6 +8,18 @@ class zip_addresses_entity_base(timestamp_mixin_entity, entity):
     __CITY_DISTRICT_COUNTY_LENGTH = 64
     __TOWN_VILLAGE_ADDRESS_LENGTH = 128
 
+    def get_all_properties(self):
+        return {
+            'zip_address_id' : 0,
+            'zip_code' : '',
+            'prefecture_id' : 0,
+            'city_district_county' : '',
+            'town_village_address' : '',
+            'created_at' : 0,
+            'updated_at' : 0,
+            'prefectures' : [],
+        }
+
     def get_zip_code_length(cls):
         return zip_addresses_entity_base.__ZIP_CODE_LENGTH
     def get_city_district_county_length(cls):

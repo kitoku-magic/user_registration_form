@@ -24,6 +24,9 @@ class config(object):
 ご注意下さい。'''
     USER_REGISTRATION_FIRST_COMPLETE_MAIL_TITLE = 'メール送信のお知らせ'
 
+    # ユーザー登録入力画面
+    USER_REGISTRATION_INPUT_TITLE = 'ユーザー登録'
+
 class testing(config):
     ENV = 'testing'
     TESTING = True

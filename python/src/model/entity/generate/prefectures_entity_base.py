@@ -6,6 +6,16 @@ class prefectures_entity_base(timestamp_mixin_entity, entity):
     __abstract__ = True
     __PREFECTURE_NAME_LENGTH = 12
 
+    def get_all_properties(self):
+        return {
+            'prefecture_id' : 0,
+            'prefecture_name' : '',
+            'created_at' : 0,
+            'updated_at' : 0,
+            'zip_addresses_collection' : [],
+            'users_collection' : [],
+        }
+
     def get_prefecture_name_length(cls):
         return prefectures_entity_base.__PREFECTURE_NAME_LENGTH
 

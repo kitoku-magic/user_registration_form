@@ -20,6 +20,22 @@ engine = create_engine(config.SQLALCHEMY_DATABASE_URI)
 shutil.rmtree(current_directory + '/../src/instance/__pycache__')
 Base.prepare(engine, reflect=True)
 
+number_data_type_list = {
+    'BIGINT' : True,
+    'MEDIUMINT' : True,
+    'SMALLINT' : True,
+    'TINYINT' : True,
+}
+
+string_data_type_list = {
+    'VARBINARY' : True,
+    'BLOB' : True,
+}
+
+date_data_type_list = {
+    'DATE' : True,
+}
+
 # 1ファイル、1テーブルの関係
 for table in Base.classes:
     inspect_table = inspect(table)
@@ -36,6 +52,7 @@ for table in Base.classes:
     body += '\n'
     body += 'class ' + local_class_name + '('
     length_body = ''
+    property_list = []
     length_property_body = ''
     property_body = ''
     created_at_body = ''
@@ -45,7 +62,14 @@ for table in Base.classes:
     for column in columns:
         column_attr_list = []
         # データ型の設定
-        data_type = column.type.__class__.__name__ + '('
+        data_type_name = column.type.__class__.__name__
+        if data_type_name in number_data_type_list:
+            property_list.append("        '" + column.name + "' : 0,")
+        elif data_type_name in string_data_type_list:
+            property_list.append("        '" + column.name + "' : '',")
+        elif data_type_name in date_data_type_list:
+            property_list.append("        '" + column.name + "' : '0001-01-01',")
+        data_type = data_type_name + '('
         data_type_attr_list = []
         if hasattr(column.type, 'unsigned') and column.type.unsigned is not None:
             data_type_attr_list.append('unsigned = ' + str(column.type.unsigned))
@@ -95,6 +119,22 @@ for table in Base.classes:
             property_body += '    @declared_attr\n'
             property_body += '    def ' + column.name + '(cls):\n'
             property_body += '        return repository.get_db_instance(repository).Column(' + ', '.join(column_attr_list) + ')\n'
+    # リレーションの設定
+    relation_body = ''
+    many_variables_suffix = '_collection'
+    for prop in inspect_table.relationships:
+        foreign_table_name = prop.mapper.persist_selectable.name
+        foreign_class_name = foreign_table_name + '_entity'
+        # TODO: 1対1の場合、これでは動かなさそう
+        relation_body += '    @declared_attr\n'
+        if prop.backref is None:
+            relation_body += '    def ' + foreign_table_name + many_variables_suffix + '(cls):\n'
+            relation_body += "        return repository.get_db_instance(repository).relationship('" + foreign_class_name + "', back_populates='" + local_table_name + "', cascade='save-update, merge, delete', uselist=True)\n"
+            property_list.append("        '" + foreign_table_name + many_variables_suffix + "' : [],")
+        else:
+            relation_body += '    def ' + foreign_table_name + '(cls):\n'
+            relation_body += "        return repository.get_db_instance(repository).relationship('" + foreign_class_name + "', back_populates='" + local_table_name + many_variables_suffix + "', uselist=False)\n"
+            property_list.append("        '" + foreign_table_name + "' : [],")
     # created_atとupdated_atが両方存在するか調べる
     if created_at_body != '':
         if updated_at_body != '':
@@ -107,23 +147,11 @@ for table in Base.classes:
     body += 'entity):\n'
     body += "    __abstract__ = True\n"
     body += length_body + '\n'
+    body += '    def get_all_properties(self):\n'
+    body += '        return {\n    ' + '\n    '.join(property_list) + '\n        }\n\n'
     if length_property_body != '':
         body += length_property_body + '\n'
     body += property_body
-    # リレーションの設定
-    relation_body = ''
-    many_variables_suffix = '_collection'
-    for prop in inspect_table.relationships:
-        foreign_table_name = prop.mapper.persist_selectable.name
-        foreign_class_name = foreign_table_name + '_entity'
-        # TODO: 1対1の場合、これでは動かなさそう
-        relation_body += '    @declared_attr\n'
-        if prop.backref is None:
-            relation_body += '    def ' + foreign_table_name + many_variables_suffix + '(cls):\n'
-            relation_body += "        return repository.get_db_instance(repository).relationship('" + foreign_class_name + "', back_populates='" + local_table_name + "', cascade='save-update, merge, delete', uselist=True)\n"
-        else:
-            relation_body += '    def ' + foreign_table_name + '(cls):\n'
-            relation_body += "        return repository.get_db_instance(repository).relationship('" + foreign_class_name + "', back_populates='" + local_table_name + many_variables_suffix + "', uselist=False)\n"
     body += relation_body + '\n'
     # コンストラクタの設定
     body += '    def __init__(self):\n'

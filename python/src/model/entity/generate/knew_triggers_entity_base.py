@@ -6,6 +6,15 @@ class knew_triggers_entity_base(timestamp_mixin_entity, entity):
     __abstract__ = True
     __KNEW_TRIGGER_NAME_LENGTH = 64
 
+    def get_all_properties(self):
+        return {
+            'knew_trigger_id' : 0,
+            'knew_trigger_name' : '',
+            'created_at' : 0,
+            'updated_at' : 0,
+            'user_knew_triggers_collection' : [],
+        }
+
     def get_knew_trigger_name_length(cls):
         return knew_triggers_entity_base.__KNEW_TRIGGER_NAME_LENGTH
 

@@ -18,6 +18,40 @@ class users_entity_base(timestamp_mixin_entity, entity):
     __FILE_NAME_LENGTH = 256
     __FILE_PATH_LENGTH = 512
 
+    def get_all_properties(self):
+        return {
+            'user_id' : 0,
+            'mail_address' : '',
+            'token' : '',
+            'registration_status' : 0,
+            'last_name' : '',
+            'first_name' : '',
+            'last_name_hiragana' : '',
+            'first_name_hiragana' : '',
+            'sex_id' : 0,
+            'birth_day_id' : 0,
+            'zip_code' : '',
+            'prefecture_id' : 0,
+            'city_street_address' : '',
+            'building_room_address' : '',
+            'telephone_number' : '',
+            'job_id' : 0,
+            'job_other' : '',
+            'is_latest_news_hoped' : 0,
+            'file_name' : '',
+            'file_path' : '',
+            'remarks' : '',
+            'is_personal_information_provide_agreed' : 0,
+            'created_at' : 0,
+            'updated_at' : 0,
+            'sexes' : [],
+            'prefectures' : [],
+            'birth_days' : [],
+            'jobs' : [],
+            'user_contact_methods_collection' : [],
+            'user_knew_triggers_collection' : [],
+        }
+
     def get_mail_address_length(cls):
         return users_entity_base.__MAIL_ADDRESS_LENGTH
     def get_token_length(cls):
@@ -112,9 +146,6 @@ class users_entity_base(timestamp_mixin_entity, entity):
     def is_personal_information_provide_agreed(cls):
         return repository.get_db_instance(repository).Column(TINYINT(unsigned = True), nullable = False, server_default = '0', comment = '個人情報提供の同意状況')
     @declared_attr
-    def jobs(cls):
-        return repository.get_db_instance(repository).relationship('jobs_entity', back_populates='users_collection', uselist=False)
-    @declared_attr
     def sexes(cls):
         return repository.get_db_instance(repository).relationship('sexes_entity', back_populates='users_collection', uselist=False)
     @declared_attr
@@ -124,11 +155,14 @@ class users_entity_base(timestamp_mixin_entity, entity):
     def birth_days(cls):
         return repository.get_db_instance(repository).relationship('birth_days_entity', back_populates='users_collection', uselist=False)
     @declared_attr
-    def user_knew_triggers_collection(cls):
-        return repository.get_db_instance(repository).relationship('user_knew_triggers_entity', back_populates='users', cascade='save-update, merge, delete', uselist=True)
+    def jobs(cls):
+        return repository.get_db_instance(repository).relationship('jobs_entity', back_populates='users_collection', uselist=False)
     @declared_attr
     def user_contact_methods_collection(cls):
         return repository.get_db_instance(repository).relationship('user_contact_methods_entity', back_populates='users', cascade='save-update, merge, delete', uselist=True)
+    @declared_attr
+    def user_knew_triggers_collection(cls):
+        return repository.get_db_instance(repository).relationship('user_knew_triggers_entity', back_populates='users', cascade='save-update, merge, delete', uselist=True)
 
     def __init__(self):
         timestamp_mixin_entity.__init__(self)
