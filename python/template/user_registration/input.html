@@ -42,10 +42,10 @@
 			</td>
 		</tr>
 		<tr>
-			<th>{{ res['sex'] }}</th>
+			<th>性別</th>
 			<td>
 				{% for sex in res['sexes'] %}
-				<input type="radio" name="sex_id" value="{{ sex.value }}" {{ sex.value }}>{{ sex.name }}</input>
+				<input type="radio" name="sex_id" value="{{ sex.id }}" {{ sex.id }}>{{ sex.name }}</input>
 				{% endfor %}
 				<br />
 				<p class="error_message">{{ res['sex_id_error'] }}</p>
@@ -97,4 +97,6 @@
 		<p><button type="submit" id="next_page" name="clicked_button" value="next_page" />次へ</button></p>
 	</div>
 </form>
+{% from 'on_load.html' import set_focus %}
+{{ set_focus('password') }}
 {% endblock %}

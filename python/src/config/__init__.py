@@ -17,6 +17,7 @@ class config(object):
     USER_REGISTRATION_FIRST_COMPLETE_TITLE = 'メールアドレス入力完了'
     USER_REGISTRATION_FIRST_COMPLETE_REGISTERED_MESSAGE = '''メールアドレスの入力、ありがとうございます。
 以下のURLより、登録を継続して下さい。
+また、URLの有効期間は１時間となっておりますので、ご注意下さい。
 
 '''
     USER_REGISTRATION_FIRST_COMPLETE_ALREADY_REGISTERED_MESSAGE = '''メール入力画面でメールを入力されましたか？

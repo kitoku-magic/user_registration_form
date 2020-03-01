@@ -23,24 +23,26 @@ class repository():
         return cls.__db_connection
     def get_cursor(self):
         return self.__cursor
-    def select(self, columns, where = '', params = (), for_update = False):
+    def select(self, columns, where = '', params = (), order_by = '', for_update = False):
         sql = 'SELECT ' + ', '.join(columns)
         if self.__table_name is not None:
             sql += ' FROM ' + self.__table_name
         if where != '':
             sql += ' WHERE ' + where
+        if order_by != '':
+            sql += ' ORDER BY ' + order_by
         if for_update == True:
             sql += ' FOR UPDATE'
         self.__cursor.execute(sql, params)
-    def find(self, columns, where = '', params = (), for_update = False):
-        self.select(columns, where, params, for_update)
+    def find(self, columns, where = '', params = (), order_by = '', for_update = False):
+        self.select(columns, where, params, order_by, for_update)
         return self.__cursor.fetchone()
         #query = self.get_db_instance().session.query(select)
         #if 0 < len(params):
         #    query = query.filter(text(where)).params(params)
         #return query.all()
-    def find_all(self, columns, where = '', params = ()):
-        self.select(columns, where, params)
+    def find_all(self, columns, where = '', params = (), order_by = ''):
+        self.select(columns, where, params, order_by)
         return self.__cursor.fetchall()
     def insert(self, columns):
         columns = self.set_timestamp('ins', columns)

@@ -1,8 +1,4 @@
 {% extends 'layout.html' %}
 {% block body %}
-<div id="layout">
-  <div>
-    <p class="center_justification">予期しないエラーが発生しました。<br />ブラウザの戻るボタンで前ページにお戻り下さい。</p>
-  </div>
-</div>
+<p class="center_justification">{{ res['show_error_message']|nl2br }}</p>
 {% endblock %}

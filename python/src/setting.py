@@ -4,9 +4,10 @@ import os
 
 from flask import Flask
 from flask_mail import Mail
-from jinja2 import FileSystemLoader
+from jinja2 import Environment, FileSystemLoader
 
 from src.database import db
+from src.custom_filter import nl2br
 from src.controller.user_registration.user_registration_first_input_controller import user_registration_first_input_controller
 from src.controller.user_registration.user_registration_first_complete_controller import user_registration_first_complete_controller
 from src.controller.user_registration.user_registration_input_controller import user_registration_input_controller
@@ -59,9 +60,11 @@ for logger in (
 
 # jinja2のtemplateディレクトリの場所を変更する
 # 省略した場合はこのファイルと同階層の "templates" になる
-app.jinja_loader = FileSystemLoader(
-    os.path.join(base_path, 'template')
+jinja_environment = Environment(
+    loader=FileSystemLoader(os.path.join(base_path, 'template')),
 )
+jinja_environment.filters['nl2br'] = nl2br
+app.jinja_environment = jinja_environment
 
 mail = Mail()
 

@@ -17,9 +17,6 @@
     <p><button type="submit" id="next_page" name="clicked_button" value="next_page" />送信</button></p>
   </div>
 </form>
-<script type="text/javascript">
-  window.addEventListener('DOMContentLoaded', function() {
-    setFocus('mail_address');
-  });
-</script>
+{% from 'on_load.html' import set_focus %}
+{{ set_focus('mail_address') }}
 {% endblock %}

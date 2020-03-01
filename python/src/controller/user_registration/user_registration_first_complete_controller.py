@@ -39,6 +39,7 @@ class user_registration_first_complete_controller(controller):
                     ('pre_user_id',),
                     'mail_address = %s',
                     (pre_users_entity_obj.mail_address,),
+                    '',
                     True
                 )
                 if pre_users_data is None:
@@ -90,7 +91,7 @@ class user_registration_first_complete_controller(controller):
                 pre_users_repository_obj.rollback()
                 error_message = 'データベースへの登録に失敗しました。'
             if '' != error_message:
-                raise Exception(error_message)
+                raise Exception(error_message, '登録に失敗しました。\n再度、お手続き下さい。')
             setting.app.logger.info('pre_user_id:' + str(pre_user_id) + 'にメールを送信しました。')
         else:
             template_file_name = 'user_registration/index'

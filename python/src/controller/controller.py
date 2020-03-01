@@ -16,7 +16,8 @@ class controller:
         try:
             self.execute()
 
-            http_response = render_template(self.__template_file_name + '.html', res=self.__response_data)
+            template = setting.app.jinja_environment.get_template(self.__template_file_name + '.html')
+            http_response = template.render({'res': self.__response_data})
 
             r = make_response(http_response)
             #r.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
@@ -25,7 +26,13 @@ class controller:
         except Exception as e:
             setting.app.logger.exception('{}'.format(e))
             self.add_response_data('title', 'エラー')
-            http_response = render_template('error.html', res=self.__response_data)
+            if 2 <= len(e.args):
+                show_error_message = e.args[1]
+            else:
+                show_error_message = '予期しないエラーが発生しました。\nブラウザの戻るボタンで前ページにお戻り下さい。'
+            self.add_response_data('show_error_message', show_error_message)
+            template = setting.app.jinja_environment.get_template('error.html')
+            http_response = template.render({'res': self.__response_data})
             r = make_response(http_response)
         finally:
             return r
@@ -41,6 +48,6 @@ class controller:
             if post_csrf_token == session_csrf_token:
                 return True
             else:
-                raise Exception('トークンが一致しません')
+                raise Exception('トークンが一致しません', '不正なリクエストです。')
         else:
-            raise Exception('トークンが設定されていません')
+            raise Exception('トークンが設定されていません', '不正なリクエストです。')
