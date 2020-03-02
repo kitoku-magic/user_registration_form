@@ -57,21 +57,21 @@
 				<select id="birth_year" name="birth_year" onfocus="setBackGroundColor(this, '#d0ffd0');" onblur="setBackGroundColor(this, '#ffffff');">
 					<option value="" {{ res['birth_year'] }}>-</option>
 					{% for birth_year in res['birth_years'] %}
-					<option value="{{ birth_year.value }}" {{ birth_year.value }}>{{ birth_year.name }}</option>
+					<option value="{{ birth_year }}" {{ birth_year }}>{{ birth_year }}</option>
 					{% endfor %}
 				</select>
 				年
 				<select id="birth_month" name="birth_month" onfocus="setBackGroundColor(this, '#d0ffd0');" onblur="setBackGroundColor(this, '#ffffff');">
 					<option value="" {{ res['birth_month'] }}>-</option>
 					{% for birth_month in res['birth_months'] %}
-					<option value="{{ birth_month.value }}" {{ birth_month.value }}>{{ birth_month.name }}</option>
+					<option value="{{ birth_month }}" {{ birth_month }}>{{ birth_month }}</option>
 					{% endfor %}
 				</select>
 				月
 				<select id="birth_day" name="birth_day" onfocus="setBackGroundColor(this, '#d0ffd0');" onblur="setBackGroundColor(this, '#ffffff');">
 					<option value="" {{ res['birth_day'] }}>-</option>
 					{% for birth_day in res['birth_days'] %}
-					<option value="{{ birth_day.value }}" {{ birth_day.value }}>{{ birth_day.name }}</option>
+					<option value="{{ birth_day }}" {{ birth_day }}>{{ birth_day }}</option>
 					{% endfor %}
 				</select>
 				日
@@ -90,6 +90,62 @@
 				<button type="submit" id="street_address_search" name="clicked_button" value="street_address_search" />住所検索</button>
 				<br />
 				<p class="error_message">{{ res['zip_code_error'] }}</p>
+			</td>
+		</tr>
+		<tr>
+			<th>都道府県</th>
+			<td>
+				<select id="prefectures_id" name="prefectures_id" onfocus="setBackGroundColor(this, '#d0ffd0');" onblur="setBackGroundColor(this, '#ffffff');">
+					<option value="" {{ res['prefectures'] }}>▼選択してください</option>
+					{% for prefectures in res['prefectureses'] %}
+					<option value="{{ prefectures.id }}" {{ prefectures.id }}>{{ prefectures.name }}</option>
+					{% endfor %}
+				</select>
+				<br />
+				<p class="error_message">{{ res['prefectures_id_error'] }}</p>
+			</td>
+		</tr>
+		<tr>
+			<th>市区町村・丁目・番地</th>
+			<td>
+				<input type="text" id="city_street_address" name="city_street_address" value="{{ res['city_street_address'] }}" maxlength="64" size="70" onfocus="setBackGroundColor(this, '#d0ffd0');" onblur="setBackGroundColor(this, '#ffffff');" />
+				<br />
+				<p class="error_message">{{ res['city_street_address_error'] }}</p>
+			</td>
+		</tr>
+		<tr>
+			<th>建物名・室名</th>
+			<td>
+				<input type="text" id="building_room_address" name="building_room_address" value="{{ res['building_room_address'] }}" maxlength="64" size="70" onfocus="setBackGroundColor(this, '#d0ffd0');" onblur="setBackGroundColor(this, '#ffffff');" />
+				<br />
+				<p class="error_message">{{ res['building_room_address_error'] }}</p>
+			</td>
+		</tr>
+		<tr>
+			<th>電話番号</th>
+			<td>
+				<input type="text" id="telephone_number" name="telephone_number" maxlength="13" size="27" value="{{ res['telephone_number'] }}" onfocus="setBackGroundColor(this, '#d0ffd0');" onblur="setBackGroundColor(this, '#ffffff');" /> &lt;要ハイフン&gt;
+				<br />
+				<p class="error_message">{{ res['telephone_number_error'] }}</p>
+			</td>
+		</tr>
+		<tr>
+			<th>職業</th>
+			<td>
+				{% for job in res['jobs'] %}
+				<input type="radio" name="job_id" value="{{ job.id }}" {{ job.id }}>{{ job.name }}</input>
+				{% endfor %}
+				<input type="radio" name="job_id" value="0">その他</input>
+				<br />
+				<p class="error_message">{{ res['job_id_error'] }}</p>
+			</td>
+		</tr>
+		<tr>
+			<th>職業その他</th>
+			<td>
+				<input type="text" id="job_other" name="job_other" value="{{ res['job_other'] }}" maxlength="16" size="20" onfocus="setBackGroundColor(this, '#d0ffd0');" onblur="setBackGroundColor(this, '#ffffff');" />
+				<br />
+				<p class="error_message">{{ res['job_other_error'] }}</p>
 			</td>
 		</tr>
 	</table>

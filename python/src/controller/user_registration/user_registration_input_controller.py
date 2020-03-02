@@ -31,6 +31,7 @@ class user_registration_input_controller(controller):
                 value = get_data.get(field)
             self.add_response_data(field, value)
         # 複数選択項目の表示内容を取得して設定
+        # 性別
         sexes_repository_obj = sexes_repository(sexes_entity())
         sexes_all_data = sexes_repository_obj.find_all(
             ('sex_id','sex_name'),
@@ -43,6 +44,53 @@ class user_registration_input_controller(controller):
             sexes_dict = {'id': row[0], 'name': row[1]}
             sexes.append(sexes_dict)
         self.add_response_data('sexes', sexes)
+        # 誕生日
+        birth_days_repository_obj = birth_days_repository(birth_days_entity())
+        birth_days_all_data = birth_days_repository_obj.find_all(
+            ('birth_day_id','birth_day'),
+            '',
+            [],
+            'birth_day_id ASC'
+        )
+        birth_years = []
+        birth_months = []
+        birth_days = []
+        for row in birth_days_all_data:
+            if row[1].year not in birth_years:
+                birth_years.append(row[1].year)
+            if row[1].month not in birth_months:
+                birth_months.append(row[1].month)
+            if row[1].day not in birth_days:
+                birth_days.append(row[1].day)
+        self.add_response_data('birth_years', birth_years)
+        self.add_response_data('birth_months', birth_months)
+        self.add_response_data('birth_days', birth_days)
+        # 都道府県
+        prefectures_repository_obj = prefectures_repository(prefectures_entity())
+        prefectures_all_data = prefectures_repository_obj.find_all(
+            ('prefecture_id','prefecture_name'),
+            '',
+            [],
+            'prefecture_id ASC'
+        )
+        prefectureses = []
+        for row in prefectures_all_data:
+            prefectureses_dict = {'id': row[0], 'name': row[1]}
+            prefectureses.append(prefectureses_dict)
+        self.add_response_data('prefectureses', prefectureses)
+        # 職業
+        jobs_repository_obj = jobs_repository(jobs_entity())
+        jobs_all_data = jobs_repository_obj.find_all(
+            ('job_id','job_name'),
+            '',
+            [],
+            'job_id ASC'
+        )
+        jobs = []
+        for row in jobs_all_data:
+            jobs_dict = {'id': row[0], 'name': row[1]}
+            jobs.append(jobs_dict)
+        self.add_response_data('jobs', jobs)
 
 #        $template_convert = $this->get_template_convert();
 #
