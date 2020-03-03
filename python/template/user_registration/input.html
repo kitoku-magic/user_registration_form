@@ -45,7 +45,7 @@
 			<th>性別</th>
 			<td>
 				{% for sex in res['sexes'] %}
-				<input type="radio" name="sex_id" value="{{ sex.id }}" {{ sex.id }}>{{ sex.name }}</input>
+				<input type="radio" name="sex_id" value="{{ sex.id }}" {% if sex.id == res['sex_id'] %} checked="checked" {% endif %}>{{ sex.name }}</input>
 				{% endfor %}
 				<br />
 				<p class="error_message">{{ res['sex_id_error'] }}</p>
@@ -55,23 +55,23 @@
 			<th>誕生日</th>
 			<td>
 				<select id="birth_year" name="birth_year" onfocus="setBackGroundColor(this, '#d0ffd0');" onblur="setBackGroundColor(this, '#ffffff');">
-					<option value="" {{ res['birth_year'] }}>-</option>
+					<option value="" {% if '' == res['birth_year'] %} selected="selected" {% endif %}>-</option>
 					{% for birth_year in res['birth_years'] %}
-					<option value="{{ birth_year }}" {{ birth_year }}>{{ birth_year }}</option>
+					<option value="{{ birth_year }}" {% if birth_year == res['birth_year'] %} selected="selected" {% endif %}>{{ birth_year }}</option>
 					{% endfor %}
 				</select>
 				年
 				<select id="birth_month" name="birth_month" onfocus="setBackGroundColor(this, '#d0ffd0');" onblur="setBackGroundColor(this, '#ffffff');">
-					<option value="" {{ res['birth_month'] }}>-</option>
+					<option value="" {% if '' == res['birth_month'] %} selected="selected" {% endif %}>-</option>
 					{% for birth_month in res['birth_months'] %}
-					<option value="{{ birth_month }}" {{ birth_month }}>{{ birth_month }}</option>
+					<option value="{{ birth_month }}" {% if birth_month == res['birth_month'] %} selected="selected" {% endif %}>{{ birth_month }}</option>
 					{% endfor %}
 				</select>
 				月
 				<select id="birth_day" name="birth_day" onfocus="setBackGroundColor(this, '#d0ffd0');" onblur="setBackGroundColor(this, '#ffffff');">
-					<option value="" {{ res['birth_day'] }}>-</option>
+					<option value="" {% if '' == res['birth_day'] %} selected="selected" {% endif %}>-</option>
 					{% for birth_day in res['birth_days'] %}
-					<option value="{{ birth_day }}" {{ birth_day }}>{{ birth_day }}</option>
+					<option value="{{ birth_day }}" {% if birth_day == res['birth_day'] %} selected="selected" {% endif %}>{{ birth_day }}</option>
 					{% endfor %}
 				</select>
 				日
@@ -96,9 +96,9 @@
 			<th>都道府県</th>
 			<td>
 				<select id="prefectures_id" name="prefectures_id" onfocus="setBackGroundColor(this, '#d0ffd0');" onblur="setBackGroundColor(this, '#ffffff');">
-					<option value="" {{ res['prefectures'] }}>▼選択してください</option>
+					<option value="" {% if '' == res['prefecture_id'] %} selected="selected" {% endif %}>▼選択してください</option>
 					{% for prefectures in res['prefectureses'] %}
-					<option value="{{ prefectures.id }}" {{ prefectures.id }}>{{ prefectures.name }}</option>
+					<option value="{{ prefectures.id }}" {% if prefectures.id == res['prefecture_id'] %} selected="selected" {% endif %}>{{ prefectures.name }}</option>
 					{% endfor %}
 				</select>
 				<br />
@@ -133,9 +133,9 @@
 			<th>職業</th>
 			<td>
 				{% for job in res['jobs'] %}
-				<input type="radio" name="job_id" value="{{ job.id }}" {{ job.id }}>{{ job.name }}</input>
+				<input type="radio" name="job_id" value="{{ job.id }}" {% if job.id == res['job_id'] %} checked="checked" {% endif %}>{{ job.name }}</input>
 				{% endfor %}
-				<input type="radio" name="job_id" value="0">その他</input>
+				<input type="radio" name="job_id" value="0" {% if 0 == res['job_id'] %} checked="checked" {% endif %}>その他</input>
 				<br />
 				<p class="error_message">{{ res['job_id_error'] }}</p>
 			</td>
@@ -146,6 +146,59 @@
 				<input type="text" id="job_other" name="job_other" value="{{ res['job_other'] }}" maxlength="16" size="20" onfocus="setBackGroundColor(this, '#d0ffd0');" onblur="setBackGroundColor(this, '#ffffff');" />
 				<br />
 				<p class="error_message">{{ res['job_other_error'] }}</p>
+			</td>
+		</tr>
+		<tr>
+			<th>連絡方法（複数選択可能）</th>
+			<td>
+				<select id="contact_method" name="contact_method" multiple onfocus="setBackGroundColor(this, '#d0ffd0');" onblur="setBackGroundColor(this, '#ffffff');">
+					{% for contact_method in res['contact_methods'] %}
+					<option value="{{ contact_method.id }}" {% if contact_method.id in res['contact_method'] %} selected="selected" {% endif %}>{{ contact_method.name }}</option>
+					{% endfor %}
+				</select>
+				<br />
+				<p class="error_message">{{ res['contact_method_error'] }}</p>
+			</td>
+		</tr>
+		<tr>
+			<th>知ったきっかけ（複数選択可能）</th>
+			<td>
+				{% for knew_trigger in res['knew_triggers'] %}
+				<input type="checkbox" name="knew_trigger" value="{{ knew_trigger.id }}" {% if knew_trigger.id in res['knew_trigger'] %} selected="selected" {% endif %}>{{ knew_trigger.name }}</input>
+				{% endfor %}
+				<p class="error_message">{{ res['knew_trigger_error'] }}</p>
+			</td>
+		</tr>
+		<tr>
+			<th>最新情報の希望状況</th>
+			<td>
+				<input type="radio" name="is_latest_news_hoped" value="1" {% if 1 == res['is_latest_news_hoped'] %} checked="checked" {% endif %}>希望する</input>
+				<input type="radio" name="is_latest_news_hoped" value="0" {% if 0 == res['is_latest_news_hoped'] %} checked="checked" {% endif %}>希望しない</input>
+				<br />
+				<p class="error_message">{{ res['is_latest_news_hoped_error'] }}</p>
+			</td>
+		</tr>
+		<tr>
+			<th>添付ファイル</th>
+			<td>
+				<input type="file" name="file_name" value="{{ res['file_name'] }}" onfocus="setBackGroundColor(this, '#d0ffd0');" onblur="setBackGroundColor(this, '#ffffff');" />
+				<br />
+				<p class="error_message">{{ res['file_name_error'] }}</p>
+			</td>
+		</tr>
+		<tr>
+			<th>備考</th>
+			<td>
+				<textarea id="remarks" name="remarks" maxlength="1000" rows="10" cols="70" onfocus="setBackGroundColor(this, '#d0ffd0');" onblur="setBackGroundColor(this, '#ffffff');">{{ res['remarks'] }}</textarea>
+				<br />
+				<p class="error_message">{{ res['remarks_error'] }}</p>
+			</td>
+		</tr>
+		<tr>
+			<th>個人情報提供の同意状況</th>
+			<td>
+				<input type="checkbox" name="is_personal_information_provide_agreed" value="1" {% if 1 == res['is_personal_information_provide_agreed'] %} checked="checked" {% endif %}>同意する</input>
+				<p class="error_message">{{ res['is_personal_information_provide_agreed_error'] }}</p>
 			</td>
 		</tr>
 	</table>

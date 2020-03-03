@@ -22,6 +22,30 @@ class user_registration_input_controller(controller):
         if 'previous_page' == get_data.get('clicked_button'):
             print('previous_page')
             print(get_data)
+#            $storage_handlers = $this->get_storage_handlers()
+#            $tmp_user_repository = new tmp_user_repository_impl(
+#                $storage_handlers,
+#                new tmp_user_multiple_select_repository_impl($storage_handlers)
+#            )
+#            $this->all_tmp_user = $tmp_user_repository->get_all_tmp_user($form->get_tmp_user_id(), $form->get_token())
+#            foreach ($this->all_tmp_user as $tmp_user)
+#            {
+#                $entity_table_columns = $tmp_user->get_table_columns()
+#                foreach ($entity_table_columns as $table_column => $value)
+#                {
+#                    $getter = 'get_' . $table_column
+#                    if ('password' === $table_column)
+#                    {
+#                        // パスワードは表示させない
+#                        $entity_value = ''
+#                    }
+#                    else
+#                    {
+#                        $entity_value = $tmp_user->$getter()
+#                    }
+#                    $form->execute_accessor_method('set', $table_column, $entity_value)
+#                }
+#            }
         # フォームの初期値を設定する為の初期化
         users_entity_obj = users_entity()
         get_data_dict = get_data.to_dict()
@@ -91,124 +115,102 @@ class user_registration_input_controller(controller):
             jobs_dict = {'id': row[0], 'name': row[1]}
             jobs.append(jobs_dict)
         self.add_response_data('jobs', jobs)
+        # 連絡方法
+        contact_methods_repository_obj = contact_methods_repository(contact_methods_entity())
+        contact_methods_all_data = contact_methods_repository_obj.find_all(
+            ('contact_method_id','contact_method_name'),
+            '',
+            [],
+            'contact_method_id ASC'
+        )
+        contact_methods = []
+        for row in contact_methods_all_data:
+            contact_methods_dict = {'id': row[0], 'name': row[1]}
+            contact_methods.append(contact_methods_dict)
+        self.add_response_data('contact_methods', contact_methods)
+        # 知ったきっかけ
+        knew_triggers_repository_obj = knew_triggers_repository(knew_triggers_entity())
+        knew_triggers_all_data = knew_triggers_repository_obj.find_all(
+            ('knew_trigger_id','knew_trigger_name'),
+            '',
+            [],
+            'knew_trigger_id ASC'
+        )
+        knew_triggers = []
+        for row in knew_triggers_all_data:
+            knew_triggers_dict = {'id': row[0], 'name': row[1]}
+            knew_triggers.append(knew_triggers_dict)
+        self.add_response_data('knew_triggers', knew_triggers)
 
-#        $template_convert = $this->get_template_convert();
-#
-#    // 複数選択可能な項目のデータを取得
-#    $storage_handlers = $this->get_storage_handlers();
-#    $multiple_select_category_repository = new multiple_select_category_repository_impl(
-#            $storage_handlers,
-#            new multiple_select_repository_impl($storage_handlers)
-#            );
-#    $this->multiple_select_category_data = $multiple_select_category_repository->get_all_multiple_select();
-#
-#    $category_mappings = array(
-#            // 連絡方法
-#            1 => array(
-#                'name' => 'contact_method',
-#                'names' => 'contact_methods',
-#                ),
-#            // 知ったきっかけ
-#            2 => array(
-#                'name' => 'knew_trigger',
-#                'names' => 'knew_triggeres',
-#                ),
-#            );
-#    foreach ($this->multiple_select_category_data as $multiple_select_category)
-#    {
-#            $template_convert->assign_single_array($category_mappings[$multiple_select_category->get_multiple_select_category_id()]['name'], $multiple_select_category->get_name());
-#            $template_convert->assign_bool_array($category_mappings[$multiple_select_category->get_multiple_select_category_id()]['names'], $multiple_select_category->get_multiple_select_entities());
-#            }
-#
-#    // 単一選択な項目のデータを取得
-#    $single_select_category_repository = new single_select_category_repository_impl(
-#            $storage_handlers,
-#            new single_select_repository_impl($storage_handlers)
-#            );
-#    $single_select_category_data = $single_select_category_repository->get_all_single_select();
-#
-#    $category_mappings = array(
-#            // 性別
-#            1 => array(
-#                'name' => 'sex',
-#                'names' => 'sexes',
-#                ),
-#            // 誕生日（年）
-#            2 => array(
-#                'name' => 'birth_year',
-#                'names' => 'birth_years',
-#                ),
-#            // 誕生日（月）
-#            3 => array(
-#                'name' => 'birth_month',
-#                'names' => 'birth_months',
-#                ),
-#            // 誕生日（日）
-#            4 => array(
-#                'name' => 'birth_day',
-#                'names' => 'birth_days',
-#                ),
-#            // 都道府県
-#            5 => array(
-#                'name' => 'prefectures',
-#                'names' => 'prefectureses',
-#                ),
-#            // 職業
-#            6 => array(
-#                'name' => 'job',
-#                'names' => 'jobs',
-#                ),
-#            );
-#    foreach ($single_select_category_data as $single_select_category)
-#    {
-#            $template_convert->assign_single_array($category_mappings[$single_select_category->get_single_select_category_id()]['name'], $single_select_category->get_name());
-#            $template_convert->assign_bool_array($category_mappings[$single_select_category->get_single_select_category_id()]['names'], $single_select_category->get_single_select_entities());
-#            }
+        # 複数選択項目の選択状態を設定
+        self.create_select_box('birth_year', '')
+        self.create_select_box('birth_month', '')
+        self.create_select_box('birth_day', '')
+        self.create_select_box('prefectures_id', '')
 
+        self.create_radio_box('sex_id', 1)
+        self.create_radio_box('job_id', 1)
+        self.create_radio_box('is_latest_news_hoped', 1)
 
+        self.create_check_box('is_personal_information_provide_agreed', '')
 
+        self.create_multiple_select_box('contact_method', [])
 
-
-
-#        $form = $this->get_form()
-#        if ('previous_page' === $form->get_clicked_button())
-#        {
-#            $storage_handlers = $this->get_storage_handlers()
-#            $tmp_user_repository = new tmp_user_repository_impl(
-#                $storage_handlers,
-#                new tmp_user_multiple_select_repository_impl($storage_handlers)
-#            )
-#            $this->all_tmp_user = $tmp_user_repository->get_all_tmp_user($form->get_tmp_user_id(), $form->get_token())
-#            foreach ($this->all_tmp_user as $tmp_user)
-#            {
-#                $entity_table_columns = $tmp_user->get_table_columns()
-#                foreach ($entity_table_columns as $table_column => $value)
-#                {
-#                    $getter = 'get_' . $table_column
-#                    if ('password' === $table_column)
-#                    {
-#                        // パスワードは表示させない
-#                        $entity_value = ''
-#                    }
-#                    else
-#                    {
-#                        $entity_value = $tmp_user->$getter()
-#                    }
-#                    $form->execute_accessor_method('set', $table_column, $entity_value)
-#                }
-#            }
-#        }
-#
-#        // フォームの初期値を設定する為の初期化
-#        $this->assign_all_form_data()
-#
-#        // 複数選択項目の表示内容を取得して設定
-#        $this->set_multiple_value_item()
-#
-#        // 複数選択項目の初期選択状態を設定
-#        $this->select_multiple_value_item()
+        self.create_multiple_check_box('knew_trigger', [])
 
         self.set_template_file_name('user_registration/input')
+    def create_select_box(self, key, select_value):
+        get_data = self.get_request().args
+        if 'previous_page' == get_data.get('clicked_button'):
+            print('previous_page')
+            print(get_data)
+        else:
+            form_value = get_data.get(key)
+            if form_value is None:
+                value = select_value
+            else:
+                value = form_value
+        self.add_response_data(key, value)
+    def create_radio_box(self, key, select_value):
+        get_data = self.get_request().args
+        form_value = get_data.get(key)
+        if form_value is None:
+            value = select_value
+        else:
+            value = form_value
+        self.add_response_data(key, value)
+    def create_check_box(self, key, select_value):
+        get_data = self.get_request().args
+        form_value = get_data.get(key)
+        if form_value is None:
+            value = select_value
+        else:
+            value = form_value
+        self.add_response_data(key, value)
+    def create_multiple_select_box(self, key, select_value):
+        get_data = self.get_request().args
+        if 'previous_page' == get_data.get('clicked_button'):
+            print('previous_page')
+            print(get_data)
+        else:
+            form_value = get_data.get(key)
+            if form_value is None:
+                value = select_value
+            else:
+                value = form_value
+        self.add_response_data(key, value)
+    def create_multiple_check_box(self, key, select_value):
+        get_data = self.get_request().args
+        if 'previous_page' == get_data.get('clicked_button'):
+            print('previous_page')
+            print(get_data)
+        else:
+            form_value = get_data.get(key)
+            if form_value is None:
+                value = select_value
+            else:
+                value = form_value
+        self.add_response_data(key, value)
     def set_all_tmp_user(self, all_tmp_user):
         __all_tmp_user = all_tmp_user
     def get_all_tmp_user(self):
