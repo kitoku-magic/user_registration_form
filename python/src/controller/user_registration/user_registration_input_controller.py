@@ -6,25 +6,23 @@ class user_registration_input_controller(user_registration_common_controller):
         # ユーザー登録入力画面を表示する
         self.add_response_data('title', setting.app.config['USER_REGISTRATION_INPUT_TITLE'])
 
-        self.set_request_data(self.get_request().args)
-        request_data = self.get_request_data()
         users_entity_obj = self.get_users_entity()
-        users_entity_obj.mail_address = request_data.get('mail_address')
+        users_entity_obj.set_request_to_model(self.get_request().args)
         pre_users_repository_obj = pre_users_repository(pre_users_entity())
         # メールアドレスとトークンが一致して、現在時間が最終更新時間から１時間経っていなければOK
         pre_users_data = pre_users_repository_obj.find(
             ('pre_user_id',),
             'mail_address = %s AND token = %s AND updated_at >= %s',
-            (users_entity_obj.mail_address, request_data.get('token'), (math.floor(time.time()) - 3600))
+            (users_entity_obj.mail_address, users_entity_obj.token, (math.floor(time.time()) - 3600))
         )
         if pre_users_data is None:
             raise custom_exception(
                 'URLの有効期限が切れています。',
                 'URLの有効期限が切れています。\n再度、メールアドレス入力画面からお手続き下さい。'
             )
-        if 'previous_page' == request_data.get('clicked_button'):
+        if 'previous_page' == users_entity_obj.clicked_button:
             print('previous_page')
-            print(request_data)
+            print(users_entity_obj)
 #            $storage_handlers = $this->get_storage_handlers()
 #            $tmp_user_repository = new tmp_user_repository_impl(
 #                $storage_handlers,

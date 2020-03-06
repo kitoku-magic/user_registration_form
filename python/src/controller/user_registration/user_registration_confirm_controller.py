@@ -2,8 +2,7 @@ from src.controller.user_registration import *
 
 class user_registration_confirm_controller(user_registration_common_controller):
     def execute(self):
-        self.set_request_data(self.get_request().form)
-        request_data = self.get_request_data()
+        request_data = self.get_request().form
         request_data_dict = request_data.to_dict()
         users_entity_obj = self.get_users_entity()
         properties = users_entity_obj.get_all_properties()
@@ -27,7 +26,7 @@ class user_registration_confirm_controller(user_registration_common_controller):
             'zip_code = %s',
             (zip_codes[0] + zip_codes[1],)
         )
-        if 'street_address_search' == request_data.get('clicked_button'):
+        if 'street_address_search' == users_entity_obj.clicked_button:
             is_next_page_forward = False
             if street_address_data is None:
                 users_entity_obj.zip_code_error = '郵便番号に該当する住所が存在しません'

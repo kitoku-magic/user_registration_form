@@ -120,55 +120,47 @@ class user_registration_common_controller(controller):
 
         self.create_multiple_check_box('knew_trigger', [])
     def create_select_box(self, key, select_value):
-        request_data = self.get_request_data()
-        if 'previous_page' == request_data.get('clicked_button'):
+        if 'previous_page' == self.__users_entity.clicked_button:
             print('previous_page')
-            print(request_data)
+            print(self.__users_entity)
         else:
-            if True == key.startswith('birth_'):
-                form_value = request_data.get(key)
-            else:
-                form_value = getattr(self.__users_entity, key)
+            form_value = getattr(self.__users_entity, key, None)
             if form_value is None:
                 value = select_value
             else:
                 value = form_value
         self.add_response_data(key, value)
     def create_radio_box(self, key, select_value):
-        request_data = self.get_request_data()
-        form_value = request_data.get(key)
+        form_value = getattr(self.__users_entity, key, None)
         if form_value is None:
             value = select_value
         else:
             value = form_value
         self.add_response_data(key, value)
     def create_check_box(self, key, select_value):
-        request_data = self.get_request_data()
-        form_value = request_data.get(key)
+        form_value = getattr(self.__users_entity, key, None)
         if form_value is None:
             value = select_value
         else:
             value = form_value
         self.add_response_data(key, value)
     def create_multiple_select_box(self, key, select_value):
-        request_data = self.get_request_data()
-        if 'previous_page' == request_data.get('clicked_button'):
+        if 'previous_page' == self.__users_entity.clicked_button:
             print('previous_page')
-            print(request_data)
+            print(self.__users_entity)
         else:
-            form_value = request_data.get(key)
+            form_value = getattr(self.__users_entity, key, None)
             if form_value is None:
                 value = select_value
             else:
                 value = form_value
         self.add_response_data(key, value)
     def create_multiple_check_box(self, key, select_value):
-        request_data = self.get_request_data()
-        if 'previous_page' == request_data.get('clicked_button'):
+        if 'previous_page' == self.__users_entity.clicked_button:
             print('previous_page')
-            print(request_data)
+            print(self.__users_entity)
         else:
-            form_value = request_data.get(key)
+            form_value = getattr(self.__users_entity, key, None)
             if form_value is None:
                 value = select_value
             else:

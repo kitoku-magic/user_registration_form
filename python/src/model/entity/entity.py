@@ -24,7 +24,7 @@ class entity(db.Model):
                     is_exist = True
                     setattr(self, field, v)
                     break
-            if False == is_exist:
+            if False == is_exist and value != []:
                 setattr(self, field, None)
     def get_all_properties(self):
         attributes = inspect.getmembers(self, lambda a:not(inspect.isroutine(a)))

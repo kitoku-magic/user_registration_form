@@ -7,10 +7,6 @@ class controller:
         self.__template_file_name = ''
     def get_request(self):
         return self.__request
-    def set_request_data(self, request_data):
-        self.__request_data = request_data
-    def get_request_data(self):
-        return self.__request_data
     def add_response_data(self, name, value):
         self.__response_data[name] = value
     def set_template_file_name(self, template_file_name):
@@ -33,21 +29,19 @@ class controller:
                 show_error_message = e.args[1]
             else:
                 show_error_message = '予期しないエラーが発生しました。\nブラウザの戻るボタンで前ページにお戻り下さい。'
-            self.add_response_data('title', 'エラー')
-            self.add_response_data('show_error_message', show_error_message)
-            template = setting.app.jinja_environment.get_template('error.html')
-            http_response = template.render({'res': self.__response_data})
-            r = make_response(http_response)
+            r = self.make_error_response(show_error_message)
         except Exception as e:
             setting.app.logger.exception('{}'.format(e))
             show_error_message = '予期しないエラーが発生しました。\nブラウザの戻るボタンで前ページにお戻り下さい。'
-            self.add_response_data('title', 'エラー')
-            self.add_response_data('show_error_message', show_error_message)
-            template = setting.app.jinja_environment.get_template('error.html')
-            http_response = template.render({'res': self.__response_data})
-            r = make_response(http_response)
+            r = self.make_error_response(show_error_message)
         finally:
             return r
+    def make_error_response(self, show_error_message):
+        self.add_response_data('title', 'エラー')
+        self.add_response_data('show_error_message', show_error_message)
+        template = setting.app.jinja_environment.get_template('error.html')
+        http_response = template.render({'res': self.__response_data})
+        return make_response(http_response)
     def create_csrf_token(self):
         csrf_token = secrets.token_hex(64)
         session['csrf_token'] = csrf_token
