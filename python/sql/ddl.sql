@@ -26,8 +26,7 @@ CREATE TABLE `zip_addresses` (
   `created_at` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT '作成日時のタイムスタンプ',
   `updated_at` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT '更新日時のタイムスタンプ',
   PRIMARY KEY (`zip_address_id`),
-  KEY `zip_addresses_prefecture_id_foreign` (`prefecture_id`),
-  KEY `zip_addresses_zip_code_index` (`zip_code`),
+  KEY `zip_addresses_zip_code_prefecture_id_index` (`zip_code`, `prefecture_id`),
   CONSTRAINT `zip_addresses_prefecture_id_foreign` FOREIGN KEY (`prefecture_id`) REFERENCES `prefectures` (`prefecture_id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='郵便番号住所マスタ';
 
@@ -118,7 +117,7 @@ CREATE TABLE `users` (
   `first_name_hiragana` varbinary(64) NOT NULL DEFAULT '' COMMENT '名前（ひらがな）',
   `sex_id` tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '性別ID',
   `birth_day_id` smallint(5) unsigned NOT NULL DEFAULT '0' COMMENT '誕生日ID',
-  `zip_code` varbinary(8) NOT NULL DEFAULT '' COMMENT '郵便番号',
+  `zip_code` varbinary(7) NOT NULL DEFAULT '' COMMENT '郵便番号',
   `prefecture_id` tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '都道府県ID',
   `city_street_address` varbinary(256) NOT NULL DEFAULT '' COMMENT '市区町村・丁目・番地',
   `building_room_address` varbinary(128) NOT NULL DEFAULT '' COMMENT '建物名・室名',
@@ -134,14 +133,10 @@ CREATE TABLE `users` (
   `updated_at` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT '更新日時のタイムスタンプ',
   PRIMARY KEY (`user_id`),
   UNIQUE KEY `users_mail_address_unique` (`mail_address`),
-  KEY `users_sex_id_foreign` (`sex_id`),
-  KEY `users_birth_day_id_foreign` (`birth_day_id`),
-  KEY `users_prefecture_id_foreign` (`prefecture_id`),
-  KEY `users_job_id_foreign` (`job_id`),
+  CONSTRAINT `users_sex_id_foreign` FOREIGN KEY (`sex_id`) REFERENCES `sexes` (`sex_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `users_birth_day_id_foreign` FOREIGN KEY (`birth_day_id`) REFERENCES `birth_days` (`birth_day_id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `users_job_id_foreign` FOREIGN KEY (`job_id`) REFERENCES `jobs` (`job_id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `users_prefecture_id_foreign` FOREIGN KEY (`prefecture_id`) REFERENCES `prefectures` (`prefecture_id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `users_sex_id_foreign` FOREIGN KEY (`sex_id`) REFERENCES `sexes` (`sex_id`) ON DELETE CASCADE ON UPDATE CASCADE
+  CONSTRAINT `users_zip_code_prefecture_id_foreign` FOREIGN KEY (`zip_code`, `prefecture_id`) REFERENCES `zip_addresses` (`zip_code`, `prefecture_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `users_job_id_foreign` FOREIGN KEY (`job_id`) REFERENCES `jobs` (`job_id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='ユーザー';
 
 
@@ -153,9 +148,8 @@ CREATE TABLE `user_contact_methods` (
   `created_at` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT '作成日時のタイムスタンプ',
   `updated_at` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT '更新日時のタイムスタンプ',
   PRIMARY KEY (`user_id`,`contact_method_id`),
-  KEY `user_contact_methods_contact_method_id_foreign` (`contact_method_id`),
-  CONSTRAINT `user_contact_methods_contact_method_id_foreign` FOREIGN KEY (`contact_method_id`) REFERENCES `contact_methods` (`contact_method_id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `user_contact_methods_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE
+  CONSTRAINT `user_contact_methods_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `user_contact_methods_contact_method_id_foreign` FOREIGN KEY (`contact_method_id`) REFERENCES `contact_methods` (`contact_method_id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='ユーザー連絡方法';
 
 
@@ -167,7 +161,6 @@ CREATE TABLE `user_knew_triggers` (
   `created_at` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT '作成日時のタイムスタンプ',
   `updated_at` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT '更新日時のタイムスタンプ',
   PRIMARY KEY (`user_id`,`knew_trigger_id`),
-  KEY `user_knew_triggers_knew_trigger_id_foreign` (`knew_trigger_id`),
-  CONSTRAINT `user_knew_triggers_knew_trigger_id_foreign` FOREIGN KEY (`knew_trigger_id`) REFERENCES `knew_triggers` (`knew_trigger_id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `user_knew_triggers_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE
+  CONSTRAINT `user_knew_triggers_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `user_knew_triggers_knew_trigger_id_foreign` FOREIGN KEY (`knew_trigger_id`) REFERENCES `knew_triggers` (`knew_trigger_id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='ユーザー知ったきっかけ';

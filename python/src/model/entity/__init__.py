@@ -1,3 +1,5 @@
+import inspect
+
 from sqlalchemy.dialects.mysql import (
     BIGINT,
     MEDIUMINT,

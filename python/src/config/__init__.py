@@ -28,6 +28,8 @@ class config(object):
     # ユーザー登録入力画面
     USER_REGISTRATION_INPUT_TITLE = 'ユーザー登録'
 
+    # ユーザー登録確認画面
+    USER_REGISTRATION_CONFIRM_TITLE = 'ユーザー登録確認'
 class testing(config):
     ENV = 'testing'
     TESTING = True

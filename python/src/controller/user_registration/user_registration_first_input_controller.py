@@ -1,6 +1,6 @@
 from src.controller.user_registration import *
 
-class user_registration_first_input_controller(controller):
+class user_registration_first_input_controller(user_registration_common_controller):
     def execute(self):
         # メールアドレス入力画面を表示する
         self.add_response_data('title', setting.app.config['USER_REGISTRATION_FIRST_INPUT_TITLE'])

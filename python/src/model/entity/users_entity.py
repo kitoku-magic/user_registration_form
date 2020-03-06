@@ -6,3 +6,4 @@ class users_entity(users_entity_base):
         super().__init__()
         # BLOB型はデフォルト値が設定出来ない為
         self.remarks = ''
+        self.clicked_button = None

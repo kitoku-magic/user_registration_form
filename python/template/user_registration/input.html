@@ -1,6 +1,7 @@
 {% extends 'layout.html' %}
 {% block body %}
 <form id="user_registration_input" action="/user_registration/confirm" method="post" enctype="multipart/form-data">
+	<input type="hidden" id="mail_address" name="mail_address" maxlength="128" size="35" value="{{ res['mail_address'] }}" />
 	<table id="user_form_table">
 		<tr>
 			<th id="user_form_midashi" colspan="2">
@@ -10,7 +11,7 @@
 		<tr>
 			<th>メールアドレス</th>
 			<td>
-				<input type="text" id="mail_address" name="mail_address" maxlength="128" size="35" value="{{ res['mail_address'] }}" disabled="disabled" />
+				<input type="text" id="mail_address_disabled" name="mail_address_disabled" maxlength="128" size="35" value="{{ res['mail_address'] }}" disabled="disabled" />
 			</td>
 		</tr>
 		<tr>
@@ -95,14 +96,14 @@
 		<tr>
 			<th>都道府県</th>
 			<td>
-				<select id="prefectures_id" name="prefectures_id" onfocus="setBackGroundColor(this, '#d0ffd0');" onblur="setBackGroundColor(this, '#ffffff');">
+				<select id="prefecture_id" name="prefecture_id" onfocus="setBackGroundColor(this, '#d0ffd0');" onblur="setBackGroundColor(this, '#ffffff');">
 					<option value="" {% if '' == res['prefecture_id'] %} selected="selected" {% endif %}>▼選択してください</option>
-					{% for prefectures in res['prefectureses'] %}
-					<option value="{{ prefectures.id }}" {% if prefectures.id == res['prefecture_id'] %} selected="selected" {% endif %}>{{ prefectures.name }}</option>
+					{% for prefecture in res['prefectures'] %}
+					<option value="{{ prefecture.id }}" {% if prefecture.id == res['prefecture_id'] %} selected="selected" {% endif %}>{{ prefecture.name }}</option>
 					{% endfor %}
 				</select>
 				<br />
-				<p class="error_message">{{ res['prefectures_id_error'] }}</p>
+				<p class="error_message">{{ res['prefecture_id_error'] }}</p>
 			</td>
 		</tr>
 		<tr>

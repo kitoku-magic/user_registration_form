@@ -1,19 +1,18 @@
 from src.controller.user_registration import *
 
-class user_registration_first_complete_controller(controller):
+class user_registration_first_complete_controller(user_registration_common_controller):
     def execute(self):
         # 入力されたメールアドレス宛にメールを送信する
         self.add_response_data('title', setting.app.config['USER_REGISTRATION_FIRST_COMPLETE_TITLE'])
         # CSRFトークンをチェックする
         super().check_csrf_token()
-        post_data = self.get_request().form
         # メールアドレスのバリデーション
         pre_users_entity_obj = pre_users_entity()
-        pre_users_entity_obj.set_request_to_model({'mail_address': ''}, post_data)
+        pre_users_entity_obj.set_request_to_model(self.get_request().form)
         validate_errors = pre_users_entity_obj.get_validate_errors()
         if True == validate_errors['result']:
             template_file_name = 'user_registration/first_complete'
-            users_repository_obj = users_repository(users_entity())
+            users_repository_obj = users_repository(self.get_users_entity())
             # 既に、ユーザー登録済みなら、メール文言を変える
             users_data = users_repository_obj.find(
                     ('user_id',),
@@ -48,7 +47,7 @@ class user_registration_first_complete_controller(controller):
                         if row_count > 0:
                             is_db_success = True
                             pre_user_id = pre_users_repository_obj.last_insert_id()
-                    except Exception as exc:
+                    except custom_exception as exc:
                         setting.app.logger.exception('{}'.format(exc))
                         is_db_success = False
                 else:
@@ -61,7 +60,7 @@ class user_registration_first_complete_controller(controller):
                         if row_count > 0:
                             is_db_success = True
                             pre_user_id = pre_users_data[0]
-                    except Exception as exc:
+                    except custom_exception as exc:
                         setting.app.logger.exception('{}'.format(exc))
                         is_db_success = False
             else:
@@ -77,7 +76,7 @@ class user_registration_first_complete_controller(controller):
                     msg.body = body
                     setting.mail.send(msg)
                     is_mail_send = True
-                except Exception as exc:
+                except custom_exception as exc:
                     setting.app.logger.exception('{}'.format(exc))
                     is_mail_send = False
             error_message = ''
@@ -91,7 +90,7 @@ class user_registration_first_complete_controller(controller):
                 pre_users_repository_obj.rollback()
                 error_message = 'データベースへの登録に失敗しました。'
             if '' != error_message:
-                raise Exception(error_message, '登録に失敗しました。\n再度、お手続き下さい。')
+                raise custom_exception(error_message, '登録に失敗しました。\n再度、お手続き下さい。')
             setting.app.logger.info('pre_user_id:' + str(pre_user_id) + 'にメールを送信しました。')
         else:
             template_file_name = 'user_registration/index'

@@ -7,6 +7,10 @@ class controller:
         self.__template_file_name = ''
     def get_request(self):
         return self.__request
+    def set_request_data(self, request_data):
+        self.__request_data = request_data
+    def get_request_data(self):
+        return self.__request_data
     def add_response_data(self, name, value):
         self.__response_data[name] = value
     def set_template_file_name(self, template_file_name):
@@ -23,13 +27,21 @@ class controller:
             #r.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
             #r.headers['Pragma'] = 'no-cache'
             #r.headers['Expires'] = '0'
-        except Exception as e:
+        except custom_exception as e:
             setting.app.logger.exception('{}'.format(e))
-            self.add_response_data('title', 'エラー')
             if 2 <= len(e.args):
                 show_error_message = e.args[1]
             else:
                 show_error_message = '予期しないエラーが発生しました。\nブラウザの戻るボタンで前ページにお戻り下さい。'
+            self.add_response_data('title', 'エラー')
+            self.add_response_data('show_error_message', show_error_message)
+            template = setting.app.jinja_environment.get_template('error.html')
+            http_response = template.render({'res': self.__response_data})
+            r = make_response(http_response)
+        except Exception as e:
+            setting.app.logger.exception('{}'.format(e))
+            show_error_message = '予期しないエラーが発生しました。\nブラウザの戻るボタンで前ページにお戻り下さい。'
+            self.add_response_data('title', 'エラー')
             self.add_response_data('show_error_message', show_error_message)
             template = setting.app.jinja_environment.get_template('error.html')
             http_response = template.render({'res': self.__response_data})
@@ -48,6 +60,6 @@ class controller:
             if post_csrf_token == session_csrf_token:
                 return True
             else:
-                raise Exception('トークンが一致しません', '不正なリクエストです。')
+                raise custom_exception('トークンが一致しません', '不正なリクエストです。')
         else:
-            raise Exception('トークンが設定されていません', '不正なリクエストです。')
+            raise custom_exception('トークンが設定されていません', '不正なリクエストです。')

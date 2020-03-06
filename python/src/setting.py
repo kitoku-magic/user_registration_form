@@ -11,6 +11,7 @@ from src.custom_filter import nl2br
 from src.controller.user_registration.user_registration_first_input_controller import user_registration_first_input_controller
 from src.controller.user_registration.user_registration_first_complete_controller import user_registration_first_complete_controller
 from src.controller.user_registration.user_registration_input_controller import user_registration_input_controller
+from src.controller.user_registration.user_registration_confirm_controller import user_registration_confirm_controller
 
 base_path = '/opt/app/user_registration_form/python'
 
@@ -83,4 +84,8 @@ def user_registration_first_complete():
 @app.route('/user_registration/input', methods=['GET'])
 def user_registration_input():
     obj = user_registration_input_controller()
+    return obj.run()
+@app.route('/user_registration/confirm', methods=['POST'])
+def user_registration_confirm():
+    obj = user_registration_confirm_controller()
     return obj.run()

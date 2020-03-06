@@ -10,47 +10,13 @@ class users_entity_base(timestamp_mixin_entity, entity):
     __FIRST_NAME_LENGTH = 32
     __LAST_NAME_HIRAGANA_LENGTH = 64
     __FIRST_NAME_HIRAGANA_LENGTH = 64
-    __ZIP_CODE_LENGTH = 8
+    __ZIP_CODE_LENGTH = 7
     __CITY_STREET_ADDRESS_LENGTH = 256
     __BUILDING_ROOM_ADDRESS_LENGTH = 128
     __TELEPHONE_NUMBER_LENGTH = 13
     __JOB_OTHER_LENGTH = 64
     __FILE_NAME_LENGTH = 256
     __FILE_PATH_LENGTH = 512
-
-    def get_all_properties(self):
-        return {
-            'user_id' : 0,
-            'mail_address' : '',
-            'token' : '',
-            'registration_status' : 0,
-            'last_name' : '',
-            'first_name' : '',
-            'last_name_hiragana' : '',
-            'first_name_hiragana' : '',
-            'sex_id' : 0,
-            'birth_day_id' : 0,
-            'zip_code' : '',
-            'prefecture_id' : 0,
-            'city_street_address' : '',
-            'building_room_address' : '',
-            'telephone_number' : '',
-            'job_id' : 0,
-            'job_other' : '',
-            'is_latest_news_hoped' : 0,
-            'file_name' : '',
-            'file_path' : '',
-            'remarks' : '',
-            'is_personal_information_provide_agreed' : 0,
-            'created_at' : 0,
-            'updated_at' : 0,
-            'sexes' : [],
-            'prefectures' : [],
-            'birth_days' : [],
-            'jobs' : [],
-            'user_contact_methods_collection' : [],
-            'user_knew_triggers_collection' : [],
-        }
 
     def get_mail_address_length(cls):
         return users_entity_base.__MAIL_ADDRESS_LENGTH
@@ -111,10 +77,10 @@ class users_entity_base(timestamp_mixin_entity, entity):
         return repository.get_db_instance(repository).Column(SMALLINT(unsigned = True), repository.get_db_instance(repository).ForeignKey('birth_days.birth_day_id'), nullable = False, server_default = '0', comment = '誕生日ID')
     @declared_attr
     def zip_code(cls):
-        return repository.get_db_instance(repository).Column(VARBINARY(users_entity_base.__ZIP_CODE_LENGTH), nullable = False, server_default = '', comment = '郵便番号')
+        return repository.get_db_instance(repository).Column(VARBINARY(users_entity_base.__ZIP_CODE_LENGTH), repository.get_db_instance(repository).ForeignKey('zip_addresses.zip_code'), nullable = False, server_default = '', comment = '郵便番号')
     @declared_attr
     def prefecture_id(cls):
-        return repository.get_db_instance(repository).Column(TINYINT(unsigned = True), repository.get_db_instance(repository).ForeignKey('prefectures.prefecture_id'), nullable = False, server_default = '0', comment = '都道府県ID')
+        return repository.get_db_instance(repository).Column(TINYINT(unsigned = True), repository.get_db_instance(repository).ForeignKey('zip_addresses.prefecture_id'), nullable = False, server_default = '0', comment = '都道府県ID')
     @declared_attr
     def city_street_address(cls):
         return repository.get_db_instance(repository).Column(VARBINARY(users_entity_base.__CITY_STREET_ADDRESS_LENGTH), nullable = False, server_default = '', comment = '市区町村・丁目・番地')
@@ -146,11 +112,11 @@ class users_entity_base(timestamp_mixin_entity, entity):
     def is_personal_information_provide_agreed(cls):
         return repository.get_db_instance(repository).Column(TINYINT(unsigned = True), nullable = False, server_default = '0', comment = '個人情報提供の同意状況')
     @declared_attr
+    def zip_addresses(cls):
+        return repository.get_db_instance(repository).relationship('zip_addresses_entity', primaryjoin='and_(users_entity.zip_code == zip_addresses_entity.zip_code, users_entity.prefecture_id == zip_addresses_entity.prefecture_id)', back_populates='users_collection', uselist=False)
+    @declared_attr
     def sexes(cls):
         return repository.get_db_instance(repository).relationship('sexes_entity', back_populates='users_collection', uselist=False)
-    @declared_attr
-    def prefectures(cls):
-        return repository.get_db_instance(repository).relationship('prefectures_entity', back_populates='users_collection', uselist=False)
     @declared_attr
     def birth_days(cls):
         return repository.get_db_instance(repository).relationship('birth_days_entity', back_populates='users_collection', uselist=False)
@@ -158,11 +124,11 @@ class users_entity_base(timestamp_mixin_entity, entity):
     def jobs(cls):
         return repository.get_db_instance(repository).relationship('jobs_entity', back_populates='users_collection', uselist=False)
     @declared_attr
-    def user_contact_methods_collection(cls):
-        return repository.get_db_instance(repository).relationship('user_contact_methods_entity', back_populates='users', cascade='save-update, merge, delete', uselist=True)
-    @declared_attr
     def user_knew_triggers_collection(cls):
         return repository.get_db_instance(repository).relationship('user_knew_triggers_entity', back_populates='users', cascade='save-update, merge, delete', uselist=True)
+    @declared_attr
+    def user_contact_methods_collection(cls):
+        return repository.get_db_instance(repository).relationship('user_contact_methods_entity', back_populates='users', cascade='save-update, merge, delete', uselist=True)
 
     def __init__(self):
         timestamp_mixin_entity.__init__(self)

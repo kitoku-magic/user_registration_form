@@ -8,18 +8,6 @@ class zip_addresses_entity_base(timestamp_mixin_entity, entity):
     __CITY_DISTRICT_COUNTY_LENGTH = 64
     __TOWN_VILLAGE_ADDRESS_LENGTH = 128
 
-    def get_all_properties(self):
-        return {
-            'zip_address_id' : 0,
-            'zip_code' : '',
-            'prefecture_id' : 0,
-            'city_district_county' : '',
-            'town_village_address' : '',
-            'created_at' : 0,
-            'updated_at' : 0,
-            'prefectures' : [],
-        }
-
     def get_zip_code_length(cls):
         return zip_addresses_entity_base.__ZIP_CODE_LENGTH
     def get_city_district_county_length(cls):
@@ -45,6 +33,9 @@ class zip_addresses_entity_base(timestamp_mixin_entity, entity):
     @declared_attr
     def prefectures(cls):
         return repository.get_db_instance(repository).relationship('prefectures_entity', back_populates='zip_addresses_collection', uselist=False)
+    @declared_attr
+    def users_collection(cls):
+        return repository.get_db_instance(repository).relationship('users_entity', primaryjoin='and_(zip_addresses_entity.zip_code == users_entity.zip_code, zip_addresses_entity.prefecture_id == users_entity.prefecture_id)', back_populates='zip_addresses', cascade='save-update, merge, delete', uselist=True)
 
     def __init__(self):
         timestamp_mixin_entity.__init__(self)
