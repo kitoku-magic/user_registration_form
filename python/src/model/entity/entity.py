@@ -22,6 +22,8 @@ class entity(db.Model):
             for k, v in request_data.items():
                 if field == k:
                     is_exist = True
+                    if str == type(v) and True == v.isdecimal():
+                        v = int(v)
                     setattr(self, field, v)
                     break
             if False == is_exist and value != []:

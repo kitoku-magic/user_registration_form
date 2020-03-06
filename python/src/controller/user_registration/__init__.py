@@ -6,6 +6,7 @@ import jaconv
 from flask_mail import Message
 
 from src import setting
+from src.util.util import util
 from src.exception.custom_exception import custom_exception
 from src.model.entity.pre_users_entity import pre_users_entity
 from src.model.entity.users_entity import users_entity

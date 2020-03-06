@@ -3,7 +3,13 @@ from src.controller.user_registration import *
 class user_registration_common_controller(controller):
     def __init__(self):
         super().__init__()
+        request = self.get_request()
+        if 'GET' == request.environ['REQUEST_METHOD']:
+            request_data = request.args
+        elif 'POST' == request.environ['REQUEST_METHOD']:
+            request_data = request.form
         self.__users_entity = users_entity()
+        self.__users_entity.set_request_to_model(request_data)
     def set_users_entity(self, users_entity):
         self.__users_entity = users_entity
     def get_users_entity(self):

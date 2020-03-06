@@ -1,4 +1,5 @@
 import dns.resolver
+import re
 
 from src.util import *
 
@@ -21,3 +22,5 @@ class util:
             except Exception as exc:
                 ret = 4
         return ret
+    def replace_hyphen(value, replace):
+        return re.sub('\u002D|\uFE63|\uFF0D|\u2010|\u2011|\u2043|\u02D7|\u2212|\u2012|\u2013|\u2014|\u2015|\uFE58|\u23AF|\u23E4|\u268A|\u2500|\u1173|\u2F00|\u30FC|\u3161|\u31D0|\u4E00|\uFF70|\uFFDA', replace, value)
