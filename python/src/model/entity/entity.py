@@ -14,7 +14,7 @@ class entity(db.Model):
         return cls.__name__.lower().replace('_entity', '')
     def get_validate_errors(self):
         return self.__validate_errors
-    def set_request_to_model(self, request_data):
+    def set_request_to_entity(self, request_data):
         properties = self.get_all_properties()
         request_data = request_data.to_dict()
         for field, value in properties.items():
@@ -28,6 +28,12 @@ class entity(db.Model):
                     break
             if False == is_exist and value != []:
                 setattr(self, field, None)
+    def trim_all_data(self):
+        properties = self.get_all_properties()
+        for field, value in properties.items():
+            if str == type(value):
+                # 改行コードはtrimしない
+                setattr(self, field, util.mb_trim(value, '\u0020\u0009\u0000\u000b\u3000'))
     def get_all_properties(self):
         attributes = inspect.getmembers(self, lambda a:not(inspect.isroutine(a)))
         property_dict = {}

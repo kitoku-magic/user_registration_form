@@ -3,12 +3,31 @@ from src.controller.user_registration import *
 class user_registration_confirm_controller(user_registration_common_controller):
     def execute(self):
         users_entity_obj = self.get_users_entity()
+        users_entity_obj.trim_all_data()
         properties = users_entity_obj.get_all_properties()
         for field, value in properties.items():
-            if 'zip_code' == field or 'telephone_number' == field:
+            if 'last_name' == field or 'first_name' == field:
+                value = jaconv.h2z(value)
+                value = util.join_diacritic(value)
+            elif 'last_name_hiragana' == field or 'first_name_hiragana' == field:
+                value = jaconv.kata2hira(jaconv.h2z(value))
+                value = util.join_diacritic(value)
+            elif 'zip_code' == field or 'telephone_number' == field:
                 value = jaconv.z2h(value, digit=True)
                 value = util.replace_hyphen(value, '-')
+            elif 'city_street_address' == field or 'building_room_address' == field or 'job_other' == field:
+                value = jaconv.h2z(value, kana=True, digit=True, ascii=True)
+                value = util.replace_hyphen(value, 'ー')
             setattr(users_entity_obj, field, value)
+
+        birth_year = users_entity_obj.birth_year
+        birth_month = users_entity_obj.birth_month
+        birth_day = users_entity_obj.birth_day
+        if True == util.is_empty(birth_year) and True == util.is_empty(birth_month) and True == util.is_empty(birth_day):
+            users_entity_obj.birth_day_full = None
+        else:
+            users_entity_obj.birth_day_full = str(birth_year) + '-' + str(birth_month).zfill(2) + '-' + str(birth_day).zfill(2)
+
         zip_codes = users_entity_obj.zip_code.split('-')
         if 2 > len(zip_codes):
             zip_codes = ['', '']
@@ -29,6 +48,8 @@ class user_registration_confirm_controller(user_registration_common_controller):
             else:
                 users_entity_obj.prefecture_id = street_address_data[0]
                 users_entity_obj.city_street_address = street_address_data[1] + street_address_data[2]
+        elif 'next_page' == users_entity_obj.clicked_button:
+            is_next_page_forward = True
         else:
             raise custom_exception('不正なリクエストです')
 

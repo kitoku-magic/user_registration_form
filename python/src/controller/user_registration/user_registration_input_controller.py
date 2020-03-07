@@ -7,7 +7,6 @@ class user_registration_input_controller(user_registration_common_controller):
         self.add_response_data('title', setting.app.config['USER_REGISTRATION_INPUT_TITLE'])
 
         users_entity_obj = self.get_users_entity()
-        users_entity_obj.set_request_to_model(self.get_request().args)
         pre_users_repository_obj = pre_users_repository(pre_users_entity())
         # メールアドレスとトークンが一致して、現在時間が最終更新時間から１時間経っていなければOK
         pre_users_data = pre_users_repository_obj.find(

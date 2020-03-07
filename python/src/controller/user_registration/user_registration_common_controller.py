@@ -9,7 +9,7 @@ class user_registration_common_controller(controller):
         elif 'POST' == request.environ['REQUEST_METHOD']:
             request_data = request.form
         self.__users_entity = users_entity()
-        self.__users_entity.set_request_to_model(request_data)
+        self.__users_entity.set_request_to_entity(request_data)
     def set_users_entity(self, users_entity):
         self.__users_entity = users_entity
     def get_users_entity(self):

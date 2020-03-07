@@ -8,7 +8,7 @@ class user_registration_first_complete_controller(user_registration_common_contr
         super().check_csrf_token()
         # メールアドレスのバリデーション
         pre_users_entity_obj = pre_users_entity()
-        pre_users_entity_obj.set_request_to_model(self.get_request().form)
+        pre_users_entity_obj.set_request_to_entity(self.get_request().form)
         validate_errors = pre_users_entity_obj.get_validate_errors()
         if True == validate_errors['result']:
             template_file_name = 'user_registration/first_complete'
