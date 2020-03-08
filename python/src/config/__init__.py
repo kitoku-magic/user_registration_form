@@ -10,6 +10,23 @@ class config(object):
     PG_CHARACTER_SET = 'utf-8'
     USER_REGISTRATION_STATUS_REGISTERED = 1
 
+    # バリデーションエラーメッセージ
+    REQUIRED_MESSAGE = '{show_name}は必須項目です';
+    NOT_EMPTY_MESSAGE = '{show_name}を入力してください';
+    MIN_LENGTH_MESSAGE = '{show_name}は入力必要桁数に足りていません';
+    MAX_LENGTH_MESSAGE = '{show_name}は入力可能桁数を超えています';
+    MAIL_FORMAT_MESSAGE = '{show_name}の書式が不正です';
+    ALPHA_NUM_MESSAGE = '{show_name}は半角英数字で入力してください';
+    JAPANESE_MESSAGE = '{show_name}は日本語で入力してください';
+    JAPANESE_EXTEND_MESSAGE = '{show_name}は日本語で入力してください';
+    HIRAGANA_MESSAGE = '{show_name}はひらがなで入力してください';
+    NUMBER_MESSAGE = '{show_name}は数値を入力してください';
+    INTEGER_MESSAGE = '{show_name}は整数を入力してください';
+    RANGE_MESSAGE = '{show_name}は有効な値の範囲外です';
+    DATE_MESSAGE = '{show_name}は不正な日付です';
+    ZIP_CODE_FORMAT_MESSAGE = '{show_name}は不正な郵便番号です';
+    TELEPHONE_FORMAT_MESSAGE = '{show_name}は不正な番号です';
+
     # ユーザー登録初期入力画面
     USER_REGISTRATION_FIRST_INPUT_TITLE = 'メールアドレス入力'
 

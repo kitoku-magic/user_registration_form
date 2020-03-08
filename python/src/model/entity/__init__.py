@@ -1,4 +1,5 @@
 import inspect
+from abc import abstractmethod
 
 from sqlalchemy.dialects.mysql import (
     BIGINT,

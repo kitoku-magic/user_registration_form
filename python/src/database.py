@@ -1,3 +1,8 @@
-from flask_sqlalchemy import SQLAlchemy
+from abc import ABCMeta
+from sqlalchemy.ext.declarative import DeclarativeMeta, declarative_base
+from flask_sqlalchemy import SQLAlchemy, model
 
-db = SQLAlchemy()
+class DeclarativeABCMeta(DeclarativeMeta, ABCMeta):
+    pass
+
+db = SQLAlchemy(model_class=declarative_base(cls=model.Model, metaclass=DeclarativeABCMeta))

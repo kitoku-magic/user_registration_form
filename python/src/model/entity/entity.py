@@ -4,14 +4,53 @@ from src.model.entity import *
 class entity(db.Model):
     __abstract__ = True
     def __init__(self):
+        self.__validation_settings = {}
+        self.__is_any_item = False
         self.__validate_errors = {'result': True, 'error': []}
         property_dict = self.get_all_properties()
         for field, value in property_dict.items():
             setattr(self, field, value)
-
+#    # 全部完成したらコメントアウトを外す
+#    @abstractmethod
+#    def set_validation_setting(self):
+#        pass
     @declared_attr
     def __tablename__(cls):
         return cls.__name__.lower().replace('_entity', '')
+    def validate(self):
+        """
+        バリデーションを行う
+        """
+        result = True
+        for name, validation_setting in self.__validation_settings.items():
+            # 項目毎に初期化して、前回の状態を引き継がないようにする
+            __is_any_item = False
+            for rule_name, options in validation_setting['rules'].items():
+                method_name = 'is_' + rule_name
+                ret = getattr(self, method_name)(getattr(self, name), options)
+                if False == ret:
+                    result = False
+                    if 'message' in options:
+                        message = options['message']
+                    else:
+                        message_format = setting.app.config[rule_name.upper() + '_MESSAGE']
+                        message = message_format.replace('{show_name}', validation_setting['show_name']);
+                    # エラーメッセージを設定
+                    setattr(self, name + '_error', message)
+                    # チェックを継続する設定になっていなければ、次の項目へ
+                    if 'is_next' not in options or True != options['is_next']:
+                        break
+        return result
+    def is_required(value, options):
+        """
+        必須項目チェック
+        """
+        return value is not None
+    def is_not_empty(value, options):
+        """
+        未入力チェック
+        """
+        return '' != value
     def get_validate_errors(self):
         return self.__validate_errors
     def set_request_to_entity(self, request_data):
@@ -44,6 +83,8 @@ class entity(db.Model):
                 continue
             property_dict[attribute[0]] = attribute[1]
         return property_dict
+    def add_validation_settings(self, name, show_name, validation_rules):
+        self.__validation_settings[name] = {'show_name': show_name, 'rules': validation_rules}
     @validates('mail_address')
     def validate_mail_address(self, key, value):
         # クラスインスタンス生成時の変数初期化の際は、バリデーションしない

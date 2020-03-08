@@ -132,3 +132,7 @@ class users_entity_base(timestamp_mixin_entity, entity):
 
     def __init__(self):
         timestamp_mixin_entity.__init__(self)
+    # 最終的には不要なので消す
+    @abstractmethod
+    def set_validation_setting(self):
+        pass
