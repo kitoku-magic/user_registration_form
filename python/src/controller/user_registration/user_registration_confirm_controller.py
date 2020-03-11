@@ -56,6 +56,14 @@ class user_registration_confirm_controller(user_registration_common_controller):
                 users_entity_obj.city_street_address = street_address_data[1] + street_address_data[2]
         elif 'next_page' == users_entity_obj.clicked_button:
             is_next_page_forward = True
+            users_entity_obj.set_validation_setting();
+            is_next_page_forward = users_entity_obj.validate();
+            # 郵便番号の存在結果
+            if users_entity_obj.zip_code_error is None and street_address_data is None:
+                is_next_page_forward = false;
+                users_entity_obj.zip_code_error = '郵便番号に該当する住所が存在しません'
+                users_entity_obj.prefecture_id = ''
+                users_entity_obj.city_street_address = ''
         else:
             raise custom_exception('不正なリクエストです')
 

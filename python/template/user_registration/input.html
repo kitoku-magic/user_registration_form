@@ -15,14 +15,6 @@
 			</td>
 		</tr>
 		<tr>
-			<th>パスワード</th>
-			<td>
-				<input type="password" id="password" name="password" maxlength="256" size="20" value="{{ res['password'] }}" onfocus="setBackGroundColor(this, '#d0ffd0');" onblur="setBackGroundColor(this, '#ffffff');" /> &lt;8文字以上半角英数字&gt;
-				<br />
-				<p class="error_message">{{ res['password_error'] }}</p>
-			</td>
-		</tr>
-		<tr>
 			<th>氏名</th>
 			<td>
 				(姓) <input type="text" id="last_name" name="last_name" maxlength="8" size="14" value="{{ res['last_name'] }}" onfocus="setBackGroundColor(this, '#d0ffd0');" onblur="setBackGroundColor(this, '#ffffff');" />
@@ -158,7 +150,7 @@
 					{% endfor %}
 				</select>
 				<br />
-				<p class="error_message">{{ res['contact_method_error'] }}</p>
+				<p class="error_message">{{ res['user_contact_methods_collection_error'] }}</p>
 			</td>
 		</tr>
 		<tr>
@@ -167,7 +159,7 @@
 				{% for knew_trigger in res['knew_triggers'] %}
 				<input type="checkbox" name="knew_trigger" value="{{ knew_trigger.id }}" {% if knew_trigger.id in res['knew_trigger'] %} selected="selected" {% endif %}>{{ knew_trigger.name }}</input>
 				{% endfor %}
-				<p class="error_message">{{ res['knew_trigger_error'] }}</p>
+				<p class="error_message">{{ res['user_knew_triggers_collection_error'] }}</p>
 			</td>
 		</tr>
 		<tr>

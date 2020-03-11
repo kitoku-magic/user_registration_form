@@ -1,27 +1,23 @@
 import dns.resolver
 import re
 import unicodedata
+from datetime import datetime
 
 from src.util import *
 
 class util:
-    def check_mail_address(value, max_length):
-        ret = 0
-        if value == '':
-            ret = 1
-        elif max_length < len(value.encode(setting.app.config['PG_CHARACTER_SET'])):
-            ret = 2
-        elif '@' not in value:
-            ret = 3
-        else:
-            tmp = value.split('@')
-            mail_domain = tmp[-1]
-            try:
-                records  = dns.resolver.query(mail_domain, 'MX')
-                mx_record = records[0].exchange
-                mxRecord = str(mx_record)
-            except Exception as exc:
-                ret = 4
+    def check_mail_format(value):
+        return '@' in value
+    def check_mail_domain(value):
+        ret = True
+        tmp = value.split('@')
+        mail_domain = tmp[-1]
+        try:
+            records  = dns.resolver.query(mail_domain, 'MX')
+            mx_record = records[0].exchange
+            mxRecord = str(mx_record)
+        except Exception as exc:
+            ret = False
         return ret
     def replace_hyphen(value, replace):
         return re.sub('\u002D|\uFE63|\uFF0D|\u2010|\u2011|\u2043|\u02D7|\u2212|\u2012|\u2013|\u2014|\u2015|\uFE58|\u23AF|\u23E4|\u268A|\u2500|\u1173|\u2F00|\u30FC|\u3161|\u31D0|\u4E00|\uFF70|\uFFDA', replace, value)
@@ -50,3 +46,43 @@ class util:
         空かどうかのチェック
         """
         return value is None or '' == value
+    def check_min_length(value, length):
+        """
+        最小桁数のチェック
+        """
+        return len(value.encode('utf-8')) >= length
+    def check_max_length(value, length):
+        """
+        最大桁数のチェック
+        """
+        return len(value.encode('utf-8')) <= length
+    def check_date(date, date_format = '%Y-%m-%d %H:%M:%S'):
+        """
+        日付が妥当かどうかのチェック
+        """
+        try:
+            datetime.strptime(date, date_format)
+            return True
+        except ValueError:
+            return False
+    def check_zip_code(value, is_include_hyphen = False):
+        """
+        郵便番号が妥当かどうかのチェック
+        """
+        pattern = '\A[0-9]{3}'
+        if True == is_include_hyphen:
+            pattern += '-'
+        pattern += '[0-9]{4}\Z'
+        return re.match(pattern, value) is not None
+    def check_telephone(value, is_include_hyphen = False):
+        """
+        電話番号が妥当かどうかのチェック
+        """
+        pattern = '\A0[1-9][0-9]{0,3}'
+        if True == is_include_hyphen:
+            pattern += '-'
+        pattern += '[0-9]{1,4}'
+        if True == is_include_hyphen:
+            pattern += '-'
+        pattern += '[0-9]{4}\Z'
+        return re.match(pattern, value) is not None

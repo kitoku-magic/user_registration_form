@@ -34,6 +34,10 @@ class controller:
             setting.app.logger.exception('{}'.format(e))
             show_error_message = '予期しないエラーが発生しました。\nブラウザの戻るボタンで前ページにお戻り下さい。'
             r = self.make_error_response(show_error_message)
+        except:
+            setting.app.logger.exception(traceback.format_exc())
+            show_error_message = '予期しないエラーが発生しました。\nブラウザの戻るボタンで前ページにお戻り下さい。'
+            r = self.make_error_response(show_error_message)
         finally:
             return r
     def make_error_response(self, show_error_message):

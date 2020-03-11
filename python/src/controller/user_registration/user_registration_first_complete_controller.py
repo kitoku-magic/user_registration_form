@@ -9,8 +9,9 @@ class user_registration_first_complete_controller(user_registration_common_contr
         # メールアドレスのバリデーション
         pre_users_entity_obj = pre_users_entity()
         pre_users_entity_obj.set_request_to_entity(self.get_request().form)
-        validate_errors = pre_users_entity_obj.get_validate_errors()
-        if True == validate_errors['result']:
+        pre_users_entity_obj.set_validation_setting();
+        validate_result = pre_users_entity_obj.validate();
+        if True == validate_result:
             template_file_name = 'user_registration/first_complete'
             users_repository_obj = users_repository(self.get_users_entity())
             # 既に、ユーザー登録済みなら、メール文言を変える
@@ -47,7 +48,7 @@ class user_registration_first_complete_controller(user_registration_common_contr
                         if row_count > 0:
                             is_db_success = True
                             pre_user_id = pre_users_repository_obj.last_insert_id()
-                    except custom_exception as exc:
+                    except Exception as exc:
                         setting.app.logger.exception('{}'.format(exc))
                         is_db_success = False
                 else:
@@ -60,7 +61,7 @@ class user_registration_first_complete_controller(user_registration_common_contr
                         if row_count > 0:
                             is_db_success = True
                             pre_user_id = pre_users_data[0]
-                    except custom_exception as exc:
+                    except Exception as exc:
                         setting.app.logger.exception('{}'.format(exc))
                         is_db_success = False
             else:
@@ -76,7 +77,7 @@ class user_registration_first_complete_controller(user_registration_common_contr
                     msg.body = body
                     setting.mail.send(msg)
                     is_mail_send = True
-                except custom_exception as exc:
+                except Exception as exc:
                     setting.app.logger.exception('{}'.format(exc))
                     is_mail_send = False
             error_message = ''
@@ -96,6 +97,6 @@ class user_registration_first_complete_controller(user_registration_common_contr
             template_file_name = 'user_registration/index'
             # CSRFトークンを作成する
             super().create_csrf_token()
-            self.add_response_data('mail_address_error', validate_errors['error'][0]['message'])
+            self.add_response_data('mail_address_error', pre_users_entity_obj.mail_address_error)
 
         self.set_template_file_name(template_file_name)
