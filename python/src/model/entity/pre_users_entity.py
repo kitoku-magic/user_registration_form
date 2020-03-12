@@ -12,7 +12,7 @@ class pre_users_entity(pre_users_entity_base):
                 'rules': {
                     'required': {},
                     'not_empty': {},
-                    'max_length': {'value': 128},
+                    'max_length': {'value': self.get_mail_address_length()},
                     'mail_format': {},
                     'mail_domain': {},
                 },

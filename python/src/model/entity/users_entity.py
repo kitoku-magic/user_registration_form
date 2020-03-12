@@ -18,7 +18,7 @@ class users_entity(users_entity_base):
                 'rules': {
                     'required': {},
                     'not_empty': {},
-                    'max_length': {'value': 128},
+                    'max_length': {'value': self.get_mail_address_length()},
                     'mail_format': {},
                     'mail_domain': {},
                 },
@@ -29,7 +29,7 @@ class users_entity(users_entity_base):
                 'rules': {
                     'required': {},
                     'not_empty': {},
-                    'max_length': {'value': 8},
+                    'max_length': {'value': self.get_last_name_length()},
                     'japanese': {},
                 },
             },
@@ -39,7 +39,7 @@ class users_entity(users_entity_base):
                 'rules': {
                     'required': {},
                     'not_empty': {},
-                    'max_length': {'value': 8},
+                    'max_length': {'value': self.get_first_name_length()},
                     'japanese': {},
                 },
             },
@@ -49,7 +49,7 @@ class users_entity(users_entity_base):
                 'rules': {
                     'required': {},
                     'not_empty': {},
-                    'max_length': {'value': 16},
+                    'max_length': {'value': self.get_last_name_hiragana_length()},
                     'hiragana': {},
                 },
             },
@@ -59,7 +59,7 @@ class users_entity(users_entity_base):
                 'rules': {
                     'required': {},
                     'not_empty': {},
-                    'max_length': {'value': 16},
+                    'max_length': {'value': self.get_first_name_hiragana_length()},
                     'hiragana': {},
                 },
             },
@@ -117,7 +117,7 @@ class users_entity(users_entity_base):
                 'rules': {
                     'required': {},
                     'not_empty': {},
-                    'max_length': {'value': 8},
+                    'max_length': {'value': self.get_zip_code_length()},
                     'zip_code_format': {'is_include_hyphen': True},
                 },
             },
@@ -137,7 +137,7 @@ class users_entity(users_entity_base):
                 'rules': {
                     'required': {},
                     'not_empty': {},
-                    'max_length': {'value': 64},
+                    'max_length': {'value': self.get_city_street_address_length()},
                     'japanese_extend': {},
                 },
             },
@@ -146,7 +146,7 @@ class users_entity(users_entity_base):
                 'show_name': '建物名・室名',
                 'rules': {
                     'allow_empty': {},
-                    'max_length': {'value': 64},
+                    'max_length': {'value': self.get_building_room_address_length()},
                     'japanese_extend': {},
                 },
             },
@@ -156,7 +156,7 @@ class users_entity(users_entity_base):
                 'rules': {
                     'required': {},
                     'not_empty': {},
-                    'max_length': {'value': 13},
+                    'max_length': {'value': self.get_telephone_number_length()},
                     'telephone_format': {'is_include_hyphen': True},
                 },
             },
@@ -185,7 +185,7 @@ class users_entity(users_entity_base):
         else:
             rules['allow_empty'] = {}
 
-        rules['max_length'] = {'value': 16}
+        rules['max_length'] = {'value': self.get_job_other_length()}
         rules['japanese_extend'] = {}
 
         job_other_setting['rules'] = rules

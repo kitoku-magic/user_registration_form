@@ -1,4 +1,5 @@
 import inspect
+import re
 from abc import abstractmethod
 
 from sqlalchemy.dialects.mysql import (
