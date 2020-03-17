@@ -122,9 +122,9 @@ class user_registration_common_controller(controller):
 
         self.create_check_box('is_personal_information_provide_agreed', '')
 
-        self.create_multiple_select_box('contact_method', [])
+        self.create_multiple_select_box('user_contact_methods_collection', 'contact_method_id', [])
 
-        self.create_multiple_check_box('knew_trigger', [])
+        self.create_multiple_check_box('user_knew_triggers_collection', 'knew_trigger_id', [])
     def create_select_box(self, key, select_value):
         if 'previous_page' == self.__users_entity.clicked_button:
             print('previous_page')
@@ -150,7 +150,7 @@ class user_registration_common_controller(controller):
         else:
             value = form_value
         self.add_response_data(key, value)
-    def create_multiple_select_box(self, key, select_value):
+    def create_multiple_select_box(self, key, field, select_value):
         if 'previous_page' == self.__users_entity.clicked_button:
             print('previous_page')
             print(self.__users_entity)
@@ -159,9 +159,12 @@ class user_registration_common_controller(controller):
             if form_value is None:
                 value = select_value
             else:
-                value = form_value
+                ids = []
+                for entity in form_value:
+                    ids.append(int(getattr(entity, field, None)))
+                value = ids
         self.add_response_data(key, value)
-    def create_multiple_check_box(self, key, select_value):
+    def create_multiple_check_box(self, key, field, select_value):
         if 'previous_page' == self.__users_entity.clicked_button:
             print('previous_page')
             print(self.__users_entity)
@@ -170,5 +173,8 @@ class user_registration_common_controller(controller):
             if form_value is None:
                 value = select_value
             else:
-                value = form_value
+                ids = []
+                for entity in form_value:
+                    ids.append(int(getattr(entity, field, None)))
+                value = ids
         self.add_response_data(key, value)

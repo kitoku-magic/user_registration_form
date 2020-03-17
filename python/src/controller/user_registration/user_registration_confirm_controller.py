@@ -6,8 +6,14 @@ class user_registration_confirm_controller(user_registration_common_controller):
         request_form = request.form
         request_files = request.files
         users_entity_obj = self.get_users_entity()
-        users_entity_obj.user_contact_methods_collection = request_form.getlist('contact_method')
-        users_entity_obj.user_knew_triggers_collection = request_form.getlist('knew_trigger')
+        for contact_method in request_form.getlist('contact_method'):
+            user_contact_methods_entity_obj = user_contact_methods_entity()
+            user_contact_methods_entity_obj.contact_method_id = contact_method
+            users_entity_obj.user_contact_methods_collection.append(user_contact_methods_entity_obj)
+        for knew_trigger in request_form.getlist('knew_trigger'):
+            user_knew_triggers_entity_obj = user_knew_triggers_entity()
+            user_knew_triggers_entity_obj.knew_trigger_id = knew_trigger
+            users_entity_obj.user_knew_triggers_collection.append(user_knew_triggers_entity_obj)
         users_entity_obj.upload_file_list = request_files.getlist('file_name')
         users_entity_obj.trim_all_data()
         properties = users_entity_obj.get_all_properties()

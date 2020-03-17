@@ -146,7 +146,7 @@
 			<td>
 				<select id="contact_method" name="contact_method" multiple onfocus="setBackGroundColor(this, '#d0ffd0');" onblur="setBackGroundColor(this, '#ffffff');">
 					{% for contact_method in res['contact_methods'] %}
-					<option value="{{ contact_method.id }}" {% if contact_method.id in res['contact_method'] %} selected="selected" {% endif %}>{{ contact_method.name }}</option>
+					<option value="{{ contact_method.id }}" {% if contact_method.id in res['user_contact_methods_collection'] %} selected="selected" {% endif %}>{{ contact_method.name }}</option>
 					{% endfor %}
 				</select>
 				<br />
@@ -157,7 +157,7 @@
 			<th>知ったきっかけ（複数選択可能）</th>
 			<td>
 				{% for knew_trigger in res['knew_triggers'] %}
-				<input type="checkbox" name="knew_trigger" value="{{ knew_trigger.id }}" {% if knew_trigger.id in res['knew_trigger'] %} selected="selected" {% endif %}>{{ knew_trigger.name }}</input>
+				<input type="checkbox" name="knew_trigger" value="{{ knew_trigger.id }}" {% if knew_trigger.id in res['user_knew_triggers_collection'] %} checked="checked" {% endif %}>{{ knew_trigger.name }}</input>
 				{% endfor %}
 				<p class="error_message">{{ res['user_knew_triggers_collection_error'] }}</p>
 			</td>

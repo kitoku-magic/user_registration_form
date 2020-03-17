@@ -140,6 +140,7 @@ class entity(db.Model):
                         break
                 return result
             else:
+                value = self.get_entity_field_value(value, options)
                 return re.match('\A[0-9]+\Z', value) is not None
         else:
             return True
@@ -158,6 +159,7 @@ class entity(db.Model):
                 return result
             else:
                 r = None
+                value = self.get_entity_field_value(value, options)
                 try:
                     r = float(value)
                 except ValueError:
@@ -181,6 +183,7 @@ class entity(db.Model):
                 return result
             else:
                 r = None
+                value = self.get_entity_field_value(value, options)
                 try:
                     r = float(value)
                 except ValueError:
@@ -224,6 +227,11 @@ class entity(db.Model):
         # 任意項目で且つ、値が空の時はチェックしない
         if True == self.__is_any_item and True == util.is_empty(value):
             result = False
+        return result
+    def get_entity_field_value(self, value, options):
+        result = value
+        if 'field' in options:
+            result = getattr(value, options['field'], None)
         return result
     def get_validate_errors(self):
         return self.__validate_errors

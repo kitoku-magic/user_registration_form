@@ -10,6 +10,7 @@ class users_entity(users_entity_base):
         # BLOB型はデフォルト値が設定出来ない為
         self.remarks = ''
         self.clicked_button = None
+        self.zip_code_error = None
     def set_validation_setting(self):
         validation_settings = [
             {
@@ -108,7 +109,7 @@ class users_entity(users_entity_base):
                 'show_name': '誕生日',
                 'rules': {
                     'allow_empty': {},
-                    'date': {'format': 'Y-m-d'},
+                    'date': {'format': '%Y-%m-%d'},
                 },
             },
             {
@@ -117,7 +118,7 @@ class users_entity(users_entity_base):
                 'rules': {
                     'required': {},
                     'not_empty': {},
-                    'max_length': {'value': self.get_zip_code_length()},
+                    'max_length': {'value': self.get_zip_code_length() + 1},
                     'zip_code_format': {'is_include_hyphen': True},
                 },
             },
@@ -179,7 +180,7 @@ class users_entity(users_entity_base):
 
         rules = {}
         # 職業でその他を選択時のみ必須
-        if '0' == self.job_id:
+        if 0 == self.job_id:
             rules['required'] = {}
             rules['not_empty'] = {}
         else:
@@ -199,8 +200,8 @@ class users_entity(users_entity_base):
                 'rules': {
                     'required': {},
                     'not_empty': {},
-                    'integer': {},
-                    'range': {'min': 1, 'max': 4},
+                    'integer': {'field': 'contact_method_id'},
+                    'range': {'min': 1, 'max': 4, 'field': 'contact_method_id'},
                 },
             },
             {
@@ -208,8 +209,8 @@ class users_entity(users_entity_base):
                 'show_name': '知ったきっかけ',
                 'rules': {
                     'allow_empty': {},
-                    'integer': {},
-                    'range': {'min': 1, 'max': 6},
+                    'integer': {'field': 'knew_trigger_id'},
+                    'range': {'min': 1, 'max': 6, 'field': 'knew_trigger_id'},
                 },
             },
             {
