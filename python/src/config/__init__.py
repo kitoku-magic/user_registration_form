@@ -8,7 +8,11 @@ class config(object):
     LOG_BACKUP_COUNT = 10
     LOG_LEVEL = logging.DEBUG
     PG_CHARACTER_SET = 'utf-8'
+    MAX_CONTENT_LENGTH = 20 * 1024 * 1024
+    MAX_FILE_UPLOAD_SIZE = 10 * 1024 * 1024
     USER_REGISTRATION_STATUS_REGISTERED = 1
+    UTC_DIFF_HOUR = 9
+    APP_FILE_TMP_SAVE_PATH = '/tmp/app'
 
     # バリデーションエラーメッセージ
     REQUIRED_MESSAGE = '{show_name}は必須項目です'
@@ -68,6 +72,8 @@ class config(object):
 
     # ユーザー登録確認画面
     USER_REGISTRATION_CONFIRM_TITLE = 'ユーザー登録確認'
+
+    FILE_UPLOAD_IDENTIFIER_USER_REGISTRATION = 'user_registration'
 class testing(config):
     ENV = 'testing'
     TESTING = True

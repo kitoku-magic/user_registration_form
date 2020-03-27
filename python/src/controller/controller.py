@@ -47,7 +47,7 @@ class controller:
         http_response = template.render({'res': self.__response_data})
         return make_response(http_response)
     def create_csrf_token(self):
-        csrf_token = secrets.token_hex(64)
+        csrf_token = util.get_token(96)
         session['csrf_token'] = csrf_token
         self.add_response_data('csrf_token', csrf_token)
     def check_csrf_token(self):
@@ -55,7 +55,7 @@ class controller:
         session_csrf_token = session.get('csrf_token')
         session.pop('csrf_token', None)
         if post_csrf_token is not None and session_csrf_token is not None:
-            if post_csrf_token == session_csrf_token:
+            if True == secrets.compare_digest(post_csrf_token, session_csrf_token):
                 return True
             else:
                 raise custom_exception('トークンが一致しません', '不正なリクエストです。')

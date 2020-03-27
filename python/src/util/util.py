@@ -1,6 +1,9 @@
 import dns.resolver
+import secrets
+import os
 import re
 import unicodedata
+import uuid
 from datetime import datetime
 
 from src.util import *
@@ -86,3 +89,31 @@ class util:
             pattern += '-'
         pattern += '[0-9]{4}\Z'
         return re.match(pattern, value) is not None
+    def make_directory(file_path):
+        """
+        ディレクトリを作成する（makedirsのラッパー）
+        """
+        try:
+            if False == os.path.isdir(file_path):
+                os.makedirs(file_path)
+        except FileExistsError as fee:
+            # 同時に同名のディレクトリを作るアクセスがあった時のチェック用
+            if False == os.path.isdir(file_path):
+                # ディレクトリ作成に失敗
+                return False
+        return True
+    def get_token(byte_length):
+        """
+        第三者が知り得ない秘密情報(トークン)の値を取得する
+        """
+        return secrets.token_hex(byte_length)
+    def get_token_for_url(byte_length):
+        """
+        第三者が知り得ない秘密情報(トークン)の値を取得する（URL文字列用）
+        """
+        return secrets.token_urlsafe(byte_length)
+    def get_unique_id():
+        """
+        ユニークなIDを取得する（推測可能なので注意）
+        """
+        return str(uuid.uuid4())

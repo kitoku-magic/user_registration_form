@@ -29,7 +29,7 @@ class user_registration_first_complete_controller(user_registration_common_contr
             pre_users_repository_obj.begin()
             if users_data is None:
                 body = setting.app.config['USER_REGISTRATION_FIRST_COMPLETE_REGISTERED_MESSAGE']
-                token = secrets.token_hex(64)
+                token = util.get_token_for_url(96)
                 pre_users_entity_obj.token = token
                 body += setting.app.config['URI_SCHEME'] + '://' + setting.app.config['HOST_NAME'] + '/user_registration/input?mail_address='
                 body += recipients

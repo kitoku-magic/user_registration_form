@@ -26,6 +26,7 @@ class entity(db.Model):
             # 項目毎に初期化して、前回の状態を引き継がないようにする
             self.__is_any_item = False
             for rule_name, options in validation_setting['rules'].items():
+                options['name'] = name
                 method_name = 'is_' + rule_name
                 ret = getattr(self, method_name)(getattr(self, name), options)
                 if False == ret:
@@ -219,6 +220,159 @@ class entity(db.Model):
             return util.check_telephone(value, options['is_include_hyphen'])
         else:
             return True
+    def is_file_upload(self, value, options):
+        """
+        ファイルアップロードをチェックする
+        """
+        # TODO: forになってはいるが、複数ファイルがアップロードされる前提の処理にはなっていない
+        for key, upload_file in enumerate(value):
+            stream = upload_file.stream.read()
+            # 任意項目で且つ、ファイルがアップロードされていない時はチェックしない
+            if False == options['required'] \
+            and '' == upload_file.filename \
+            and 0 == len(stream):
+                continue
+            if '' == upload_file.filename \
+            or 0 == len(stream):
+                options['message'] = self.__validation_settings[options['name']]['show_name'] + 'がアップロードされていません'
+                return False
+            if setting.app.config['MAX_FILE_UPLOAD_SIZE'] < len(stream):
+                options['message'] = self.__validation_settings[options['name']]['show_name'] + 'はアップロード可能なファイルサイズを超えています'
+                return False
+            mime_type = magic.from_buffer(stream, mime=True)
+            if 'image/bmp' == mime_type:
+                options['message'] = self.__validation_settings[options['name']]['show_name'] + 'はビットマップ画像なのでアップロード出来ません'
+                return False
+            if mime_type not in options['allow_mime_types']:
+                options['message'] = self.__validation_settings[options['name']]['show_name'] + 'は許可されていないファイル形式です'
+                return False
+            file_info = os.path.splitext(upload_file.filename)
+            extension = file_info[1][1:]
+            if '' == extension:
+                options['message'] = self.__validation_settings[options['name']]['show_name'] + 'の拡張子が不明です'
+                return False
+            if mime_type not in options['allow_extensions'] \
+            or extension not in options['allow_extensions'][mime_type]:
+                options['message'] = self.__validation_settings[options['name']]['show_name'] + 'の拡張子とファイル形式が合っていません'
+                return False
+            if True == util.is_empty(upload_file.content_type) or True == util.is_empty(upload_file.mimetype):
+                options['message'] = self.__validation_settings[options['name']]['show_name'] + 'のファイル形式が不明です'
+                return False
+            if mime_type != upload_file.content_type or mime_type != upload_file.mimetype:
+                options['message'] = self.__validation_settings[options['name']]['show_name'] + 'のファイル形式が矛盾しています'
+                return False
+            if True == options['is_file_name_check']:
+                if options['max_length'] < len(upload_file.filename):
+                    options['message'] = self.__validation_settings[options['name']]['show_name'] + 'の長さが最大文字数を超えています'
+                    return False
+                if '__' in upload_file.filename:
+                    options['message'] = self.__validation_settings[options['name']]['show_name'] + 'にアンダーバーが連続して含まれています'
+                    return False
+                if ' ' == file_info[0][0] \
+                or ' ' == file_info[0][-1] \
+                or '　' == file_info[0][0] \
+                or '　' == file_info[0][-1]:
+                    options['message'] = self.__validation_settings[options['name']]['show_name'] + 'の先頭か末尾に空白が入っています'
+                    return False
+                reserved_words = {
+                    'CON': True,
+                    'PRN': True,
+                    'AUX': True,
+                    'NUL': True,
+                    'CLOCK$': True,
+                    'COM0': True,
+                    'COM1': True,
+                    'COM2': True,
+                    'COM3': True,
+                    'COM4': True,
+                    'COM5': True,
+                    'COM6': True,
+                    'COM7': True,
+                    'COM8': True,
+                    'COM9': True,
+                    'LPT0': True,
+                    'LPT1': True,
+                    'LPT2': True,
+                    'LPT3': True,
+                    'LPT4': True,
+                    'LPT5': True,
+                    'LPT6': True,
+                    'LPT7': True,
+                    'LPT8': True,
+                    'LPT9': True,
+                };
+                if upload_file.filename in reserved_words or file_info[0] in reserved_words:
+                    options['message'] = self.__validation_settings[options['name']]['show_name'] + 'は予約語です'
+                    return False
+                # 許容する文字
+                white_list = '\A(?:['
+                # ひらがな
+                white_list += setting.app.config['PATTERN_HIRAGANA']
+                # カタカナ
+                white_list += setting.app.config['PATTERN_KATAKANA']
+                white_list += ']['
+                # 濁点・半濁点
+                white_list += setting.app.config['PATTERN_DAKUTEN']
+                white_list += ']?|'
+                # 長音
+                white_list += setting.app.config['PATTERN_CHOON']
+                white_list += '|'
+                # 漢字
+                white_list += setting.app.config['PATTERN_KANJI']
+                white_list += '?|['
+                # 全角英数字・半角英数字
+                white_list += setting.app.config['PATTERN_ALL_WIDTH_ALPHABET_NUMBER']
+                white_list += ']|['
+                # 全角記号と全角スペース
+                white_list += setting.app.config['PATTERN_FULL_WIDTH_SIGN']
+                white_list += ']|['
+                # アンダーバー・半角スペース
+                white_list += '_ '
+                white_list += '])+\Z'
+                if re.match(white_list, file_info[0]) is None:
+                    options['message'] = self.__validation_settings[options['name']]['show_name'] + 'に許可されていない文字が含まれています'
+                    return False
+            log_error_message = ''
+            unix_timestamp = math.floor(time.time())
+            tz = timezone(timedelta(hours = setting.app.config['UTC_DIFF_HOUR']))
+            current_datetime = datetime.fromtimestamp(unix_timestamp, tz)
+            file_path = setting.app.config['APP_FILE_TMP_SAVE_PATH'] + '/' + options['save_path_identifier'] + '/' + current_datetime.strftime('%Y%m%d')
+            r = util.make_directory(file_path)
+            if False == r:
+                log_error_message = 'アップロードファイルの保存先ディレクトリの作成に失敗しました'
+            if '' == log_error_message:
+                os.chmod(file_path, 0o700)
+                if True == options['is_secret']:
+                    token = util.get_token(64)
+                else:
+                    token = ''
+                file_name = hashlib.sha512(str(token + werkzeug.utils.secure_filename(file_info[0]) + util.get_unique_id()).encode(setting.app.config['PG_CHARACTER_SET'])).hexdigest() + '.' + extension
+                full_file_path = file_path + '/' + file_name
+                try:
+                    with open(file = full_file_path, mode = 'xb') as fp:
+                        write_byte = fp.write(stream)
+                        if 0 < write_byte:
+                            os.chmod(full_file_path, 0o600)
+                        else:
+                            log_error_message = 'アップロードファイルの保存に失敗しました'
+                except OSError:
+                    log_error_message = 'アップロードファイルの保存先パスのオープンに失敗しました'
+            if '' == log_error_message:
+                setattr(self, options['name'], upload_file.filename)
+                setattr(self, options['path'], full_file_path)
+            else:
+                options['message'] = self.__validation_settings[options['name']]['show_name'] + 'のアップロードに失敗しました。もう一度アップロードして下さい'
+                setting.app.logger.error(log_error_message)
+                return False
+        return True
+    def is_required_file(self, value, options):
+        """
+        必須項目チェック（ファイル）
+        """
+        for f in value:
+            if '' == f.filename:
+                return False
+        return True
     def is_check(self, value):
         """
         チェックをするかどうかを調べる

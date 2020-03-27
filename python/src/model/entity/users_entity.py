@@ -224,6 +224,40 @@ class users_entity(users_entity_base):
                 },
             },
             {
+                'name': 'file_name',
+                'show_name': '添付ファイル',
+                'rules': {
+                    'file_upload': {
+                        'required': True,
+                        'allow_mime_types': {
+                            'image/gif': True,
+                            'image/png': True,
+                            'image/jpeg': True,
+                            'application/pdf': True,
+                            'application/vnd.ms-excel': True,
+                            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': True,
+                            'application/msword': True,
+                            'application/vnd.openxmlformats-officedocument.wordprocessingml.document': True,
+                        },
+                        'allow_extensions': {
+                            'image/gif': {'gif': True},
+                            'image/png': {'png': True},
+                            'image/jpeg': {'jpg': True, 'jpeg': True},
+                            'application/pdf': {'pdf': True},
+                            'application/vnd.ms-excel': {'xls': True},
+                            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': {'xlsx': True},
+                            'application/msword': {'doc': True},
+                            'application/vnd.openxmlformats-officedocument.wordprocessingml.document': {'docx': True},
+                        },
+                        'is_file_name_check': True,
+                        'max_length': self.get_file_name_length(),
+                        'save_path_identifier': setting.app.config['FILE_UPLOAD_IDENTIFIER_USER_REGISTRATION'],
+                        'is_secret': True,
+                        'path': 'file_path',
+                    },
+                },
+            },
+            {
                 'name': 'remarks',
                 'show_name': '備考',
                 'rules': {

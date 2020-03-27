@@ -14,7 +14,7 @@ class user_registration_confirm_controller(user_registration_common_controller):
             user_knew_triggers_entity_obj = user_knew_triggers_entity()
             user_knew_triggers_entity_obj.knew_trigger_id = knew_trigger
             users_entity_obj.user_knew_triggers_collection.append(user_knew_triggers_entity_obj)
-        users_entity_obj.upload_file_list = request_files.getlist('file_name')
+        users_entity_obj.file_name = request_files.getlist('file_name')
         users_entity_obj.trim_all_data()
         properties = users_entity_obj.get_all_properties()
         for field, value in properties.items():
@@ -79,6 +79,7 @@ class user_registration_confirm_controller(user_registration_common_controller):
             self.set_template_file_name('user_registration/confirm')
         else:
             # ユーザー登録入力画面を表示する
+            # TODO: users_entity_obj.file_nameが文字列だったら、アップロードされたファイルを削除する（年月日のディレクトリも）
             self.add_response_data('title', setting.app.config['USER_REGISTRATION_INPUT_TITLE'])
             self.set_template_file_name('user_registration/input')
 
