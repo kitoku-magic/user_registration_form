@@ -22,9 +22,10 @@ function setBackGroundColor(element, back_ground_color)
 }
 
 // 指定したアクションにフォーム送信する
-function submitForm(form_id, action)
+function submitForm(form_id, action, method)
 {
   var target = document.getElementById(form_id);
+  target.method = method;
   target.action = action;
   target.submit();
 

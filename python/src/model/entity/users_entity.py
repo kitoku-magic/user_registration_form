@@ -4,13 +4,15 @@ from src.model.entity.generate import *
 class users_entity(users_entity_base):
     def __init__(self):
         super().__init__()
+        # BLOB型はデフォルト値が設定出来ない為
+        self.remarks = ''
+        # 以下は、画面上には存在するがDBには存在しない項目
         self.birth_year = ''
         self.birth_month = ''
         self.birth_day = ''
-        # BLOB型はデフォルト値が設定出来ない為
-        self.remarks = ''
         self.clicked_button = None
         self.zip_code_error = None
+        self.previous_token = ''
     def set_validation_setting(self):
         validation_settings = [
             {

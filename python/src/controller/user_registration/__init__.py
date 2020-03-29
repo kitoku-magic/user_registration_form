@@ -2,6 +2,7 @@ import os
 import time
 import math
 import jaconv
+from datetime import datetime
 
 from flask_mail import Message
 
@@ -28,5 +29,7 @@ from src.model.repository.jobs_repository import jobs_repository
 from src.model.repository.contact_methods_repository import contact_methods_repository
 from src.model.repository.knew_triggers_repository import knew_triggers_repository
 from src.model.repository.zip_addresses_repository import zip_addresses_repository
+from src.model.repository.user_contact_methods_repository import user_contact_methods_repository
+from src.model.repository.user_knew_triggers_repository import user_knew_triggers_repository
 from src.controller.controller import controller
 from src.controller.user_registration.user_registration_common_controller import user_registration_common_controller

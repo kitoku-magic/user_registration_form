@@ -111,6 +111,7 @@ class user_registration_confirm_controller(user_registration_common_controller):
                 users_entity_obj.file_path = ''
             if setting.app.config['JOB_ID_OTHER'] != users_entity_obj.job_id:
                 users_entity_obj.job_other = ''
+            users_entity_obj.previous_token = users_entity_obj.token
             users_entity_obj.token = util.get_token_for_url(96)
             users_entity_obj.registration_status = setting.app.config['USER_REGISTRATION_STATUS_REGISTERING']
             users_entity_obj.zip_code = zip_codes[0] + zip_codes[1]

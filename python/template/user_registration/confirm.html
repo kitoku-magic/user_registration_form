@@ -159,10 +159,12 @@
 	</table>
 	<div id="submit">
 		<p>
-		<button type="submit" id="next_page" name="clicked_button" value="next_page" />次へ</button>
-		<button type="submit" id="previous_page" name="clicked_button" value="previous_page" />戻る</button>
+			<button type="submit" id="next_page" name="clicked_button" value="next_page" onclick="submitForm('user_registration_confirm', '/user_registration/complete', 'POST');" />次へ</button>
+			<button type="submit" id="previous_page" name="clicked_button" value="previous_page" onclick="submitForm('user_registration_confirm', '/user_registration/input', 'GET');" />戻る</button>
 		</p>
 	</div>
+	<input type="hidden" id="mail_address" name="mail_address" value="{{ res['mail_address'] }}" />
 	<input type="hidden" id="token" name="token" value="{{ res['token'] }}" />
+	<input type="hidden" id="previous_token" name="previous_token" value="{{ res['previous_token'] }}" />
 </form>
 {% endblock %}

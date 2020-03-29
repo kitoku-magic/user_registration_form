@@ -2,6 +2,7 @@
 {% block body %}
 <form id="user_registration_input" action="/user_registration/confirm" method="post" enctype="multipart/form-data">
 	<input type="hidden" id="mail_address" name="mail_address" maxlength="128" size="35" value="{{ res['mail_address'] }}" />
+	<input type="hidden" id="token" name="token" value="{{ res['token'] }}" />
 	<table id="user_form_table">
 		<tr>
 			<th id="user_form_midashi" colspan="2">
@@ -201,5 +202,5 @@
 	</div>
 </form>
 {% from 'on_load.html' import set_focus %}
-{{ set_focus('password') }}
+{{ set_focus('last_name') }}
 {% endblock %}

@@ -1,12 +1,14 @@
 from src.controller.user_registration import *
 
 class user_registration_input_controller(user_registration_common_controller):
-    __all_tmp_user = None
     def execute(self):
         # ユーザー登録入力画面を表示する
         self.add_response_data('title', setting.app.config['USER_REGISTRATION_INPUT_TITLE'])
 
         users_entity_obj = self.get_users_entity()
+        if 'previous_page' == users_entity_obj.clicked_button:
+            next_token = users_entity_obj.token
+            users_entity_obj.token = users_entity_obj.previous_token
         pre_users_repository_obj = pre_users_repository(pre_users_entity())
         # メールアドレスとトークンが一致して、現在時間が最終更新時間から１時間経っていなければOK
         pre_users_data = pre_users_repository_obj.find(
@@ -20,32 +22,58 @@ class user_registration_input_controller(user_registration_common_controller):
                 'URLの有効期限が切れています。\n再度、メールアドレス入力画面からお手続き下さい。'
             )
         if 'previous_page' == users_entity_obj.clicked_button:
-            print('previous_page')
-            print(users_entity_obj)
-#            $storage_handlers = $this->get_storage_handlers()
-#            $tmp_user_repository = new tmp_user_repository_impl(
-#                $storage_handlers,
-#                new tmp_user_multiple_select_repository_impl($storage_handlers)
-#            )
-#            $this->all_tmp_user = $tmp_user_repository->get_all_tmp_user($form->get_tmp_user_id(), $form->get_token())
-#            foreach ($this->all_tmp_user as $tmp_user)
-#            {
-#                $entity_table_columns = $tmp_user->get_table_columns()
-#                foreach ($entity_table_columns as $table_column => $value)
-#                {
-#                    $getter = 'get_' . $table_column
-#                    if ('password' === $table_column)
-#                    {
-#                        // パスワードは表示させない
-#                        $entity_value = ''
-#                    }
-#                    else
-#                    {
-#                        $entity_value = $tmp_user->$getter()
-#                    }
-#                    $form->execute_accessor_method('set', $table_column, $entity_value)
-#                }
-#            }
+            get_column_name_list = users_entity_obj.get_update_column_name_list()
+            get_column_name_list.insert(0, 'user_id')
+            users_repository_obj = users_repository(users_entity_obj)
+            users_data = users_repository_obj.find(
+                get_column_name_list,
+                'mail_address = %s AND token = %s',
+                (users_entity_obj.mail_address, next_token)
+            )
+            if users_data is not None:
+                for index, value in enumerate(get_column_name_list):
+                    setattr(users_entity_obj, value, users_data[index])
+                # 誕生日
+                birth_days_entity_obj = birth_days_entity()
+                get_column_name_list = birth_days_entity_obj.get_update_column_name_list()
+                birth_days_repository_obj = birth_days_repository(birth_days_entity_obj)
+                birth_days_data = birth_days_repository_obj.find(
+                    ('birth_day',),
+                    'birth_day_id = %s',
+                    (users_entity_obj.birth_day_id,)
+                )
+                if birth_days_data is not None:
+                    users_entity_obj.birth_year = birth_days_data[0].year
+                    users_entity_obj.birth_month = birth_days_data[0].month
+                    users_entity_obj.birth_day = birth_days_data[0].day
+                # 連絡方法
+                user_contact_methods_entity_obj = user_contact_methods_entity()
+                get_column_name_list = user_contact_methods_entity_obj.get_update_column_name_list()
+                user_contact_methods_repository_obj = user_contact_methods_repository(user_contact_methods_entity_obj)
+                user_contact_methods_data_list = user_contact_methods_repository_obj.find_all(
+                    ('contact_method_id',),
+                    'user_id = %s',
+                    (users_entity_obj.user_id,)
+                )
+                if 0 < len(user_contact_methods_data_list):
+                    for user_contact_methods_data in user_contact_methods_data_list:
+                        user_contact_methods_entity_obj = user_contact_methods_entity()
+                        user_contact_methods_entity_obj.contact_method_id = user_contact_methods_data[0]
+                        users_entity_obj.user_contact_methods_collection.append(user_contact_methods_entity_obj)
+                # 知ったきっかけ
+                user_knew_triggers_entity_obj = user_knew_triggers_entity()
+                get_column_name_list = user_knew_triggers_entity_obj.get_update_column_name_list()
+                user_knew_triggers_repository_obj = user_knew_triggers_repository(user_knew_triggers_entity_obj)
+                user_knew_triggers_data_list = user_knew_triggers_repository_obj.find_all(
+                    ('knew_trigger_id',),
+                    'user_id = %s',
+                    (users_entity_obj.user_id,)
+                )
+                if 0 < len(user_knew_triggers_data_list):
+                    for user_knew_triggers_data in user_knew_triggers_data_list:
+                        user_knew_triggers_entity_obj = user_knew_triggers_entity()
+                        user_knew_triggers_entity_obj.knew_trigger_id = user_knew_triggers_data[0]
+                        users_entity_obj.user_knew_triggers_collection.append(user_knew_triggers_entity_obj)
         # フォームの初期値を設定する為の初期化
         self.assign_all_form_data()
         # 複数選択項目の表示内容を取得して設定
@@ -54,7 +82,3 @@ class user_registration_input_controller(user_registration_common_controller):
         self.select_multiple_value_item()
 
         self.set_template_file_name('user_registration/input')
-    def set_all_tmp_user(self, all_tmp_user):
-        __all_tmp_user = all_tmp_user
-    def get_all_tmp_user(self):
-        return self.__all_tmp_user

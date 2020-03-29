@@ -20,6 +20,9 @@ class user_registration_common_controller(controller):
         for field, value in properties.items():
             if value is None:
                 value = ''
+            # DBから郵便番号を取得して表示する時は、ハイフンを付ける
+            if 'zip_code' == field and '' != value and '-' not in value and self.__users_entity.zip_code_error is None:
+                value = value[0:3] + '-' + value[3:]
             self.add_response_data(field, value)
     # 複数選択項目の表示内容を取得して設定
     def set_multiple_value_item(self):
@@ -122,15 +125,11 @@ class user_registration_common_controller(controller):
 
         self.create_multiple_check_box('user_knew_triggers_collection', 'knew_trigger_id', [])
     def create_select_box(self, key, select_value):
-        if 'previous_page' == self.__users_entity.clicked_button:
-            print('previous_page')
-            print(self.__users_entity)
+        form_value = getattr(self.__users_entity, key, None)
+        if form_value is None:
+            value = select_value
         else:
-            form_value = getattr(self.__users_entity, key, None)
-            if form_value is None:
-                value = select_value
-            else:
-                value = form_value
+            value = form_value
         self.add_response_data(key, value)
     def create_radio_box(self, key, select_value):
         form_value = getattr(self.__users_entity, key, None)
@@ -147,30 +146,22 @@ class user_registration_common_controller(controller):
             value = form_value
         self.add_response_data(key, value)
     def create_multiple_select_box(self, key, field, select_value):
-        if 'previous_page' == self.__users_entity.clicked_button:
-            print('previous_page')
-            print(self.__users_entity)
+        form_value = getattr(self.__users_entity, key, None)
+        if form_value is None:
+            value = select_value
         else:
-            form_value = getattr(self.__users_entity, key, None)
-            if form_value is None:
-                value = select_value
-            else:
-                ids = []
-                for entity in form_value:
-                    ids.append(int(getattr(entity, field, None)))
-                value = ids
+            ids = []
+            for entity in form_value:
+                ids.append(int(getattr(entity, field, None)))
+            value = ids
         self.add_response_data(key, value)
     def create_multiple_check_box(self, key, field, select_value):
-        if 'previous_page' == self.__users_entity.clicked_button:
-            print('previous_page')
-            print(self.__users_entity)
+        form_value = getattr(self.__users_entity, key, None)
+        if form_value is None:
+            value = select_value
         else:
-            form_value = getattr(self.__users_entity, key, None)
-            if form_value is None:
-                value = select_value
-            else:
-                ids = []
-                for entity in form_value:
-                    ids.append(int(getattr(entity, field, None)))
-                value = ids
+            ids = []
+            for entity in form_value:
+                ids.append(int(getattr(entity, field, None)))
+            value = ids
         self.add_response_data(key, value)

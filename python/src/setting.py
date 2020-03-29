@@ -12,6 +12,7 @@ from src.controller.user_registration.user_registration_first_input_controller i
 from src.controller.user_registration.user_registration_first_complete_controller import user_registration_first_complete_controller
 from src.controller.user_registration.user_registration_input_controller import user_registration_input_controller
 from src.controller.user_registration.user_registration_confirm_controller import user_registration_confirm_controller
+from src.controller.user_registration.user_registration_complete_controller import user_registration_complete_controller
 
 base_path = '/opt/app/user_registration_form/python'
 
@@ -88,4 +89,8 @@ def user_registration_input():
 @app.route('/user_registration/confirm', methods=['POST'])
 def user_registration_confirm():
     obj = user_registration_confirm_controller()
+    return obj.run()
+@app.route('/user_registration/complete', methods=['POST'])
+def user_registration_complete():
+    obj = user_registration_complete_controller()
     return obj.run()
