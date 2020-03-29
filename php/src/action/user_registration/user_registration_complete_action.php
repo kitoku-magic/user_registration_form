@@ -86,45 +86,45 @@ class user_registration_complete_action extends user_registration_common_action
         $affected_rows = $user_repository->insert_user($user_entity, $user_multiple_select_data, $all_tmp_user_token);
         if (0 < $affected_rows)
         {
-					$new_file_path = $user_entity->get_file_path();
-					if ('' === $new_file_path)
-					{
-						// アップロードされていない時
-						$user_repository->get_tmp_user_repository()->commit();
-						$user_repository->get_user_multiple_select_repository()->commit();
-						$user_repository->commit();
-					}
-					else
-					{
-						$new_dir = dirname($new_file_path);
-						$ret = utility::make_directory($new_dir);
-						if (true === $ret)
-						{
-							chmod($new_dir, 0700);
-							$ret = rename($old_file_path, $new_file_path);
-							if (true === $ret)
-							{
-								chmod($new_file_path, 0600);
-								$user_repository->get_tmp_user_repository()->commit();
-								$user_repository->get_user_multiple_select_repository()->commit();
-								$user_repository->commit();
-							}
-							else
-							{
-								$user_repository->get_tmp_user_repository()->rollback();
-								$user_repository->get_user_multiple_select_repository()->rollback();
-								$user_repository->rollback();
-								throw new custom_exception('添付ファイルの保存に失敗しました', __CLASS__ . ':' . __FUNCTION__);
-							}
-						}
-						else
-						{
-							$user_repository->get_tmp_user_repository()->rollback();
-							$user_repository->get_user_multiple_select_repository()->rollback();
-							$user_repository->rollback();
-							throw new custom_exception('添付ファイルの保存先の作成に失敗しました', __CLASS__ . ':' . __FUNCTION__);
-						}
-					}
+          $new_file_path = $user_entity->get_file_path();
+          if ('' === $new_file_path)
+          {
+            // アップロードされていない時
+            $user_repository->get_tmp_user_repository()->commit();
+            $user_repository->get_user_multiple_select_repository()->commit();
+            $user_repository->commit();
+          }
+          else
+          {
+            $new_dir = dirname($new_file_path);
+            $ret = utility::make_directory($new_dir);
+            if (true === $ret)
+            {
+              chmod($new_dir, 0700);
+              $ret = rename($old_file_path, $new_file_path);
+              if (true === $ret)
+              {
+                chmod($new_file_path, 0600);
+                $user_repository->get_tmp_user_repository()->commit();
+                $user_repository->get_user_multiple_select_repository()->commit();
+                $user_repository->commit();
+              }
+              else
+              {
+                $user_repository->get_tmp_user_repository()->rollback();
+                $user_repository->get_user_multiple_select_repository()->rollback();
+                $user_repository->rollback();
+                throw new custom_exception('添付ファイルの保存に失敗しました', __CLASS__ . ':' . __FUNCTION__);
+              }
+            }
+            else
+            {
+              $user_repository->get_tmp_user_repository()->rollback();
+              $user_repository->get_user_multiple_select_repository()->rollback();
+              $user_repository->rollback();
+              throw new custom_exception('添付ファイルの保存先の作成に失敗しました', __CLASS__ . ':' . __FUNCTION__);
+            }
+          }
         }
         else
         {
