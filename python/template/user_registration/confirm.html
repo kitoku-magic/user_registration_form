@@ -17,12 +17,6 @@
 			</td>
 		</tr>
 		<tr>
-			<th>パスワード</th>
-			<td>
-				<input type="password" id="password" name="password" maxlength="256" size="20" value="セキュリティ保護のため、表示していません。" disabled="disabled" />
-			</td>
-		</tr>
-		<tr>
 			<th>氏名</th>
 			<td>
 				(姓) <input type="text" id="last_name" name="last_name" maxlength="8" size="14" value="{{ res['last_name'] }}" disabled="disabled" />
@@ -79,7 +73,7 @@
 		<tr>
 			<th>都道府県</th>
 			<td>
-				<select id="prefectures_id" name="prefectures_id" disabled="disabled">
+				<select id="prefecture_id" name="prefecture_id" disabled="disabled">
 					<option value="" {% if '' == res['prefecture_id'] %} selected="selected" {% endif %}>▼選択してください</option>
 					{% for prefecture in res['prefectures'] %}
 					<option value="{{ prefecture.id }}" {% if prefecture.id == res['prefecture_id'] %} selected="selected" {% endif %}>{{ prefecture.name }}</option>
@@ -111,7 +105,6 @@
 				{% for job in res['jobs'] %}
 				<input type="radio" name="job_id" value="{{ job.id }}" disabled="disabled" {% if job.id == res['job_id'] %} checked="checked" {% endif %}>{{ job.name }}</input>
 				{% endfor %}
-				<input type="radio" name="job_id" value="0" disabled="disabled" {% if 0 == res['job_id'] %} checked="checked" {% endif %}>その他</input>
 			</td>
 		</tr>
 		<tr>
@@ -125,7 +118,7 @@
 			<td>
 				<select id="contact_method" name="contact_method" multiple disabled="disabled">
 					{% for contact_method in res['contact_methods'] %}
-					<option value="{{ contact_method.id }}" {% if contact_method.id in res['contact_method'] %} selected="selected" {% endif %}>{{ contact_method.name }}</option>
+					<option value="{{ contact_method.id }}" {% if contact_method.id in res['user_contact_methods_collection'] %} selected="selected" {% endif %}>{{ contact_method.name }}</option>
 					{% endfor %}
 				</select>
 			</td>
@@ -134,7 +127,7 @@
 			<th>知ったきっかけ（複数選択可能）</th>
 			<td>
 				{% for knew_trigger in res['knew_triggers'] %}
-				<input type="checkbox" name="knew_trigger" value="{{ knew_trigger.id }}" disabled="disabled" {% if knew_trigger.id in res['knew_trigger'] %} selected="selected" {% endif %}>{{ knew_trigger.name }}</input>
+				<input type="checkbox" name="knew_trigger" value="{{ knew_trigger.id }}" disabled="disabled" {% if knew_trigger.id in res['user_knew_triggers_collection'] %} checked="checked" {% endif %}>{{ knew_trigger.name }}</input>
 				{% endfor %}
 			</td>
 		</tr>
@@ -171,6 +164,5 @@
 		</p>
 	</div>
 	<input type="hidden" id="token" name="token" value="{{ res['token'] }}" />
-	<input type="hidden" id="tmp_user_id" name="tmp_user_id" value="{{ res['tmp_user_id'] }}" />
 </form>
 {% endblock %}

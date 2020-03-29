@@ -43895,6 +43895,7 @@ INSERT INTO `birth_days` (`birth_day`, `created_at`, `updated_at`) VALUES
 ('2019-12-31', UNIX_TIMESTAMP(), UNIX_TIMESTAMP());
 
 INSERT INTO `jobs` (`job_name`, `created_at`, `updated_at`) VALUES
+('その他', UNIX_TIMESTAMP(), UNIX_TIMESTAMP()),
 ('学生', UNIX_TIMESTAMP(), UNIX_TIMESTAMP()),
 ('会社員', UNIX_TIMESTAMP(), UNIX_TIMESTAMP()),
 ('経営者', UNIX_TIMESTAMP(), UNIX_TIMESTAMP()),

@@ -12,6 +12,8 @@
 			<th>メールアドレス</th>
 			<td>
 				<input type="text" id="mail_address_disabled" name="mail_address_disabled" maxlength="128" size="35" value="{{ res['mail_address'] }}" disabled="disabled" />
+				<br />
+				<p class="error_message">{{ res['mail_address_error'] }}</p>
 			</td>
 		</tr>
 		<tr>
@@ -128,7 +130,6 @@
 				{% for job in res['jobs'] %}
 				<input type="radio" name="job_id" value="{{ job.id }}" {% if job.id == res['job_id'] %} checked="checked" {% endif %}>{{ job.name }}</input>
 				{% endfor %}
-				<input type="radio" name="job_id" value="0" {% if 0 == res['job_id'] %} checked="checked" {% endif %}>その他</input>
 				<br />
 				<p class="error_message">{{ res['job_id_error'] }}</p>
 			</td>

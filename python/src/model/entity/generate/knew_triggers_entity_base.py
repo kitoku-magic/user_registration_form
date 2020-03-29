@@ -21,3 +21,5 @@ class knew_triggers_entity_base(timestamp_mixin_entity, entity):
 
     def __init__(self):
         timestamp_mixin_entity.__init__(self)
+    def get_update_column_name_list(self):
+        return ['knew_trigger_name']

@@ -168,7 +168,7 @@ class users_entity(users_entity_base):
                     'required': {},
                     'not_empty': {},
                     'integer': {},
-                    'range': {'min': 0, 'max': 5},
+                    'range': {'min': 1, 'max': 6},
                 },
             },
         ]
@@ -180,7 +180,7 @@ class users_entity(users_entity_base):
 
         rules = {}
         # 職業でその他を選択時のみ必須
-        if 0 == self.job_id:
+        if setting.app.config['JOB_ID_OTHER'] == self.job_id:
             rules['required'] = {}
             rules['not_empty'] = {}
         else:
@@ -228,7 +228,7 @@ class users_entity(users_entity_base):
                 'show_name': '添付ファイル',
                 'rules': {
                     'file_upload': {
-                        'required': True,
+                        'required': False,
                         'allow_mime_types': {
                             'image/gif': True,
                             'image/png': True,

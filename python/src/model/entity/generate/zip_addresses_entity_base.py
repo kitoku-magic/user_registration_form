@@ -39,3 +39,5 @@ class zip_addresses_entity_base(timestamp_mixin_entity, entity):
 
     def __init__(self):
         timestamp_mixin_entity.__init__(self)
+    def get_update_column_name_list(self):
+        return ['zip_code', 'prefecture_id', 'city_district_county', 'town_village_address']

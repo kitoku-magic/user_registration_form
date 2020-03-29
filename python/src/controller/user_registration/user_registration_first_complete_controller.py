@@ -42,9 +42,10 @@ class user_registration_first_complete_controller(user_registration_common_contr
                     '',
                     True
                 )
+                update_column_name_list = pre_users_entity_obj.get_update_column_name_list()
                 if pre_users_data is None:
                     try:
-                        row_count = pre_users_repository_obj.insert(['mail_address', 'token'])
+                        row_count = pre_users_repository_obj.insert(update_column_name_list)
                         if row_count > 0:
                             is_db_success = True
                             pre_user_id = pre_users_repository_obj.last_insert_id()
@@ -54,7 +55,7 @@ class user_registration_first_complete_controller(user_registration_common_contr
                 else:
                     try:
                         row_count = pre_users_repository_obj.update(
-                            ['token'],
+                            update_column_name_list,
                             'pre_user_id = %s',
                             (pre_users_data[0],)
                         )

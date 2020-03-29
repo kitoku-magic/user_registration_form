@@ -40,6 +40,8 @@ for table in Base.classes:
     property_body = ''
     created_at_body = ''
     updated_at_body = ''
+    update_column_name_list_body = '    def get_update_column_name_list(self):\n'
+    update_column_name_list_body += '        return ['
     is_use_timestamp_mixin = False
     columns = inspect_table.persist_selectable.columns._all_columns
     for column in columns:
@@ -96,6 +98,13 @@ for table in Base.classes:
             property_body += '    @declared_attr\n'
             property_body += '    def ' + column.name + '(cls):\n'
             property_body += '        return repository.get_db_instance(repository).Column(' + ', '.join(column_attr_list) + ')\n'
+        # 更新可能カラムのリストを作成
+        if hasattr(column, 'autoincrement') and column.autoincrement is True \
+        or column.name == 'created_at' \
+        or column.name == 'updated_at':
+            pass
+        else:
+            update_column_name_list_body += "'" + column.name + "', "
     # リレーションの設定
     relation_body = ''
     many_variables_suffix = '_collection'
@@ -139,5 +148,6 @@ for table in Base.classes:
     else:
         super_class_name = 'entity'
     body += '        ' + super_class_name + '.__init__(self)\n'
+    body += update_column_name_list_body.rstrip(', ') + ']\n'
     f.write(body)
     f.close()

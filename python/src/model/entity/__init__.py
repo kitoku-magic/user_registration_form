@@ -2,6 +2,7 @@ import hashlib
 import inspect
 import re
 import magic
+import mimetypes
 import os
 import math
 import time

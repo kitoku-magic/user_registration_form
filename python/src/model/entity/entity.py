@@ -224,6 +224,7 @@ class entity(db.Model):
         """
         ファイルアップロードをチェックする
         """
+        magic_obj = magic.Magic(mime=True, magic_file=setting.app.config['MAGIC_FILE_PATH'])
         # TODO: forになってはいるが、複数ファイルがアップロードされる前提の処理にはなっていない
         for key, upload_file in enumerate(value):
             stream = upload_file.stream.read()
@@ -239,17 +240,21 @@ class entity(db.Model):
             if setting.app.config['MAX_FILE_UPLOAD_SIZE'] < len(stream):
                 options['message'] = self.__validation_settings[options['name']]['show_name'] + 'はアップロード可能なファイルサイズを超えています'
                 return False
-            mime_type = magic.from_buffer(stream, mime=True)
+            mime_type = magic_obj.from_buffer(stream)
             if 'image/bmp' == mime_type:
                 options['message'] = self.__validation_settings[options['name']]['show_name'] + 'はビットマップ画像なのでアップロード出来ません'
                 return False
             if mime_type not in options['allow_mime_types']:
                 options['message'] = self.__validation_settings[options['name']]['show_name'] + 'は許可されていないファイル形式です'
                 return False
+            mime_extensions = mimetypes.guess_all_extensions(mime_type)
             file_info = os.path.splitext(upload_file.filename)
             extension = file_info[1][1:]
             if '' == extension:
                 options['message'] = self.__validation_settings[options['name']]['show_name'] + 'の拡張子が不明です'
+                return False
+            if file_info[1] not in mime_extensions:
+                options['message'] = self.__validation_settings[options['name']]['show_name'] + 'の拡張子とデータ形式が一致していません'
                 return False
             if mime_type not in options['allow_extensions'] \
             or extension not in options['allow_extensions'][mime_type]:

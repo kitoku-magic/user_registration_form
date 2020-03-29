@@ -70,18 +70,14 @@ class user_registration_common_controller(controller):
             prefectures_dict = {'id': row[0], 'name': row[1]}
             prefectures.append(prefectures_dict)
         self.add_response_data('prefectures', prefectures)
-        # 職業
+        # 職業（その他を末尾に表示させる）
         jobs_repository_obj = jobs_repository(jobs_entity())
-        jobs_all_data = jobs_repository_obj.find_all(
+        jobs = jobs_repository_obj.find_all_order_by_job_other_last(
             ('job_id','job_name'),
             '',
             [],
             'job_id ASC'
         )
-        jobs = []
-        for row in jobs_all_data:
-            jobs_dict = {'id': row[0], 'name': row[1]}
-            jobs.append(jobs_dict)
         self.add_response_data('jobs', jobs)
         # 連絡方法
         contact_methods_repository_obj = contact_methods_repository(contact_methods_entity())
@@ -117,7 +113,7 @@ class user_registration_common_controller(controller):
         self.create_select_box('prefecture_id', '')
 
         self.create_radio_box('sex_id', 1)
-        self.create_radio_box('job_id', 1)
+        self.create_radio_box('job_id', 2)
         self.create_radio_box('is_latest_news_hoped', 1)
 
         self.create_check_box('is_personal_information_provide_agreed', '')
