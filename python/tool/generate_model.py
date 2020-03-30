@@ -148,6 +148,8 @@ for table in Base.classes:
     else:
         super_class_name = 'entity'
     body += '        ' + super_class_name + '.__init__(self)\n'
+    body += '    def set_validation_setting(self):\n'
+    body += '        pass\n'
     body += update_column_name_list_body.rstrip(', ') + ']\n'
     f.write(body)
     f.close()

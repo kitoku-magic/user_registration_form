@@ -89,16 +89,16 @@ class util:
             pattern += '-'
         pattern += '[0-9]{4}\Z'
         return re.match(pattern, value) is not None
-    def make_directory(file_path):
+    def make_directory(path):
         """
         ディレクトリを作成する（makedirsのラッパー）
         """
         try:
-            if False == os.path.isdir(file_path):
-                os.makedirs(file_path)
+            if False == os.path.isdir(path):
+                os.makedirs(path)
         except FileExistsError as fee:
             # 同時に同名のディレクトリを作るアクセスがあった時のチェック用
-            if False == os.path.isdir(file_path):
+            if False == os.path.isdir(path):
                 # ディレクトリ作成に失敗
                 return False
         return True

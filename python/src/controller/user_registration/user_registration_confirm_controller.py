@@ -111,9 +111,9 @@ class user_registration_confirm_controller(user_registration_common_controller):
                 users_entity_obj.file_path = ''
             if setting.app.config['JOB_ID_OTHER'] != users_entity_obj.job_id:
                 users_entity_obj.job_other = ''
-            users_entity_obj.previous_token = users_entity_obj.token
-            users_entity_obj.token = util.get_token_for_url(96)
+            users_entity_obj.input_token = users_entity_obj.token
             users_entity_obj.registration_status = setting.app.config['USER_REGISTRATION_STATUS_REGISTERING']
+            users_entity_obj.token = util.get_token_for_url(96)
             users_entity_obj.zip_code = zip_codes[0] + zip_codes[1]
             update_column_name_list = users_entity_obj.get_update_column_name_list()
             users_repository_obj.begin()
@@ -153,6 +153,3 @@ class user_registration_confirm_controller(user_registration_common_controller):
         self.set_multiple_value_item()
         # 複数選択項目の選択状態を設定
         self.select_multiple_value_item()
-    def remove_upload_file(self, users_entity_obj):
-        if True == isinstance(users_entity_obj.file_name, str) and os.path.isfile(users_entity_obj.file_path):
-            os.remove(users_entity_obj.file_path)

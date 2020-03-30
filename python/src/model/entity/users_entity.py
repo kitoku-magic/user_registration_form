@@ -12,7 +12,7 @@ class users_entity(users_entity_base):
         self.birth_day = ''
         self.clicked_button = None
         self.zip_code_error = None
-        self.previous_token = ''
+        self.input_token = ''
     def set_validation_setting(self):
         validation_settings = [
             {

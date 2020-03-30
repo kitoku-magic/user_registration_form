@@ -14,7 +14,9 @@ class config(object):
     USER_REGISTRATION_STATUS_REGISTERING = 1
     USER_REGISTRATION_STATUS_REGISTERED = 2
     UTC_DIFF_HOUR = 9
+    FILE_UPLOAD_IDENTIFIER_USER_REGISTRATION = 'user_registration'
     APP_FILE_TMP_SAVE_PATH = '/tmp/app'
+    APP_FILE_SAVE_PATH = '/upload/app'
     MAGIC_FILE_PATH = '/opt/file/share/misc/magic.mgc'
 
     # バリデーションエラーメッセージ
@@ -77,7 +79,8 @@ class config(object):
     USER_REGISTRATION_CONFIRM_TITLE = 'ユーザー登録確認'
     ZIP_CODE_ERROR = '郵便番号に該当する住所が存在しません'
 
-    FILE_UPLOAD_IDENTIFIER_USER_REGISTRATION = 'user_registration'
+    # ユーザー登録完了画面
+    USER_REGISTRATION_COMPLETE_TITLE = 'ユーザー登録完了'
 class testing(config):
     ENV = 'testing'
     TESTING = True

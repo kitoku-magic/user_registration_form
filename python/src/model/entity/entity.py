@@ -10,10 +10,9 @@ class entity(db.Model):
         property_dict = self.get_all_properties()
         for field, value in property_dict.items():
             setattr(self, field, value)
-#    # 全部完成したらコメントアウトを外す
-#    @abstractmethod
-#    def set_validation_setting(self):
-#        pass
+    @abstractmethod
+    def set_validation_setting(self):
+        pass
     @declared_attr
     def __tablename__(cls):
         return cls.__name__.lower().replace('_entity', '')
@@ -233,6 +232,7 @@ class entity(db.Model):
             and '' == upload_file.filename \
             and 0 == len(stream):
                 continue
+            # TODO: options['message']への代入は参照になっている
             if '' == upload_file.filename \
             or 0 == len(stream):
                 options['message'] = self.__validation_settings[options['name']]['show_name'] + 'がアップロードされていません'

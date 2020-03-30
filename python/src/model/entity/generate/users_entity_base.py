@@ -112,25 +112,27 @@ class users_entity_base(timestamp_mixin_entity, entity):
     def is_personal_information_provide_agreed(cls):
         return repository.get_db_instance(repository).Column(TINYINT(unsigned = True), nullable = False, server_default = '0', comment = '個人情報提供の同意状況')
     @declared_attr
-    def jobs(cls):
-        return repository.get_db_instance(repository).relationship('jobs_entity', back_populates='users_collection', uselist=False)
-    @declared_attr
-    def zip_addresses(cls):
-        return repository.get_db_instance(repository).relationship('zip_addresses_entity', primaryjoin='and_(users_entity.zip_code == zip_addresses_entity.zip_code, users_entity.prefecture_id == zip_addresses_entity.prefecture_id)', back_populates='users_collection', uselist=False)
+    def birth_days(cls):
+        return repository.get_db_instance(repository).relationship('birth_days_entity', back_populates='users_collection', uselist=False)
     @declared_attr
     def sexes(cls):
         return repository.get_db_instance(repository).relationship('sexes_entity', back_populates='users_collection', uselist=False)
     @declared_attr
-    def birth_days(cls):
-        return repository.get_db_instance(repository).relationship('birth_days_entity', back_populates='users_collection', uselist=False)
+    def zip_addresses(cls):
+        return repository.get_db_instance(repository).relationship('zip_addresses_entity', primaryjoin='and_(users_entity.zip_code == zip_addresses_entity.zip_code, users_entity.prefecture_id == zip_addresses_entity.prefecture_id)', back_populates='users_collection', uselist=False)
     @declared_attr
-    def user_contact_methods_collection(cls):
-        return repository.get_db_instance(repository).relationship('user_contact_methods_entity', back_populates='users', cascade='save-update, merge, delete', uselist=True)
+    def jobs(cls):
+        return repository.get_db_instance(repository).relationship('jobs_entity', back_populates='users_collection', uselist=False)
     @declared_attr
     def user_knew_triggers_collection(cls):
         return repository.get_db_instance(repository).relationship('user_knew_triggers_entity', back_populates='users', cascade='save-update, merge, delete', uselist=True)
+    @declared_attr
+    def user_contact_methods_collection(cls):
+        return repository.get_db_instance(repository).relationship('user_contact_methods_entity', back_populates='users', cascade='save-update, merge, delete', uselist=True)
 
     def __init__(self):
         timestamp_mixin_entity.__init__(self)
+    def set_validation_setting(self):
+        pass
     def get_update_column_name_list(self):
         return ['mail_address', 'token', 'registration_status', 'last_name', 'first_name', 'last_name_hiragana', 'first_name_hiragana', 'sex_id', 'birth_day_id', 'zip_code', 'prefecture_id', 'city_street_address', 'building_room_address', 'telephone_number', 'job_id', 'job_other', 'is_latest_news_hoped', 'file_name', 'file_path', 'remarks', 'is_personal_information_provide_agreed']

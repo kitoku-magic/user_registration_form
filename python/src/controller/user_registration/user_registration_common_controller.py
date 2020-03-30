@@ -165,3 +165,6 @@ class user_registration_common_controller(controller):
                 ids.append(int(getattr(entity, field, None)))
             value = ids
         self.add_response_data(key, value)
+    def remove_upload_file(self, users_entity_obj):
+        if True == isinstance(users_entity_obj.file_name, str) and os.path.isfile(users_entity_obj.file_path):
+            os.remove(users_entity_obj.file_path)

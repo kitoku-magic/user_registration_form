@@ -7,8 +7,8 @@ class user_registration_input_controller(user_registration_common_controller):
 
         users_entity_obj = self.get_users_entity()
         if 'previous_page' == users_entity_obj.clicked_button:
-            next_token = users_entity_obj.token
-            users_entity_obj.token = users_entity_obj.previous_token
+            confirm_token = users_entity_obj.token
+            users_entity_obj.token = users_entity_obj.input_token
         pre_users_repository_obj = pre_users_repository(pre_users_entity())
         # メールアドレスとトークンが一致して、現在時間が最終更新時間から１時間経っていなければOK
         pre_users_data = pre_users_repository_obj.find(
@@ -23,16 +23,43 @@ class user_registration_input_controller(user_registration_common_controller):
             )
         if 'previous_page' == users_entity_obj.clicked_button:
             get_column_name_list = users_entity_obj.get_update_column_name_list()
+            # tokenは、pre_usersテーブルのtoken(input_token)を使うので、取得して更新する必要はない
+            get_column_name_list.remove('token')
             get_column_name_list.insert(0, 'user_id')
             users_repository_obj = users_repository(users_entity_obj)
             users_data = users_repository_obj.find(
                 get_column_name_list,
                 'mail_address = %s AND token = %s',
-                (users_entity_obj.mail_address, next_token)
+                (users_entity_obj.mail_address, confirm_token)
             )
             if users_data is not None:
                 for index, value in enumerate(get_column_name_list):
                     setattr(users_entity_obj, value, users_data[index])
+                # アップロードされたファイルの削除と、DB内のファイル情報の初期化
+                tmp_users_entity_obj = users_entity()
+                tmp_users_entity_obj.file_name = users_entity_obj.file_name
+                tmp_users_entity_obj.file_path = users_entity_obj.file_path
+                users_entity_obj.file_name = ''
+                users_entity_obj.file_path = ''
+                users_repository_obj.begin()
+                try:
+                    row_count = users_repository_obj.update(
+                        user_contact_methods_entity(),
+                        user_knew_triggers_entity(),
+                        ['file_name', 'file_path'],
+                        'user_id = %s',
+                        (users_entity_obj.user_id,)
+                    )
+                    if 1 > row_count:
+                        raise custom_exception('ファイル情報の更新に失敗しました')
+                    self.remove_upload_file(tmp_users_entity_obj)
+                    users_repository_obj.commit()
+                except Exception as exc:
+                    users_repository_obj.rollback()
+                    raise custom_exception(
+                        str(exc),
+                        'システムエラーが発生しました。\n再度、ユーザー登録入力画面から操作をお願いします。'
+                    )
                 # 誕生日
                 birth_days_entity_obj = birth_days_entity()
                 get_column_name_list = birth_days_entity_obj.get_update_column_name_list()
