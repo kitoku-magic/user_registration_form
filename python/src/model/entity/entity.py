@@ -402,7 +402,7 @@ class entity(db.Model):
                         v = int(v)
                     setattr(self, field, v)
                     break
-            if False == is_exist and value != []:
+            if False == is_exist and [] != value:
                 setattr(self, field, None)
     def trim_all_data(self):
         properties = self.get_all_properties()

@@ -29,11 +29,11 @@ class repository():
         sql = 'SELECT ' + ', '.join(columns)
         if self.__table_name is not None:
             sql += ' FROM ' + self.__table_name
-        if where != '':
+        if '' != where:
             sql += ' WHERE ' + where
-        if order_by != '':
+        if '' != order_by:
             sql += ' ORDER BY ' + order_by
-        if for_update == True:
+        if True == for_update:
             sql += ' FOR UPDATE'
         self.__cursor.execute(sql, params)
     def find(self, columns, where = '', params = (), order_by = '', for_update = False):
@@ -95,7 +95,7 @@ class repository():
             sql += column + ' = %s, '
             bind_values.append(getattr(self.__main_entity, column))
         sql = sql.rstrip(', ')
-        if where != '':
+        if '' != where:
             sql += ' WHERE ' + where
             for value in params:
                 bind_values.append(value)
@@ -103,14 +103,14 @@ class repository():
     def delete(self, where = '', params = ()):
         sql = 'DELETE FROM ' + self.__table_name
         bind_values = list()
-        if where != '':
+        if '' != where:
             sql += ' WHERE ' + where
             for value in params:
                 bind_values.append(value)
         return self.execute_update(sql, bind_values)
     def set_timestamp(self, mode, columns):
         self_dict = self.__main_entity.__dict__
-        if mode == 'ins':
+        if 'ins' == mode:
             if 'created_at' in self_dict:
                 self.__main_entity.created_at = math.floor(time.time())
                 columns.append('created_at')

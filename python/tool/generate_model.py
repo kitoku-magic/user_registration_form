@@ -72,7 +72,7 @@ for table in Base.classes:
         if hasattr(column, 'server_default') and \
            column.server_default is not None and \
            hasattr(column.server_default, 'arg') and \
-           column.server_default.arg.__class__.__name__ == 'TextClause':
+           'TextClause' == column.server_default.arg.__class__.__name__:
             column_attr_list.append('server_default = ' + str(column.server_default.arg.text))
         # AUTO_INCREMENTの設定
         if hasattr(column, 'autoincrement') and column.autoincrement is True:
@@ -90,9 +90,9 @@ for table in Base.classes:
         if hasattr(column, 'comment') and column.comment is not None:
             column_attr_list.append("comment = '" + str(column.comment) + "'")
         # created_atとupdated_atが両方存在する場合は、専用のmixinを使うので、ここではまだ設定しない
-        if column.name == 'created_at':
+        if 'created_at' == column.name:
             created_at_body += '    ' + column.name + ' = repository.get_db_instance(repository).Column(' + ', '.join(column_attr_list) + ')\n'
-        elif column.name == 'updated_at':
+        elif 'updated_at' == column.name:
             updated_at_body += '    ' + column.name + ' = repository.get_db_instance(repository).Column(' + ', '.join(column_attr_list) + ')\n'
         else:
             property_body += '    @declared_attr\n'
@@ -100,8 +100,8 @@ for table in Base.classes:
             property_body += '        return repository.get_db_instance(repository).Column(' + ', '.join(column_attr_list) + ')\n'
         # 更新可能カラムのリストを作成
         if hasattr(column, 'autoincrement') and column.autoincrement is True \
-        or column.name == 'created_at' \
-        or column.name == 'updated_at':
+        or 'created_at' == column.name \
+        or 'updated_at' == column.name:
             pass
         else:
             update_column_name_list_body += "'" + column.name + "', "
@@ -132,24 +132,24 @@ for table in Base.classes:
             relation_body += '    def ' + foreign_table_name + '(cls):\n'
             relation_body += "        return repository.get_db_instance(repository).relationship('" + foreign_class_name + "', " + primaryjoin + "back_populates='" + local_table_name + many_variables_suffix + "', uselist=False)\n"
     # created_atとupdated_atが両方存在するか調べる
-    if created_at_body != '':
-        if updated_at_body != '':
+    if '' != created_at_body:
+        if '' != updated_at_body:
             body += 'timestamp_mixin_entity, '
             is_use_timestamp_mixin = True
         else:
             property_body += created_at_body
-    elif updated_at_body != '':
+    elif '' != updated_at_body:
         property_body += updated_at_body
     body += 'entity):\n'
     body += "    __abstract__ = True\n"
     body += length_body + '\n'
-    if length_property_body != '':
+    if '' != length_property_body:
         body += length_property_body + '\n'
     body += property_body
     body += relation_body + '\n'
     # コンストラクタの設定
     body += '    def __init__(self):\n'
-    if is_use_timestamp_mixin == True:
+    if True == is_use_timestamp_mixin:
         super_class_name = 'timestamp_mixin_entity'
     else:
         super_class_name = 'entity'

@@ -65,13 +65,13 @@ class user_registration_confirm_controller(user_registration_common_controller):
             users_entity_obj.set_validation_setting();
             is_next_page_forward = users_entity_obj.validate();
             # 郵便番号の存在結果
-            if users_entity_obj.zip_code_error is None and street_address_data is None:
-                is_next_page_forward = False;
-                users_entity_obj.zip_code_error = setting.app.config['ZIP_CODE_ERROR']
-                users_entity_obj.prefecture_id = ''
-                users_entity_obj.city_street_address = ''
-            else:
-                if users_entity_obj.prefecture_id != street_address_data[1]:
+            if users_entity_obj.zip_code_error is None:
+                if street_address_data is None:
+                    is_next_page_forward = False;
+                    users_entity_obj.zip_code_error = setting.app.config['ZIP_CODE_ERROR']
+                    users_entity_obj.prefecture_id = ''
+                    users_entity_obj.city_street_address = ''
+                elif users_entity_obj.prefecture_id != street_address_data[1]:
                     is_next_page_forward = False;
                     users_entity_obj.prefecture_id_error = setting.app.config['ZIP_CODE_CONSISTENCY_ERROR']
         else:
