@@ -108,13 +108,19 @@ for table in Base.classes:
     # リレーションの設定
     relation_body = ''
     many_variables_suffix = '_collection'
-    for prop in inspect_table.relationships:
+    for key in dir(inspect_table.relationships):
+        # keyが「_」から始まらない場合は、リレーションプロパティ名が入っている
+        if True == key.startswith('_'):
+            continue
+        prop = getattr(inspect_table.relationships, key)
         foreign_table_name = prop.mapper.persist_selectable.name
         foreign_class_name = foreign_table_name + '_entity'
         # リレーションが複数カラムかどうか
-        # TODO: 3以上の時の処理が不足
-        if 2 <= len(prop._user_defined_foreign_keys):
-            primaryjoin = "primaryjoin='" + prop.primaryjoin.operator.__name__ + "(" + local_table_name + "_entity." + prop.primaryjoin.clauses[0]._orig[0].key + " == " + foreign_class_name + "." + prop.primaryjoin.clauses[0]._orig[1].key + ", " + local_table_name + "_entity." + prop.primaryjoin.clauses[1]._orig[0].key + " == " + foreign_class_name + "." + prop.primaryjoin.clauses[1]._orig[1].key + ")', "
+        if True == hasattr(prop.primaryjoin, 'clauses'):
+            primaryjoin = "primaryjoin='" + prop.primaryjoin.operator.__name__ + "("
+            for clause in prop.primaryjoin.clauses:
+                primaryjoin += local_table_name + "_entity." + clause._orig[0].key + " == " + foreign_class_name + "." + clause._orig[1].key + ", "
+            primaryjoin = primaryjoin.rstrip(', ') + ")', "
         else:
             primaryjoin = ''
         # TODO: 1対1の場合、これでは動かなさそう

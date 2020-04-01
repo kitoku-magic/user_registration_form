@@ -115,20 +115,20 @@ class users_entity_base(timestamp_mixin_entity, entity):
     def birth_days(cls):
         return repository.get_db_instance(repository).relationship('birth_days_entity', back_populates='users_collection', uselist=False)
     @declared_attr
+    def jobs(cls):
+        return repository.get_db_instance(repository).relationship('jobs_entity', back_populates='users_collection', uselist=False)
+    @declared_attr
     def sexes(cls):
         return repository.get_db_instance(repository).relationship('sexes_entity', back_populates='users_collection', uselist=False)
     @declared_attr
-    def zip_addresses(cls):
-        return repository.get_db_instance(repository).relationship('zip_addresses_entity', primaryjoin='and_(users_entity.zip_code == zip_addresses_entity.zip_code, users_entity.prefecture_id == zip_addresses_entity.prefecture_id)', back_populates='users_collection', uselist=False)
-    @declared_attr
-    def jobs(cls):
-        return repository.get_db_instance(repository).relationship('jobs_entity', back_populates='users_collection', uselist=False)
+    def user_contact_methods_collection(cls):
+        return repository.get_db_instance(repository).relationship('user_contact_methods_entity', back_populates='users', cascade='save-update, merge, delete', uselist=True)
     @declared_attr
     def user_knew_triggers_collection(cls):
         return repository.get_db_instance(repository).relationship('user_knew_triggers_entity', back_populates='users', cascade='save-update, merge, delete', uselist=True)
     @declared_attr
-    def user_contact_methods_collection(cls):
-        return repository.get_db_instance(repository).relationship('user_contact_methods_entity', back_populates='users', cascade='save-update, merge, delete', uselist=True)
+    def zip_addresses(cls):
+        return repository.get_db_instance(repository).relationship('zip_addresses_entity', primaryjoin='and_(users_entity.zip_code == zip_addresses_entity.zip_code, users_entity.prefecture_id == zip_addresses_entity.prefecture_id)', back_populates='users_collection', uselist=False)
 
     def __init__(self):
         timestamp_mixin_entity.__init__(self)
