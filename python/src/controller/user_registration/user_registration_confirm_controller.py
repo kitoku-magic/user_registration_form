@@ -70,28 +70,14 @@ class user_registration_confirm_controller(user_registration_common_controller):
                 users_entity_obj.zip_code_error = setting.app.config['ZIP_CODE_ERROR']
                 users_entity_obj.prefecture_id = ''
                 users_entity_obj.city_street_address = ''
+            else:
+                if users_entity_obj.prefecture_id != street_address_data[1]:
+                    is_next_page_forward = False;
+                    users_entity_obj.prefecture_id_error = setting.app.config['ZIP_CODE_CONSISTENCY_ERROR']
         else:
             raise custom_exception('不正なリクエストです')
 
         if True == is_next_page_forward:
-            # データの存在チェック
-            # ユーザー登録済みチェック
-            is_user_exist = True
-            users_repository_obj = users_repository(users_entity_obj)
-            users_data = users_repository_obj.find(
-                    ('user_id','registration_status'),
-                    'mail_address = %s',
-                    (users_entity_obj.mail_address,)
-            )
-            if users_data is None:
-                is_user_exist = False
-            else:
-                if setting.app.config['USER_REGISTRATION_STATUS_REGISTERED'] != users_data[1]:
-                    is_user_exist = False
-                    users_entity_obj.user_id = users_data[0]
-            if True == is_user_exist:
-                is_next_page_forward = False
-                users_entity_obj.mail_address_error = '既に該当のメールアドレスでは登録済みです。'
             # 誕生日存在チェック
             birth_days_repository_obj = birth_days_repository(birth_days_entity())
             birth_days_data = birth_days_repository_obj.find(
@@ -106,18 +92,39 @@ class user_registration_confirm_controller(user_registration_common_controller):
                 users_entity_obj.birth_day_id = birth_days_data[0]
 
         if True == is_next_page_forward:
-            if users_entity_obj.file_path is None:
-                users_entity_obj.file_name = ''
-                users_entity_obj.file_path = ''
-            if setting.app.config['JOB_ID_OTHER'] != users_entity_obj.job_id:
-                users_entity_obj.job_other = ''
-            users_entity_obj.input_token = users_entity_obj.token
-            users_entity_obj.registration_status = setting.app.config['USER_REGISTRATION_STATUS_REGISTERING']
-            users_entity_obj.token = util.get_token_for_url(96)
-            users_entity_obj.zip_code = zip_codes[0] + zip_codes[1]
-            update_column_name_list = users_entity_obj.get_update_column_name_list()
+            users_repository_obj = users_repository(users_entity_obj)
             users_repository_obj.begin()
             try:
+                # ユーザー登録済みチェック
+                is_user_exist = True
+                users_data = users_repository_obj.find(
+                    ('user_id','registration_status'),
+                    'mail_address = %s',
+                    (users_entity_obj.mail_address,),
+                    '',
+                    True
+                )
+                if users_data is None:
+                    is_user_exist = False
+                else:
+                    if setting.app.config['USER_REGISTRATION_STATUS_REGISTERED'] != users_data[1]:
+                        is_user_exist = False
+                        users_entity_obj.user_id = users_data[0]
+                if True == is_user_exist:
+                    raise custom_exception(
+                        '既に該当のメールアドレスでは登録済みです。',
+                        '既に該当のメールアドレスでは登録済みです。\nその他のメールアドレスで、ご登録をお願いします。'
+                    )
+                if users_entity_obj.file_path is None:
+                    users_entity_obj.file_name = ''
+                    users_entity_obj.file_path = ''
+                if setting.app.config['JOB_ID_OTHER'] != users_entity_obj.job_id:
+                    users_entity_obj.job_other = ''
+                users_entity_obj.input_token = users_entity_obj.token
+                users_entity_obj.registration_status = setting.app.config['USER_REGISTRATION_STATUS_REGISTERING']
+                users_entity_obj.token = util.get_token_for_url(96)
+                users_entity_obj.zip_code = zip_codes[0] + zip_codes[1]
+                update_column_name_list = users_entity_obj.get_update_column_name_list()
                 if users_entity_obj.user_id is None:
                     row_count = users_repository_obj.insert(update_column_name_list)
                 else:
@@ -134,9 +141,16 @@ class user_registration_confirm_controller(user_registration_common_controller):
             except Exception as exc:
                 users_repository_obj.rollback()
                 self.remove_upload_file(users_entity_obj)
+                if True == isinstance(exc, custom_exception):
+                    if 1 < len(exc.args):
+                        show_error_message = exc.args[1]
+                    else:
+                        show_error_message = 'システムエラーが発生しました。\n再度、ユーザー登録入力画面から操作をお願いします。'
+                else:
+                    show_error_message = 'システムエラーが発生しました。\n再度、ユーザー登録入力画面から操作をお願いします。'
                 raise custom_exception(
                     str(exc),
-                    'システムエラーが発生しました。\n再度、ユーザー登録入力画面から操作をお願いします。'
+                    show_error_message
                 )
             # ユーザー登録確認画面を表示する
             self.add_response_data('title', setting.app.config['USER_REGISTRATION_CONFIRM_TITLE'])

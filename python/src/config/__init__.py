@@ -78,6 +78,7 @@ class config(object):
     # ユーザー登録確認画面
     USER_REGISTRATION_CONFIRM_TITLE = 'ユーザー登録確認'
     ZIP_CODE_ERROR = '郵便番号に該当する住所が存在しません'
+    ZIP_CODE_CONSISTENCY_ERROR = '郵便番号に対する都道府県が一致していません'
 
     # ユーザー登録完了画面
     USER_REGISTRATION_COMPLETE_TITLE = 'ユーザー登録完了'

@@ -247,14 +247,10 @@ class entity(db.Model):
             if mime_type not in options['allow_mime_types']:
                 options['message'] = self.__validation_settings[options['name']]['show_name'] + 'は許可されていないファイル形式です'
                 return False
-            mime_extensions = mimetypes.guess_all_extensions(mime_type)
             file_info = os.path.splitext(upload_file.filename)
             extension = file_info[1][1:]
             if '' == extension:
                 options['message'] = self.__validation_settings[options['name']]['show_name'] + 'の拡張子が不明です'
-                return False
-            if file_info[1] not in mime_extensions:
-                options['message'] = self.__validation_settings[options['name']]['show_name'] + 'の拡張子とデータ形式が一致していません'
                 return False
             if mime_type not in options['allow_extensions'] \
             or extension not in options['allow_extensions'][mime_type]:
