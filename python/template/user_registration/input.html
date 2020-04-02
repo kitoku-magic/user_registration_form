@@ -1,7 +1,7 @@
 {% extends 'layout.html' %}
 {% block body %}
 <form id="user_registration_input" action="/user_registration/confirm" method="post" enctype="multipart/form-data">
-	<input type="hidden" id="mail_address" name="mail_address" maxlength="128" size="35" value="{{ res['mail_address'] }}" />
+	<input type="hidden" id="mail_address" name="mail_address" value="{{ res['mail_address'] }}" />
 	<input type="hidden" id="token" name="token" value="{{ res['token'] }}" />
 	<table id="user_form_table">
 		<tr>

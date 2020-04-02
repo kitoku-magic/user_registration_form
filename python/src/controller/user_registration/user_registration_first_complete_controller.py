@@ -16,9 +16,9 @@ class user_registration_first_complete_controller(user_registration_common_contr
             users_repository_obj = users_repository(self.get_users_entity())
             # 既に、ユーザー登録済みなら、メール文言を変える
             users_data = users_repository_obj.find(
-                    ('user_id',),
-                    'mail_address = %s AND registration_status = %s',
-                    (pre_users_entity_obj.mail_address, setting.app.config['USER_REGISTRATION_STATUS_REGISTERED'])
+                ('user_id',),
+                'mail_address = %s AND registration_status = %s',
+                (pre_users_entity_obj.mail_address, setting.app.config['USER_REGISTRATION_STATUS_REGISTERED'])
             )
             sender = setting.app.config['SENDER_MAIL_ADDRESS']
             recipients = pre_users_entity_obj.mail_address

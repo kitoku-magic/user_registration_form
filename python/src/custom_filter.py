@@ -1,2 +1,5 @@
+from markupsafe import Markup
+
 def nl2br(value):
-    return value.replace('\n', '<br />')
+    value = value.__str__().replace('\n', '<br />')
+    return Markup(value)

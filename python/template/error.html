@@ -1,4 +1,4 @@
 {% extends 'layout.html' %}
 {% block body %}
-<p class="center_justification">{{ res['show_error_message']|nl2br }}</p>
+<p class="center_justification">{{ res['show_error_message']|escape|nl2br }}</p>
 {% endblock %}

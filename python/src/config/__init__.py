@@ -4,6 +4,8 @@ class config(object):
     DEBUG = False
     TESTING = False
     SESSION_COOKIE_SECURE = False
+    TEMPLATES_AUTO_RELOAD = True
+    SEND_FILE_MAX_AGE_DEFAULT = 0
     LOG_MAX_BYTES = 100000
     LOG_BACKUP_COUNT = 10
     LOG_LEVEL = logging.DEBUG

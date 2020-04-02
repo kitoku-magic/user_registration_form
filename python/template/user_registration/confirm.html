@@ -4,6 +4,9 @@
 	<p>以下の内容を確認し、宜しければ次へボタンを押して下さい。<br />ユーザー登録が完了します。</p>
 </div>
 <form id="user_registration_confirm" action="/user_registration/complete" method="post">
+	<input type="hidden" id="mail_address" name="mail_address" value="{{ res['mail_address'] }}" />
+	<input type="hidden" id="token" name="token" value="{{ res['token'] }}" />
+	<input type="hidden" id="input_token" name="input_token" value="{{ res['input_token'] }}" />
 	<table id="user_form_table">
 		<tr>
 			<th id="user_form_midashi" colspan="2">
@@ -163,8 +166,5 @@
 			<button type="submit" id="previous_page" name="clicked_button" value="previous_page" onclick="submitForm('user_registration_confirm', '/user_registration/input', 'GET');" />戻る</button>
 		</p>
 	</div>
-	<input type="hidden" id="mail_address" name="mail_address" value="{{ res['mail_address'] }}" />
-	<input type="hidden" id="token" name="token" value="{{ res['token'] }}" />
-	<input type="hidden" id="input_token" name="input_token" value="{{ res['input_token'] }}" />
 </form>
 {% endblock %}

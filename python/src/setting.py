@@ -64,6 +64,7 @@ for logger in (
 # 省略した場合はこのファイルと同階層の "templates" になる
 jinja_environment = Environment(
     loader=FileSystemLoader(os.path.join(base_path, 'template')),
+    autoescape=True,
 )
 jinja_environment.filters['nl2br'] = nl2br
 app.jinja_environment = jinja_environment

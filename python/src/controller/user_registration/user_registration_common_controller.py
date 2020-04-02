@@ -10,8 +10,6 @@ class user_registration_common_controller(controller):
             request_data = request.form
         self.__users_entity = users_entity()
         self.__users_entity.set_request_to_entity(request_data)
-    def set_users_entity(self, users_entity):
-        self.__users_entity = users_entity
     def get_users_entity(self):
         return self.__users_entity
     # フォームの初期値を設定する為の初期化

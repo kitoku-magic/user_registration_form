@@ -20,9 +20,9 @@ class controller:
             http_response = template.render({'res': self.__response_data})
 
             r = make_response(http_response)
-            #r.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
-            #r.headers['Pragma'] = 'no-cache'
-            #r.headers['Expires'] = '0'
+            r.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+            r.headers['Pragma'] = 'no-cache'
+            r.headers['Expires'] = '0'
         except custom_exception as e:
             setting.app.logger.exception('{}'.format(e))
             if 2 <= len(e.args):

@@ -60,7 +60,7 @@ class user_registration_complete_controller(user_registration_common_controller)
                 (users_entity_obj.user_id,)
             )
             if 1 > row_count:
-                raise custom_exception('ユーザー情報の一時保存に失敗しました')
+                raise custom_exception('ユーザー情報の保存に失敗しました')
             if False == util.is_empty(old_file_path):
                 new_dir = os.path.dirname(users_entity_obj.file_path)
                 r = util.make_directory(new_dir)
