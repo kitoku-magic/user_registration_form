@@ -28,15 +28,15 @@ class controller:
             if 2 <= len(e.args):
                 show_error_message = e.args[1]
             else:
-                show_error_message = '予期しないエラーが発生しました。\nブラウザの戻るボタンで前ページにお戻り下さい。'
+                show_error_message = setting.app.config['SHOW_UNEXPECTED_ERROR']
             r = self.make_error_response(show_error_message)
         except Exception as e:
             setting.app.logger.exception('{}'.format(e))
-            show_error_message = '予期しないエラーが発生しました。\nブラウザの戻るボタンで前ページにお戻り下さい。'
+            show_error_message = setting.app.config['SHOW_UNEXPECTED_ERROR']
             r = self.make_error_response(show_error_message)
         except:
             setting.app.logger.exception(traceback.format_exc())
-            show_error_message = '予期しないエラーが発生しました。\nブラウザの戻るボタンで前ページにお戻り下さい。'
+            show_error_message = setting.app.config['SHOW_UNEXPECTED_ERROR']
             r = self.make_error_response(show_error_message)
         finally:
             return r
@@ -47,7 +47,7 @@ class controller:
         http_response = template.render({'res': self.__response_data})
         return make_response(http_response)
     def create_csrf_token(self):
-        csrf_token = util.get_token(96)
+        csrf_token = util.get_token(setting.app.config['SECRET_TOKEN_BYTE_LENGTH'])
         session['csrf_token'] = csrf_token
         self.add_response_data('csrf_token', csrf_token)
     def check_csrf_token(self):
@@ -58,6 +58,9 @@ class controller:
             if True == secrets.compare_digest(post_csrf_token, session_csrf_token):
                 return True
             else:
-                raise custom_exception('トークンが一致しません', '不正なリクエストです。')
+                raise custom_exception(setting.app.config['TOKEN_NOT_EQUAL_ERROR'])
         else:
-            raise custom_exception('トークンが設定されていません', '不正なリクエストです。')
+            raise custom_exception(setting.app.config['TOKEN_NOT_SETTING_ERROR'])
+    def set_template_common_data(self, title, template_file_name):
+        self.add_response_data('title', title)
+        self.set_template_file_name(template_file_name)

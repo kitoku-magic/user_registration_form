@@ -235,45 +235,45 @@ class entity(db.Model):
             # TODO: options['message']への代入は参照になっている
             if '' == upload_file.filename \
             or 0 == len(stream):
-                options['message'] = self.__validation_settings[options['name']]['show_name'] + 'がアップロードされていません'
+                options['message'] = self.__validation_settings[options['name']]['show_name'] + setting.app.config['FILE_UPLOAD_NOT_UPLOAD_MESSAGE']
                 return False
             if setting.app.config['MAX_FILE_UPLOAD_SIZE'] < len(stream):
-                options['message'] = self.__validation_settings[options['name']]['show_name'] + 'はアップロード可能なファイルサイズを超えています'
+                options['message'] = self.__validation_settings[options['name']]['show_name'] + setting.app.config['FILE_UPLOAD_FILE_SIZE_OVER_MESSAGE']
                 return False
             mime_type = magic_obj.from_buffer(stream)
             if 'image/bmp' == mime_type:
-                options['message'] = self.__validation_settings[options['name']]['show_name'] + 'はビットマップ画像なのでアップロード出来ません'
+                options['message'] = self.__validation_settings[options['name']]['show_name'] + setting.app.config['FILE_UPLOAD_BITMAP_MESSAGE']
                 return False
             if mime_type not in options['allow_mime_types']:
-                options['message'] = self.__validation_settings[options['name']]['show_name'] + 'は許可されていないファイル形式です'
+                options['message'] = self.__validation_settings[options['name']]['show_name'] + setting.app.config['FILE_UPLOAD_NOT_ALLOWED_FILE_TYPE_MESSAGE']
                 return False
             file_info = os.path.splitext(upload_file.filename)
             extension = file_info[1][1:]
             if '' == extension:
-                options['message'] = self.__validation_settings[options['name']]['show_name'] + 'の拡張子が不明です'
+                options['message'] = self.__validation_settings[options['name']]['show_name'] + setting.app.config['FILE_UPLOAD_UNKNOWN_EXTENSION_MESSAGE']
                 return False
             if mime_type not in options['allow_extensions'] \
             or extension not in options['allow_extensions'][mime_type]:
-                options['message'] = self.__validation_settings[options['name']]['show_name'] + 'の拡張子とファイル形式が合っていません'
+                options['message'] = self.__validation_settings[options['name']]['show_name'] + setting.app.config['FILE_UPLOAD_UNMATCH_EXTENSION_FILE_TYPE_MESSAGE']
                 return False
             if True == util.is_empty(upload_file.content_type) or True == util.is_empty(upload_file.mimetype):
-                options['message'] = self.__validation_settings[options['name']]['show_name'] + 'のファイル形式が不明です'
+                options['message'] = self.__validation_settings[options['name']]['show_name'] + setting.app.config['FILE_UPLOAD_UNKNOWN_FILE_TYPE_MESSAGE']
                 return False
             if mime_type != upload_file.content_type or mime_type != upload_file.mimetype:
-                options['message'] = self.__validation_settings[options['name']]['show_name'] + 'のファイル形式が矛盾しています'
+                options['message'] = self.__validation_settings[options['name']]['show_name'] + setting.app.config['FILE_UPLOAD_FILE_TYPE_INCONSISTENCY_MESSAGE']
                 return False
             if True == options['is_file_name_check']:
                 if options['max_length'] < len(upload_file.filename):
-                    options['message'] = self.__validation_settings[options['name']]['show_name'] + 'の長さが最大文字数を超えています'
+                    options['message'] = self.__validation_settings[options['name']]['show_name'] + setting.app.config['FILE_UPLOAD_MAX_CHARACTER_LENGTH_OVER_MESSAGE']
                     return False
                 if '__' in upload_file.filename:
-                    options['message'] = self.__validation_settings[options['name']]['show_name'] + 'にアンダーバーが連続して含まれています'
+                    options['message'] = self.__validation_settings[options['name']]['show_name'] + setting.app.config['FILE_UPLOAD_UNDER_BAR_CONSECUTIVE_MESSAGE']
                     return False
                 if ' ' == file_info[0][0] \
                 or ' ' == file_info[0][-1] \
                 or '　' == file_info[0][0] \
                 or '　' == file_info[0][-1]:
-                    options['message'] = self.__validation_settings[options['name']]['show_name'] + 'の先頭か末尾に空白が入っています'
+                    options['message'] = self.__validation_settings[options['name']]['show_name'] + setting.app.config['FILE_UPLOAD_FIRST_OR_LAST_SPACE_MESSAGE']
                     return False
                 reserved_words = {
                     'CON': True,
@@ -303,7 +303,7 @@ class entity(db.Model):
                     'LPT9': True,
                 };
                 if upload_file.filename in reserved_words or file_info[0] in reserved_words:
-                    options['message'] = self.__validation_settings[options['name']]['show_name'] + 'は予約語です'
+                    options['message'] = self.__validation_settings[options['name']]['show_name'] + setting.app.config['FILE_UPLOAD_RESERVED_WORD_MESSAGE']
                     return False
                 # 許容する文字
                 white_list = '\A(?:['
@@ -331,7 +331,7 @@ class entity(db.Model):
                 white_list += '_ '
                 white_list += '])+\Z'
                 if re.match(white_list, file_info[0]) is None:
-                    options['message'] = self.__validation_settings[options['name']]['show_name'] + 'に許可されていない文字が含まれています'
+                    options['message'] = self.__validation_settings[options['name']]['show_name'] + setting.app.config['FILE_UPLOAD_NOT_ALLOWED_CHARACTER_MESSAGE']
                     return False
             log_error_message = ''
             unix_timestamp = math.floor(time.time())
@@ -340,11 +340,11 @@ class entity(db.Model):
             file_path = setting.app.config['APP_FILE_TMP_SAVE_PATH'] + '/' + options['save_path_identifier'] + '/' + current_datetime.strftime('%Y%m%d')
             r = util.make_directory(file_path)
             if False == r:
-                log_error_message = 'アップロードファイルの保存先ディレクトリの作成に失敗しました'
+                log_error_message = setting.app.config['UPLOAD_FILE_SAVE_DIRECTORY_MAKE_ERROR']
             if '' == log_error_message:
                 os.chmod(file_path, 0o700)
                 if True == options['is_secret']:
-                    token = util.get_token(64)
+                    token = util.get_token(setting.app.config['SECRET_TOKEN_BYTE_LENGTH'])
                 else:
                     token = ''
                 file_name = hashlib.sha512(str(token + werkzeug.utils.secure_filename(file_info[0]) + util.get_unique_id()).encode(setting.app.config['PG_CHARACTER_SET'])).hexdigest() + '.' + extension
@@ -355,14 +355,14 @@ class entity(db.Model):
                         if 0 < write_byte:
                             os.chmod(full_file_path, 0o600)
                         else:
-                            log_error_message = 'アップロードファイルの保存に失敗しました'
+                            log_error_message = setting.app.config['FILE_UPLOAD_SAVE_ERROR_MESSAGE']
                 except OSError:
-                    log_error_message = 'アップロードファイルの保存先パスのオープンに失敗しました'
+                    log_error_message = setting.app.config['FILE_UPLOAD_SAVE_PATH_OPEN_ERROR_MESSAGE']
             if '' == log_error_message:
                 setattr(self, options['name'], upload_file.filename)
                 setattr(self, options['path'], full_file_path)
             else:
-                options['message'] = self.__validation_settings[options['name']]['show_name'] + 'のアップロードに失敗しました。もう一度アップロードして下さい'
+                options['message'] = self.__validation_settings[options['name']]['show_name'] + setting.app.config['FILE_UPLOAD_SHOW_SAVE_ERROR_MESSAGE']
                 setting.app.logger.error(log_error_message)
                 return False
         return True

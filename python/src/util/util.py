@@ -53,12 +53,12 @@ class util:
         """
         最小桁数のチェック
         """
-        return len(value.encode('utf-8')) >= length
+        return len(value.encode(setting.app.config['PG_CHARACTER_SET'])) >= length
     def check_max_length(value, length):
         """
         最大桁数のチェック
         """
-        return len(value.encode('utf-8')) <= length
+        return len(value.encode(setting.app.config['PG_CHARACTER_SET'])) <= length
     def check_date(date, date_format = '%Y-%m-%d %H:%M:%S'):
         """
         日付が妥当かどうかのチェック

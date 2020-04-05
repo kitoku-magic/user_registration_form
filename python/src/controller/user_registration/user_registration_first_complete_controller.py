@@ -2,8 +2,6 @@ from src.controller.user_registration import *
 
 class user_registration_first_complete_controller(user_registration_common_controller):
     def execute(self):
-        # 入力されたメールアドレス宛にメールを送信する
-        self.add_response_data('title', setting.app.config['USER_REGISTRATION_FIRST_COMPLETE_TITLE'])
         # CSRFトークンをチェックする
         super().check_csrf_token()
         # メールアドレスのバリデーション
@@ -12,7 +10,6 @@ class user_registration_first_complete_controller(user_registration_common_contr
         pre_users_entity_obj.set_validation_setting();
         validate_result = pre_users_entity_obj.validate();
         if True == validate_result:
-            template_file_name = 'user_registration/first_complete'
             users_repository_obj = users_repository(self.get_users_entity())
             # 既に、ユーザー登録済みなら、メール文言を変える
             users_data = users_repository_obj.find(
@@ -29,7 +26,7 @@ class user_registration_first_complete_controller(user_registration_common_contr
             pre_users_repository_obj.begin()
             if users_data is None:
                 body = setting.app.config['USER_REGISTRATION_FIRST_COMPLETE_REGISTERED_MESSAGE']
-                token = util.get_token_for_url(96)
+                token = util.get_token_for_url(setting.app.config['SECRET_TOKEN_FOR_URL_BYTE_LENGTH'])
                 pre_users_entity_obj.token = token
                 body += setting.app.config['URI_SCHEME'] + '://' + setting.app.config['HOST_NAME'] + '/user_registration/input?mail_address='
                 body += recipients
@@ -87,17 +84,19 @@ class user_registration_first_complete_controller(user_registration_common_contr
                     pre_users_repository_obj.commit()
                 else:
                     pre_users_repository_obj.rollback()
-                    error_message = 'メールの送信に失敗しました。'
+                    error_message = setting.app.config['MAIL_SEND_ERROR']
             else:
                 pre_users_repository_obj.rollback()
-                error_message = 'データベースへの登録に失敗しました。'
+                error_message = setting.app.config['DB_REGISTRATION_ERROR']
             if '' != error_message:
-                raise custom_exception(error_message, '登録に失敗しました。\n再度、お手続き下さい。')
+                raise custom_exception(error_message, setting.app.config['SHOW_FIRST_COMPLETE_ERROR'])
             setting.app.logger.info('pre_user_id:' + str(pre_user_id) + 'にメールを送信しました。')
+            template_file_name = 'user_registration/first_complete'
         else:
-            template_file_name = 'user_registration/index'
             # CSRFトークンを作成する
             super().create_csrf_token()
             self.add_response_data('mail_address_error', pre_users_entity_obj.mail_address_error)
+            template_file_name = 'user_registration/index'
 
-        self.set_template_file_name(template_file_name)
+        # 入力されたメールアドレス宛にメールを送信する
+        self.set_template_common_data(setting.app.config['USER_REGISTRATION_FIRST_COMPLETE_TITLE'], template_file_name)

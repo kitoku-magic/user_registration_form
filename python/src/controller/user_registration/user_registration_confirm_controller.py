@@ -75,7 +75,7 @@ class user_registration_confirm_controller(user_registration_common_controller):
                     is_next_page_forward = False;
                     users_entity_obj.prefecture_id_error = setting.app.config['ZIP_CODE_CONSISTENCY_ERROR']
         else:
-            raise custom_exception('不正なリクエストです')
+            raise custom_exception(setting.app.config['INVALID_REQUEST_ERROR'])
 
         if True == is_next_page_forward:
             # 誕生日存在チェック
@@ -87,7 +87,7 @@ class user_registration_confirm_controller(user_registration_common_controller):
             )
             if birth_days_data is None:
                 is_next_page_forward = False
-                users_entity_obj.birth_day_full_error = '登録出来ない誕生日です。'
+                users_entity_obj.birth_day_full_error = setting.app.config['BIRTH_DAY_NOT_REGISTRATION_ERROR']
             else:
                 users_entity_obj.birth_day_id = birth_days_data[0]
 
@@ -112,8 +112,8 @@ class user_registration_confirm_controller(user_registration_common_controller):
                         users_entity_obj.user_id = users_data[0]
                 if True == is_user_exist:
                     raise custom_exception(
-                        '既に該当のメールアドレスでは登録済みです。',
-                        '既に該当のメールアドレスでは登録済みです。\nその他のメールアドレスで、ご登録をお願いします。'
+                        setting.app.config['MAIL_ADDRESS_REGISTRATIONED_ERROR'],
+                        setting.app.config['SHOW_MAIL_ADDRESS_REGISTRATIONED_ERROR']
                     )
                 if users_entity_obj.file_path is None:
                     users_entity_obj.file_name = ''
@@ -122,7 +122,7 @@ class user_registration_confirm_controller(user_registration_common_controller):
                     users_entity_obj.job_other = ''
                 users_entity_obj.input_token = users_entity_obj.token
                 users_entity_obj.registration_status = setting.app.config['USER_REGISTRATION_STATUS_REGISTERING']
-                users_entity_obj.token = util.get_token_for_url(96)
+                users_entity_obj.token = util.get_token_for_url(setting.app.config['SECRET_TOKEN_FOR_URL_BYTE_LENGTH'])
                 users_entity_obj.zip_code = zip_codes[0] + zip_codes[1]
                 update_column_name_list = users_entity_obj.get_update_column_name_list()
                 if users_entity_obj.user_id is None:
@@ -136,7 +136,7 @@ class user_registration_confirm_controller(user_registration_common_controller):
                         (users_entity_obj.user_id,)
                     )
                 if 1 > row_count:
-                    raise custom_exception('ユーザー情報の一時保存に失敗しました')
+                    raise custom_exception(setting.app.config['USER_TEMPORARY_SAVE_ERROR'])
                 users_repository_obj.commit()
             except Exception as exc:
                 users_repository_obj.rollback()
@@ -145,21 +145,19 @@ class user_registration_confirm_controller(user_registration_common_controller):
                     if 1 < len(exc.args):
                         show_error_message = exc.args[1]
                     else:
-                        show_error_message = 'システムエラーが発生しました。\n再度、ユーザー登録入力画面から操作をお願いします。'
+                        show_error_message = setting.app.config['SHOW_SYSTEM_ERROR']
                 else:
-                    show_error_message = 'システムエラーが発生しました。\n再度、ユーザー登録入力画面から操作をお願いします。'
+                    show_error_message = setting.app.config['SHOW_SYSTEM_ERROR']
                 raise custom_exception(
                     str(exc),
                     show_error_message
                 )
             # ユーザー登録確認画面を表示する
-            self.add_response_data('title', setting.app.config['USER_REGISTRATION_CONFIRM_TITLE'])
-            self.set_template_file_name('user_registration/confirm')
+            self.set_template_common_data(setting.app.config['USER_REGISTRATION_CONFIRM_TITLE'], 'user_registration/confirm')
         else:
-            # ユーザー登録入力画面を表示する
             self.remove_upload_file(users_entity_obj)
-            self.add_response_data('title', setting.app.config['USER_REGISTRATION_INPUT_TITLE'])
-            self.set_template_file_name('user_registration/input')
+            # ユーザー登録入力画面を表示する
+            self.set_template_common_data(setting.app.config['USER_REGISTRATION_INPUT_TITLE'], 'user_registration/input')
 
         # フォームの初期値を設定する為の初期化
         self.assign_all_form_data()

@@ -2,24 +2,21 @@ from src.controller.user_registration import *
 
 class user_registration_input_controller(user_registration_common_controller):
     def execute(self):
-        # ユーザー登録入力画面を表示する
-        self.add_response_data('title', setting.app.config['USER_REGISTRATION_INPUT_TITLE'])
-
         users_entity_obj = self.get_users_entity()
         if 'previous_page' == users_entity_obj.clicked_button:
             confirm_token = users_entity_obj.token
             users_entity_obj.token = users_entity_obj.input_token
         pre_users_repository_obj = pre_users_repository(pre_users_entity())
-        # メールアドレスとトークンが一致して、現在時間が最終更新時間から１時間経っていなければOK
+        # メールアドレスとトークンが一致して、現在時間が最終更新時間からUSER_REGISTRATION_TIME_LIMIT_SECOND秒経っていなければOK
         pre_users_data = pre_users_repository_obj.find(
             ('pre_user_id',),
             'mail_address = %s AND token = %s AND updated_at >= %s',
-            (users_entity_obj.mail_address, users_entity_obj.token, (math.floor(time.time()) - 3600))
+            (users_entity_obj.mail_address, users_entity_obj.token, (math.floor(time.time()) - setting.app.config['USER_REGISTRATION_TIME_LIMIT_SECOND']))
         )
         if pre_users_data is None:
             raise custom_exception(
-                'URLの有効期限が切れています。',
-                'URLの有効期限が切れています。\n再度、メールアドレス入力画面からお手続き下さい。'
+                setting.app.config['USER_REGISTRATION_URL_EXPIRE_DATE_ERROR'],
+                setting.app.config['SHOW_USER_REGISTRATION_URL_EXPIRE_DATE_ERROR']
             )
         if 'previous_page' == users_entity_obj.clicked_button:
             get_column_name_list = users_entity_obj.get_update_column_name_list()
@@ -54,14 +51,14 @@ class user_registration_input_controller(user_registration_common_controller):
                         (users_entity_obj.user_id,)
                     )
                     if 1 > row_count:
-                        raise custom_exception('ファイル情報の更新に失敗しました')
+                        raise custom_exception(setting.app.config['FILE_UPDATE_ERROR'])
                     self.remove_upload_file(tmp_users_entity_obj)
                 users_repository_obj.commit()
             except Exception as exc:
                 users_repository_obj.rollback()
                 raise custom_exception(
                     str(exc),
-                    'システムエラーが発生しました。\n再度、ユーザー登録入力画面から操作をお願いします。'
+                    setting.app.config['SHOW_SYSTEM_ERROR']
                 )
             # 誕生日
             birth_days_entity_obj = birth_days_entity()
@@ -111,4 +108,5 @@ class user_registration_input_controller(user_registration_common_controller):
         # 複数選択項目の選択状態を設定
         self.select_multiple_value_item()
 
-        self.set_template_file_name('user_registration/input')
+        # ユーザー登録入力画面を表示する
+        self.set_template_common_data(setting.app.config['USER_REGISTRATION_INPUT_TITLE'], 'user_registration/input')
