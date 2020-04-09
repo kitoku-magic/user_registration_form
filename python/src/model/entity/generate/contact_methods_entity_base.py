@@ -3,6 +3,9 @@ from src.model.entity.generate import *
 from src.model.repository import repository
 
 class contact_methods_entity_base(timestamp_mixin_entity, entity):
+    """
+    連絡方法マスタテーブルエンティティの基底クラス
+    """
     __abstract__ = True
     __CONTACT_METHOD_NAME_LENGTH = 32
 

@@ -3,6 +3,9 @@ from src.model.entity.generate import *
 from src.model.repository import repository
 
 class pre_users_entity_base(timestamp_mixin_entity, entity):
+    """
+    ユーザー事前登録情報テーブルエンティティの基底クラス
+    """
     __abstract__ = True
     __MAIL_ADDRESS_LENGTH = 512
     __TOKEN_LENGTH = 128

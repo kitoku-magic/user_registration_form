@@ -3,6 +3,9 @@ from src.model.entity.generate import *
 from src.model.repository import repository
 
 class sexes_entity_base(timestamp_mixin_entity, entity):
+    """
+    性別マスタテーブルエンティティの基底クラス
+    """
     __abstract__ = True
     __SEX_NAME_LENGTH = 32
 

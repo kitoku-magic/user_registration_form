@@ -3,6 +3,9 @@ from src.model.entity.generate import *
 from src.model.repository import repository
 
 class knew_triggers_entity_base(timestamp_mixin_entity, entity):
+    """
+    知ったきっかけマスタテーブルエンティティの基底クラス
+    """
     __abstract__ = True
     __KNEW_TRIGGER_NAME_LENGTH = 64
 

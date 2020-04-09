@@ -3,6 +3,9 @@ from src.model.entity.generate import *
 from src.model.repository import repository
 
 class user_knew_triggers_entity_base(timestamp_mixin_entity, entity):
+    """
+    ユーザー知ったきっかけテーブルエンティティの基底クラス
+    """
     __abstract__ = True
 
     @declared_attr

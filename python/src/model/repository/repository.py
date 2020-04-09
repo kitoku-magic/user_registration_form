@@ -1,11 +1,13 @@
-import time
 import math
-
+import time
 from src.database import db
 from src.db_connection import db_connection
 from src.model.repository import *
 
 class repository():
+    """
+    全てのテーブルの基底リポジトリクラス
+    """
     __db_instance = db
     __db_connection = None
     __cursor = None
@@ -26,6 +28,10 @@ class repository():
     def get_main_entity(self):
         return self.__main_entity
     def select(self, columns, where = '', params = (), order_by = '', for_update = False):
+        """
+        SELECT文を実行する
+        """
+        # TODO: GROUP BYなど足りない分は、必要に応じて追加
         sql = 'SELECT ' + ', '.join(columns)
         if self.__table_name is not None:
             sql += ' FROM ' + self.__table_name
@@ -37,6 +43,9 @@ class repository():
             sql += ' FOR UPDATE'
         self.__cursor.execute(sql, params)
     def find(self, columns, where = '', params = (), order_by = '', for_update = False):
+        """
+        該当するデータを１件取得する
+        """
         self.select(columns, where, params, order_by, for_update)
         return self.__cursor.fetchone()
         #query = self.get_db_instance().session.query(select)
@@ -44,9 +53,15 @@ class repository():
         #    query = query.filter(text(where)).params(params)
         #return query.all()
     def find_all(self, columns, where = '', params = (), order_by = ''):
+        """
+        該当するデータを全件取得する
+        """
         self.select(columns, where, params, order_by)
         return self.__cursor.fetchall()
     def insert(self, columns):
+        """
+        INSERT文を実行する
+        """
         columns = self.set_timestamp('ins', columns)
         sql = 'INSERT INTO ' + self.__table_name + '('
         values = ''
@@ -65,6 +80,9 @@ class repository():
             #insert_list.append(d.__dict__)
         #self.get_db_instance().session.execute(table.__table__.insert(), insert_list)
     def bulk_insert(self, entities):
+        """
+        BULK INSERT文を実行する
+        """
         sql = 'INSERT INTO '
         table_name = ''
         column_names = ''
@@ -88,6 +106,9 @@ class repository():
         sql += column_names + ') VALUES' + values + ';'
         return self.execute_update(sql, bind_values)
     def update(self, columns, where = '', params = ()):
+        """
+        UPDATE文を実行する
+        """
         columns = self.set_timestamp('upd', columns)
         sql = 'UPDATE ' + self.__table_name + ' SET '
         bind_values = list()
@@ -101,6 +122,9 @@ class repository():
                 bind_values.append(value)
         return self.execute_update(sql, bind_values)
     def delete(self, where = '', params = ()):
+        """
+        DELETE文を実行する
+        """
         sql = 'DELETE FROM ' + self.__table_name
         bind_values = list()
         if '' != where:
@@ -109,6 +133,9 @@ class repository():
                 bind_values.append(value)
         return self.execute_update(sql, bind_values)
     def set_timestamp(self, mode, columns):
+        """
+        タイムスタンプ値を設定する
+        """
         self_dict = self.__main_entity.__dict__
         if 'ins' == mode:
             if 'created_at' in self_dict:
@@ -119,15 +146,30 @@ class repository():
             columns.append('updated_at')
         return columns
     def execute_update(self, sql, bind_values):
+        """
+        データを追加・更新・削除する
+        """
         self.__cursor.execute(sql, tuple(bind_values))
         return self.__cursor.rowcount
     def last_insert_id(self):
+        """
+        直近の主キーの値を取得
+        """
         return self.__cursor.lastrowid
     def begin(self, consistent_snapshot=False, isolation_level=None, readonly=None):
+        """
+        トランザクション開始
+        """
         self.__db_connection.start_transaction(consistent_snapshot, isolation_level, readonly)
     def commit(self):
+        """
+        トランザクションコミット
+        """
         self.__db_connection.commit()
         #self.get_db_instance().session.commit()
     def rollback(self):
+        """
+        トランザクションロールバック
+        """
         self.__db_connection.rollback()
         #self.get_db_instance().session.rollback()

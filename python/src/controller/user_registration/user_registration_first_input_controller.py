@@ -1,6 +1,9 @@
 from src.controller.user_registration import *
 
 class user_registration_first_input_controller(user_registration_common_controller):
+    """
+    ユーザー登録の、初期入力処理
+    """
     def execute(self):
         self.add_response_data('mail_address', '')
         # CSRFトークンを作成する

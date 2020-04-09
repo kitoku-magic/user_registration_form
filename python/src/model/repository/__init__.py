@@ -1,5 +1,4 @@
 from src import setting
-
 from .repository import repository
 from .pre_users_repository import pre_users_repository
 from .user_contact_methods_repository import user_contact_methods_repository

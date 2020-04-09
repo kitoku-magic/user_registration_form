@@ -1,6 +1,9 @@
 from src.controller.user_registration import *
 
 class user_registration_confirm_controller(user_registration_common_controller):
+    """
+    ユーザー登録の、確認処理
+    """
     def execute(self):
         request = self.get_request()
         request_form = request.form
@@ -18,6 +21,7 @@ class user_registration_confirm_controller(user_registration_common_controller):
         users_entity_obj.trim_all_data()
         properties = users_entity_obj.get_all_properties()
         for field, value in properties.items():
+            # jaconvの関数の引数はstring型にする必要がある
             if 'last_name' == field or 'first_name' == field:
                 value = jaconv.h2z(str(value))
                 value = util.join_diacritic(value)
@@ -52,6 +56,7 @@ class user_registration_confirm_controller(user_registration_common_controller):
             (zip_codes[0] + zip_codes[1],)
         )
         if 'street_address_search' == users_entity_obj.clicked_button:
+            # 住所検索ボタン押下時は、画面遷移をしない
             is_next_page_forward = False
             if street_address_data is None:
                 users_entity_obj.zip_code_error = setting.app.config['ZIP_CODE_ERROR']
@@ -63,6 +68,7 @@ class user_registration_confirm_controller(user_registration_common_controller):
         elif 'next_page' == users_entity_obj.clicked_button:
             is_next_page_forward = True
             users_entity_obj.set_validation_setting();
+            # バリデーション時に、ファイルアップロードだけは、アップロード処理も行われる
             is_next_page_forward = users_entity_obj.validate();
             # 郵便番号の存在結果
             if users_entity_obj.zip_code_error is None:
@@ -72,6 +78,7 @@ class user_registration_confirm_controller(user_registration_common_controller):
                     users_entity_obj.prefecture_id = ''
                     users_entity_obj.city_street_address = ''
                 elif users_entity_obj.prefecture_id != street_address_data[1]:
+                    # 郵便番号が属する都道府県になっていない時のエラー
                     is_next_page_forward = False;
                     users_entity_obj.prefecture_id_error = setting.app.config['ZIP_CODE_CONSISTENCY_ERROR']
         else:
@@ -155,13 +162,14 @@ class user_registration_confirm_controller(user_registration_common_controller):
             # ユーザー登録確認画面を表示する
             self.set_template_common_data(setting.app.config['USER_REGISTRATION_CONFIRM_TITLE'], 'user_registration/confirm')
         else:
+            # 画面遷移しない時は、アップロードされたファイルを削除
             self.remove_upload_file(users_entity_obj)
             # ユーザー登録入力画面を表示する
             self.set_template_common_data(setting.app.config['USER_REGISTRATION_INPUT_TITLE'], 'user_registration/input')
 
-        # フォームの初期値を設定する為の初期化
+        # 全てのフォーム項目に値を設定する
         self.assign_all_form_data()
-        # 複数選択項目の表示内容を取得して設定
-        self.set_multiple_value_item()
-        # 複数選択項目の選択状態を設定
-        self.select_multiple_value_item()
+        # 選択項目の表示内容を取得して設定
+        self.set_value_item()
+        # 選択項目の選択状態を設定
+        self.select_value_item()

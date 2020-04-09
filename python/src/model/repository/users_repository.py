@@ -1,9 +1,15 @@
 from src.model.repository import *
 
 class users_repository(repository):
+    """
+    ユーザーテーブルのリポジトリクラス
+    """
     def __init__(self, users_entity):
         super().__init__(users_entity)
     def insert(self, columns):
+        """
+        INSERT文を実行する（データが存在していれば関連テーブルも）
+        """
         row_count = super().insert(columns)
         if 0 >= row_count:
             return row_count
@@ -21,10 +27,14 @@ class users_repository(repository):
         row_count = super().bulk_insert(main_entity.user_knew_triggers_collection)
         return row_count
     def update(self, user_contact_methods_entity_obj, user_knew_triggers_entity_obj, columns, where = '', params = ()):
+        """
+        UPDATE文を実行する（データが存在していれば関連テーブルも）
+        """
         row_count = super().update(columns, where, params)
         if 0 >= row_count:
             return row_count
         main_entity = self.get_main_entity()
+        # DELETE → INSERTではなく、データの存在状況によって、INSERT・UPDATE・DELETEを使い分けた方が高速？
         if 0 < len(main_entity.user_contact_methods_collection):
             user_contact_methods_repository_obj = user_contact_methods_repository(user_contact_methods_entity_obj)
             row_count = user_contact_methods_repository_obj.delete(

@@ -1,9 +1,13 @@
 from src.controller.user_registration import *
 
 class user_registration_input_controller(user_registration_common_controller):
+    """
+    ユーザー登録の入力処理
+    """
     def execute(self):
         users_entity_obj = self.get_users_entity()
         if 'previous_page' == users_entity_obj.clicked_button:
+            # 確認画面用のトークンは、ユーザーデータの再取得に使う
             confirm_token = users_entity_obj.token
             users_entity_obj.token = users_entity_obj.input_token
         pre_users_repository_obj = pre_users_repository(pre_users_entity())
@@ -27,6 +31,7 @@ class user_registration_input_controller(user_registration_common_controller):
             users_repository_obj.begin()
             users_data = None
             try:
+                # 確認画面で設定されたデータの取得
                 users_data = users_repository_obj.find(
                     get_column_name_list,
                     'mail_address = %s AND token = %s',
@@ -60,6 +65,7 @@ class user_registration_input_controller(user_registration_common_controller):
                     str(exc),
                     setting.app.config['SHOW_SYSTEM_ERROR']
                 )
+            # 以下は、特殊なケースの項目
             # 誕生日
             birth_days_entity_obj = birth_days_entity()
             get_column_name_list = birth_days_entity_obj.get_update_column_name_list()
@@ -101,12 +107,12 @@ class user_registration_input_controller(user_registration_common_controller):
                     user_knew_triggers_entity_obj = user_knew_triggers_entity()
                     user_knew_triggers_entity_obj.knew_trigger_id = user_knew_triggers_data[0]
                     users_entity_obj.user_knew_triggers_collection.append(user_knew_triggers_entity_obj)
-        # フォームの初期値を設定する為の初期化
+        # 全てのフォーム項目に値を設定する
         self.assign_all_form_data()
-        # 複数選択項目の表示内容を取得して設定
-        self.set_multiple_value_item()
-        # 複数選択項目の選択状態を設定
-        self.select_multiple_value_item()
+        # 選択項目の表示内容を取得して設定
+        self.set_value_item()
+        # 選択項目の選択状態を設定
+        self.select_value_item()
 
         # ユーザー登録入力画面を表示する
         self.set_template_common_data(setting.app.config['USER_REGISTRATION_INPUT_TITLE'], 'user_registration/input')

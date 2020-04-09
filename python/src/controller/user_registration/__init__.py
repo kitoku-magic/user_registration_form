@@ -1,14 +1,12 @@
+import jaconv
+import math
 import os
 import time
-import math
-import jaconv
-from datetime import datetime
-
+from abc import abstractmethod
 from flask_mail import Message
-
 from src import setting
-from src.util.util import util
 from src.exception.custom_exception import custom_exception
+from src.util.util import util
 from src.model.entity.pre_users_entity import pre_users_entity
 from src.model.entity.users_entity import users_entity
 from src.model.entity.sexes_entity import sexes_entity

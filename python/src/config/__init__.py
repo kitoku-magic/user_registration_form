@@ -1,9 +1,17 @@
 import logging
 
 class config(object):
+    # 共通
     DEBUG = False
     TESTING = False
+    SESSION_COOKIE_NAME = 'user_registration_session'
+    SESSION_COOKIE_DOMAIN = None
+    SESSION_COOKIE_PATH = '/'
+    SESSION_COOKIE_HTTPONLY = True
     SESSION_COOKIE_SECURE = False
+    SESSION_COOKIE_SAMESITE = 'Lax'
+    SESSION_REFRESH_EACH_REQUEST = True
+    PERMANENT_SESSION_LIFETIME = 1200
     TEMPLATES_AUTO_RELOAD = True
     SEND_FILE_MAX_AGE_DEFAULT = 0
     LOG_MAX_BYTES = 100000
@@ -22,6 +30,34 @@ class config(object):
     MAGIC_FILE_PATH = '/opt/file/share/misc/magic.mgc'
     SECRET_TOKEN_BYTE_LENGTH = 96
     SECRET_TOKEN_FOR_URL_BYTE_LENGTH = 96
+
+    # 正規表現パターン
+    # 正規表現パターンのUnicodeコードポイント（ひらがな）
+    PATTERN_HIRAGANA = '\u3041-\u3096'
+    # 正規表現パターンのUnicodeコードポイント（カタカナ）
+    PATTERN_KATAKANA = '\u30A1-\u30FA\u31F0-\u31FF\uFF66-\uFF6F\uFF71-\uFF9D'
+    # 正規表現パターンのUnicodeコードポイント（濁点・半濁点）
+    PATTERN_DAKUTEN = '\u3099\u309A\uFF9E\uFF9F'
+    # 正規表現パターンのUnicodeコードポイント（長音）
+    PATTERN_CHOON = '\u30FC'
+    # 正規表現パターンのUnicodeコードポイント（漢字）(一部の文字は\p{Han}でも良いけど、明示的な方が良いかと)
+    PATTERN_KANJI = '[\u2E80-\u2FDF\u3005\u3007\u3021-\u3029\u3038-\u303B\u3400-\u4DBF\u4E00-\u9FFF\uF900-\uFAFF\u20000-\u2FFFF][\uE0100-\uE01EF\uFE00-\uFE02]'
+    # 正規表現パターンのUnicodeコードポイント（全角英数字・半角英数字）
+    PATTERN_ALL_WIDTH_ALPHABET_NUMBER = '\u0030-\u0039\u0041-\u005A\u0061-\u007A\uFF10-\uFF19\uFF41-\uFF5A'
+    # 正規表現パターンのUnicodeコードポイント（以下の全角記号と全角スペース）
+    # ‐ ― ‖ ‘ ’ “ ” ′ ″ ※ 　 、 。 〈 〉 《 》 「 」 『 』 【 】 〒 〔 〕 〖 〗 〜 〝 ！ ＂ ＃ ＄ ％ ＆ ＇ （ ） ＊ ＋ ， － ． ／ ： ； ＜ ＝ ＞ ？ ＠ ［ ＼ ］ ＾ ＿ ｀ ｛ ｜ ｝ ～ ￥
+    PATTERN_FULL_WIDTH_SIGN = '\u2010\u2015\u2016\u2018\u2019\u201C-\u201D\u2032\u2033\u203B\u3000-\u3002\u3008-\u3012\u3014-\u3017\u301C-\u301D\uFF01-\uFF0F\uFF1A-\uFF20\uFF3B-\uFF40\uFF5B-\uFF5E\uFFE5'
+    # 正規表現パターンのUnicodeコードポイント（全角数字）
+    PATTERN_FULL_WIDTH_NUMBER = '\uFF10-\uFF19'
+    # 正規表現パターンのUnicodeコードポイント（全角スペース）
+    PATTERN_FULL_WIDTH_SPACE = '\u3000'
+
+    # 共通エラーメッセージ
+    SHOW_UNEXPECTED_ERROR = '予期しないエラーが発生しました。\nブラウザの戻るボタンで前ページにお戻り下さい。'
+    INVALID_REQUEST_ERROR = '不正なリクエストです'
+    SHOW_SYSTEM_ERROR = 'システムエラーが発生しました。\n再度、ユーザー登録入力画面から操作をお願いします。'
+    TOKEN_NOT_EQUAL_ERROR = 'トークンが一致しません', '不正なリクエストです。'
+    TOKEN_NOT_SETTING_ERROR = 'トークンが設定されていません', '不正なリクエストです。'
 
     # バリデーションエラーメッセージ
     REQUIRED_MESSAGE = '{show_name}は必須項目です'
@@ -56,32 +92,6 @@ class config(object):
     FILE_UPLOAD_SAVE_ERROR_MESSAGE = 'アップロードファイルの保存に失敗しました'
     FILE_UPLOAD_SAVE_PATH_OPEN_ERROR_MESSAGE = 'アップロードファイルの保存先パスのオープンに失敗しました'
     FILE_UPLOAD_SHOW_SAVE_ERROR_MESSAGE = 'のアップロードに失敗しました。もう一度アップロードして下さい'
-
-    # 正規表現パターンのUnicodeコードポイント（ひらがな）
-    PATTERN_HIRAGANA = '\u3041-\u3096'
-    # 正規表現パターンのUnicodeコードポイント（カタカナ）
-    PATTERN_KATAKANA = '\u30A1-\u30FA\u31F0-\u31FF\uFF66-\uFF6F\uFF71-\uFF9D'
-    # 正規表現パターンのUnicodeコードポイント（濁点・半濁点）
-    PATTERN_DAKUTEN = '\u3099\u309A\uFF9E\uFF9F'
-    # 正規表現パターンのUnicodeコードポイント（長音）
-    PATTERN_CHOON = '\u30FC'
-    # 正規表現パターンのUnicodeコードポイント（漢字）(一部の文字は\p{Han}でも良いけど、明示的な方が良いかと)
-    PATTERN_KANJI = '[\u2E80-\u2FDF\u3005\u3007\u3021-\u3029\u3038-\u303B\u3400-\u4DBF\u4E00-\u9FFF\uF900-\uFAFF\u20000-\u2FFFF][\uE0100-\uE01EF\uFE00-\uFE02]'
-    # 正規表現パターンのUnicodeコードポイント（全角英数字・半角英数字）
-    PATTERN_ALL_WIDTH_ALPHABET_NUMBER = '\u0030-\u0039\u0041-\u005A\u0061-\u007A\uFF10-\uFF19\uFF41-\uFF5A'
-    # 正規表現パターンのUnicodeコードポイント（以下の全角記号と全角スペース）
-    # ‐ ― ‖ ‘ ’ “ ” ′ ″ ※ 　 、 。 〈 〉 《 》 「 」 『 』 【 】 〒 〔 〕 〖 〗 〜 〝 ！ ＂ ＃ ＄ ％ ＆ ＇ （ ） ＊ ＋ ， － ． ／ ： ； ＜ ＝ ＞ ？ ＠ ［ ＼ ］ ＾ ＿ ｀ ｛ ｜ ｝ ～ ￥
-    PATTERN_FULL_WIDTH_SIGN = '\u2010\u2015\u2016\u2018\u2019\u201C-\u201D\u2032\u2033\u203B\u3000-\u3002\u3008-\u3012\u3014-\u3017\u301C-\u301D\uFF01-\uFF0F\uFF1A-\uFF20\uFF3B-\uFF40\uFF5B-\uFF5E\uFFE5'
-    # 正規表現パターンのUnicodeコードポイント（全角数字）
-    PATTERN_FULL_WIDTH_NUMBER = '\uFF10-\uFF19'
-    # 正規表現パターンのUnicodeコードポイント（全角スペース）
-    PATTERN_FULL_WIDTH_SPACE = '\u3000'
-
-    SHOW_UNEXPECTED_ERROR = '予期しないエラーが発生しました。\nブラウザの戻るボタンで前ページにお戻り下さい。'
-    INVALID_REQUEST_ERROR = '不正なリクエストです'
-    SHOW_SYSTEM_ERROR = 'システムエラーが発生しました。\n再度、ユーザー登録入力画面から操作をお願いします。'
-    TOKEN_NOT_EQUAL_ERROR = 'トークンが一致しません', '不正なリクエストです。'
-    TOKEN_NOT_SETTING_ERROR = 'トークンが設定されていません', '不正なリクエストです。'
 
     # ユーザー登録初期入力画面
     USER_REGISTRATION_FIRST_INPUT_TITLE = 'メールアドレス入力'
@@ -137,5 +147,6 @@ class development(config):
 class production(config):
     ENV = 'production'
     SESSION_COOKIE_SECURE = True
+    LOG_MAX_BYTES = 1000000
     LOG_BACKUP_COUNT = 100
     LOG_LEVEL = logging.INFO

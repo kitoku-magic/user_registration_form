@@ -1,18 +1,17 @@
 import logging
-from logging.handlers import RotatingFileHandler
 import os
-
 from flask import Flask
 from flask_mail import Mail
 from jinja2 import Environment, FileSystemLoader
+from logging.handlers import RotatingFileHandler
 
-from src.database import db
 from src.custom_filter import nl2br
 from src.controller.user_registration.user_registration_first_input_controller import user_registration_first_input_controller
 from src.controller.user_registration.user_registration_first_complete_controller import user_registration_first_complete_controller
 from src.controller.user_registration.user_registration_input_controller import user_registration_input_controller
 from src.controller.user_registration.user_registration_confirm_controller import user_registration_confirm_controller
 from src.controller.user_registration.user_registration_complete_controller import user_registration_complete_controller
+from src.database import db
 
 base_path = '/opt/app/user_registration_form/python'
 
@@ -36,29 +35,16 @@ app.config.from_object(config_type.get(os.getenv('FLASK_APP_ENV', 'default')))
 app.config.from_object(sensitive_config_type.get(os.getenv('FLASK_APP_ENV', 'default')))
 
 # ログの設定
-formatter = logging.Formatter(
-    "[%(asctime)s] {%(pathname)s:%(lineno)d} %(levelname)s - %(message)s"
-)
-
 handler = RotatingFileHandler(
     base_path + '/log/app.log',
     maxBytes=app.config['LOG_MAX_BYTES'],
     backupCount=app.config['LOG_BACKUP_COUNT']
 )
-handler.setFormatter(formatter)
+handler.setFormatter(logging.Formatter("[%(asctime)s] {%(pathname)s:%(lineno)d} %(levelname)s - %(message)s"))
 handler.setLevel(app.config['LOG_LEVEL'])
 
-for logger in (
-    app.logger,
-    logging.getLogger('sqlalchemy'),
-    # 以下のライブラリの正式名が不明
-    #logging.getLogger('flask'),
-    #logging.getLogger('mysql'),
-    #logging.getLogger('flask_mail'),
-    #logging.getLogger('flask_sqlalchemy'),
-    #logging.getLogger('mysql-connector-python'),
-):
-    logger.addHandler(handler)
+# ロガーを設定
+app.logger.addHandler(handler)
 
 # jinja2のtemplateディレクトリの場所を変更する
 # 省略した場合はこのファイルと同階層の "templates" になる

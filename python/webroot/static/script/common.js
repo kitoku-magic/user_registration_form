@@ -21,7 +21,13 @@ function setBackGroundColor(element, back_ground_color)
   element.style.backgroundColor = back_ground_color;
 }
 
-// 指定したアクションにフォーム送信する
+/**
+ * 指定したアクションにフォーム送信する
+ *
+ * @param form_id フォームのID名
+ * @param action フォームのアクション値（リクエスト先のURL）
+ * @param method フォームメソッド名（POSTなど）
+ */
 function submitForm(form_id, action, method)
 {
   var target = document.getElementById(form_id);

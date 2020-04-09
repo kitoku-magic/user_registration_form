@@ -1,17 +1,27 @@
 import dns.resolver
-import secrets
 import os
 import re
+import secrets
 import unicodedata
 import uuid
 from datetime import datetime
-
 from src.util import *
 
 class util:
-    def check_mail_format(value):
+    """
+    汎用処理を集めたクラス
+    """
+    @classmethod
+    def check_mail_format(cls, value):
+        """
+        メールフォーマットをチェック
+        """
         return '@' in value
-    def check_mail_domain(value):
+    @classmethod
+    def check_mail_domain(cls, value):
+        """
+        メールドメインの存在チェック
+        """
         ret = True
         tmp = value.split('@')
         mail_domain = tmp[-1]
@@ -22,11 +32,20 @@ class util:
         except Exception as exc:
             ret = False
         return ret
-    def replace_hyphen(value, replace):
+    @classmethod
+    def replace_hyphen(cls, value, replace):
+        """
+        ハイフン文字を置換する
+        """
         return re.sub('\u002D|\uFE63|\uFF0D|\u2010|\u2011|\u2043|\u02D7|\u2212|\u2012|\u2013|\u2014|\u2015|\uFE58|\u23AF|\u23E4|\u268A|\u2500|\u1173|\u2F00|\u30FC|\u3161|\u31D0|\u4E00|\uFF70|\uFFDA', replace, value)
-    def mb_trim(value, character_mask):
+    @classmethod
+    def mb_trim(cls, value, character_mask):
+        """
+        空白文字などを削除する
+        """
         return value.strip(character_mask)
-    def join_diacritic(value, mode='NFC'):
+    @classmethod
+    def join_diacritic(cls, value, mode='NFC'):
         """
         基底文字と濁点・半濁点を結合する
         @see https://qiita.com/syamamura/items/13c0825282415e2e360d
@@ -44,22 +63,26 @@ class util:
         value = bytes_value.decode()
 
         return unicodedata.normalize(mode, value)
-    def is_empty(value):
+    @classmethod
+    def is_empty(cls, value):
         """
         空かどうかのチェック
         """
         return value is None or '' == value
-    def check_min_length(value, length):
+    @classmethod
+    def check_min_length(cls, value, length):
         """
         最小桁数のチェック
         """
         return len(value.encode(setting.app.config['PG_CHARACTER_SET'])) >= length
-    def check_max_length(value, length):
+    @classmethod
+    def check_max_length(cls, value, length):
         """
         最大桁数のチェック
         """
         return len(value.encode(setting.app.config['PG_CHARACTER_SET'])) <= length
-    def check_date(date, date_format = '%Y-%m-%d %H:%M:%S'):
+    @classmethod
+    def check_date(cls, date, date_format = '%Y-%m-%d %H:%M:%S'):
         """
         日付が妥当かどうかのチェック
         """
@@ -68,7 +91,8 @@ class util:
             return True
         except ValueError:
             return False
-    def check_zip_code(value, is_include_hyphen = False):
+    @classmethod
+    def check_zip_code(cls, value, is_include_hyphen = False):
         """
         郵便番号が妥当かどうかのチェック
         """
@@ -77,7 +101,8 @@ class util:
             pattern += '-'
         pattern += '[0-9]{4}\Z'
         return re.match(pattern, value) is not None
-    def check_telephone(value, is_include_hyphen = False):
+    @classmethod
+    def check_telephone(cls, value, is_include_hyphen = False):
         """
         電話番号が妥当かどうかのチェック
         """
@@ -89,7 +114,8 @@ class util:
             pattern += '-'
         pattern += '[0-9]{4}\Z'
         return re.match(pattern, value) is not None
-    def make_directory(path):
+    @classmethod
+    def make_directory(cls, path):
         """
         ディレクトリを作成する（makedirsのラッパー）
         """
@@ -102,17 +128,20 @@ class util:
                 # ディレクトリ作成に失敗
                 return False
         return True
-    def get_token(byte_length):
+    @classmethod
+    def get_token(cls, byte_length):
         """
         第三者が知り得ない秘密情報(トークン)の値を取得する
         """
         return secrets.token_hex(byte_length)
-    def get_token_for_url(byte_length):
+    @classmethod
+    def get_token_for_url(cls, byte_length):
         """
         第三者が知り得ない秘密情報(トークン)の値を取得する（URL文字列用）
         """
         return secrets.token_urlsafe(byte_length)
-    def get_unique_id():
+    @classmethod
+    def get_unique_id(cls):
         """
         ユニークなIDを取得する（推測可能なので注意）
         """

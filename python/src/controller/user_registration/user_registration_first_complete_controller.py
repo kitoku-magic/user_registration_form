@@ -1,6 +1,9 @@
 from src.controller.user_registration import *
 
 class user_registration_first_complete_controller(user_registration_common_controller):
+    """
+    ユーザー登録の初期入力完了処理
+    """
     def execute(self):
         # CSRFトークンをチェックする
         super().check_csrf_token()
@@ -66,11 +69,11 @@ class user_registration_first_complete_controller(user_registration_common_contr
                 body = setting.app.config['USER_REGISTRATION_FIRST_COMPLETE_ALREADY_REGISTERED_MESSAGE']
                 is_db_success = True
                 pre_user_id = users_data[0]
-            # メールを送信する
             title = setting.app.config['USER_REGISTRATION_FIRST_COMPLETE_MAIL_TITLE']
             is_mail_send = False
             if True == is_db_success:
                 try:
+                    # 入力されたメールアドレス宛にメールを送信する
                     msg = Message(title, sender=sender, recipients=[recipients])
                     msg.body = body
                     setting.mail.send(msg)
@@ -98,5 +101,4 @@ class user_registration_first_complete_controller(user_registration_common_contr
             self.add_response_data('mail_address_error', pre_users_entity_obj.mail_address_error)
             template_file_name = 'user_registration/index'
 
-        # 入力されたメールアドレス宛にメールを送信する
         self.set_template_common_data(setting.app.config['USER_REGISTRATION_FIRST_COMPLETE_TITLE'], template_file_name)

@@ -1,6 +1,9 @@
 from src.controller.user_registration import *
 
 class user_registration_complete_controller(user_registration_common_controller):
+    """
+    ユーザー登録の入力完了処理
+    """
     def execute(self):
         users_entity_obj = self.get_users_entity()
         if 'next_page' != users_entity_obj.clicked_button:
@@ -19,6 +22,7 @@ class user_registration_complete_controller(user_registration_common_controller)
                 '',
                 True
             )
+            # ユーザーの事前登録のレコードが無い場合はエラー
             if pre_users_data is None:
                 raise custom_exception(setting.app.config['PRE_USER_NOT_EXIST_ERROR'])
             row_count = pre_users_repository_obj.delete(
@@ -38,12 +42,14 @@ class user_registration_complete_controller(user_registration_common_controller)
                 '',
                 True
             )
+            # ユーザー登録のレコードが無い場合もエラー
             if users_data is None:
                 raise custom_exception(setting.app.config['USER_NOT_EXIST_ERROR'])
             for index, value in enumerate(get_column_name_list):
                 setattr(users_entity_obj, value, users_data[index])
             old_file_path = users_entity_obj.file_path
             if False == util.is_empty(users_entity_obj.file_path):
+                # 添付ファイルが存在する場合は、ファイルパスの内容を正式な場所に変更する
                 users_entity_obj.file_path = users_entity_obj.file_path.replace(
                     setting.app.config['APP_FILE_TMP_SAVE_PATH'],
                     setting.app.config['APP_FILE_SAVE_PATH']
@@ -62,6 +68,7 @@ class user_registration_complete_controller(user_registration_common_controller)
             if 1 > row_count:
                 raise custom_exception(setting.app.config['USER_SAVE_ERROR'])
             if False == util.is_empty(old_file_path):
+                # 添付ファイルが存在する場合は、ファイルの置き場所を移動する
                 new_dir = os.path.dirname(users_entity_obj.file_path)
                 r = util.make_directory(new_dir)
                 if False == r:

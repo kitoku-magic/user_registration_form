@@ -3,6 +3,9 @@ from src.model.entity.generate import *
 from src.model.repository import repository
 
 class user_contact_methods_entity_base(timestamp_mixin_entity, entity):
+    """
+    ユーザー連絡方法テーブルエンティティの基底クラス
+    """
     __abstract__ = True
 
     @declared_attr

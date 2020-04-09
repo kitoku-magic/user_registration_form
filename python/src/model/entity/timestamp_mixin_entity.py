@@ -2,6 +2,9 @@ from src.model.entity import *
 from src.model.repository import repository
 
 class timestamp_mixin_entity(entity):
+    """
+    タイムスタンプを設定するエンティティのミックスイン
+    """
     __abstract__ = True
     def __init__(self):
         super().__init__()

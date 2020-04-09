@@ -1,15 +1,14 @@
-# モデルクラスを自動生成するプログラム
+# モデルのエンティティクラスを自動生成するプログラム
 
 import os
-import sys
 import shutil
+import sys
 
 current_directory = os.path.dirname(__file__)
 
 sys.path.append(os.path.join(current_directory, '../src'))
 
 from instance import config
-
 from sqlalchemy import create_engine
 from sqlalchemy.ext.automap import automap_base
 from sqlalchemy.inspection import inspect
@@ -28,8 +27,8 @@ for table in Base.classes:
     local_class_name = local_table_name + '_entity_base'
     base_path = current_directory + '/../src/model/entity/generate/'
     base_path += local_class_name + '.py'
-    body = ''
     f = open(base_path, mode='w')
+    body = ''
     body += 'from src.model.entity import *\n'
     body += 'from src.model.entity.generate import *\n'
     body += 'from src.model.repository import repository\n'
@@ -44,6 +43,7 @@ for table in Base.classes:
     update_column_name_list_body += '        return ['
     is_use_timestamp_mixin = False
     columns = inspect_table.persist_selectable.columns._all_columns
+    # 1カラムずつ処理
     for column in columns:
         column_attr_list = []
         # データ型の設定
@@ -141,6 +141,9 @@ for table in Base.classes:
     elif '' != updated_at_body:
         property_body += updated_at_body
     body += 'entity):\n'
+    body += '    """\n'
+    body += '    ' + inspect_table.persist_selectable.comment + 'テーブルエンティティの基底クラス\n'
+    body += '    """\n'
     body += "    __abstract__ = True\n"
     body += length_body + '\n'
     if '' != length_property_body:

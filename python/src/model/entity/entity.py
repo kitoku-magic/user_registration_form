@@ -2,16 +2,19 @@ from src.database import db
 from src.model.entity import *
 
 class entity(db.Model):
+    """
+    全てのエンティティの基底クラス
+    """
     __abstract__ = True
     def __init__(self):
         self.__validation_settings = {}
         self.__is_any_item = False
-        self.__validate_errors = {'result': True, 'error': []}
         property_dict = self.get_all_properties()
         for field, value in property_dict.items():
             setattr(self, field, value)
     @abstractmethod
     def set_validation_setting(self):
+        # TODO: raiseした方が良いか？
         pass
     @declared_attr
     def __tablename__(cls):
@@ -253,7 +256,7 @@ class entity(db.Model):
                 options['message'] = self.__validation_settings[options['name']]['show_name'] + setting.app.config['FILE_UPLOAD_UNKNOWN_EXTENSION_MESSAGE']
                 return False
             if mime_type not in options['allow_extensions'] \
-            or extension not in options['allow_extensions'][mime_type]:
+            or extension.lower() not in options['allow_extensions'][mime_type]:
                 options['message'] = self.__validation_settings[options['name']]['show_name'] + setting.app.config['FILE_UPLOAD_UNMATCH_EXTENSION_FILE_TYPE_MESSAGE']
                 return False
             if True == util.is_empty(upload_file.content_type) or True == util.is_empty(upload_file.mimetype):
@@ -384,13 +387,17 @@ class entity(db.Model):
             result = False
         return result
     def get_entity_field_value(self, value, options):
+        """
+        エンティティの指定されたフィールドの値を取得する
+        """
         result = value
         if 'field' in options:
             result = getattr(value, options['field'], None)
         return result
-    def get_validate_errors(self):
-        return self.__validate_errors
     def set_request_to_entity(self, request_data):
+        """
+        リクエストされたフォームデータを、対応するエンティティに設定する
+        """
         properties = self.get_all_properties()
         request_data = request_data.to_dict()
         for field, value in properties.items():
@@ -405,15 +412,22 @@ class entity(db.Model):
             if False == is_exist and [] != value:
                 setattr(self, field, None)
     def trim_all_data(self):
+        """
+        エンティティに設定されている文字列データの空白を削除する
+        """
         properties = self.get_all_properties()
         for field, value in properties.items():
             if True == isinstance(value, str):
                 # 改行コードはtrimしない
                 setattr(self, field, util.mb_trim(value, '\u0020\u0009\u0000\u000b\u3000'))
     def get_all_properties(self):
+        """
+        エンティティに存在する全てのプロパティデータを取得する
+        """
         attributes = inspect.getmembers(self, lambda a:not(inspect.isroutine(a)))
         property_dict = {}
         for attribute in attributes:
+            # 不要なプロパティはスルー
             if 'metadata' == attribute[0] or 'query' == attribute[0] or 'query_class' == attribute[0]:
                 continue
             if True == attribute[0].startswith('_'):
@@ -421,4 +435,7 @@ class entity(db.Model):
             property_dict[attribute[0]] = attribute[1]
         return property_dict
     def add_validation_settings(self, name, show_name, validation_rules):
+        """
+        バリデーション設定を追加する
+        """
         self.__validation_settings[name] = {'show_name': show_name, 'rules': validation_rules}
