@@ -1,4 +1,5 @@
 *__pycache__/*
+*.mypy_cache/*
 /src/instance/__init__.py
 /log/*
 /socket/*

@@ -1,5 +1,8 @@
 # このファイルと同じディレクトリ内にある他のファイルは自動生成されるので、編集不可
 
+from sqlalchemy.orm.relationships import RelationshipProperty
+from sqlalchemy.sql.schema import Column
+from typing import List, Type, TypeVar
 from .prefectures_entity_base import prefectures_entity_base
 from .zip_addresses_entity_base import zip_addresses_entity_base
 from .contact_methods_entity_base import contact_methods_entity_base

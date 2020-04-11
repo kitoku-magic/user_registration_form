@@ -28,18 +28,15 @@ for table in Base.classes:
     base_path = current_directory + '/../src/model/entity/generate/'
     base_path += local_class_name + '.py'
     f = open(base_path, mode='w')
-    body = ''
-    body += 'from src.model.entity import *\n'
-    body += 'from src.model.entity.generate import *\n'
-    body += 'from src.model.repository import repository\n'
-    body += '\n'
-    body += 'class ' + local_class_name + '('
+    entity_import_list = ['declared_attr', 'entity']
+    entity_generate_import_list = ['Column', 'List', 'Type', 'TypeVar']
+    repository_import_list = ['repository']
     length_body = ''
     length_property_body = ''
     property_body = ''
     created_at_body = ''
     updated_at_body = ''
-    update_column_name_list_body = '    def get_update_column_name_list(self):\n'
+    update_column_name_list_body = '    def get_update_column_name_list(self: Type[T]) -> List[str]:\n'
     update_column_name_list_body += '        return ['
     is_use_timestamp_mixin = False
     columns = inspect_table.persist_selectable.columns._all_columns
@@ -56,8 +53,8 @@ for table in Base.classes:
             # 桁数の数値は、定数にする
             upper_column_name = column.name.upper()
             data_type_attr_list.append(local_class_name + '.__' + upper_column_name + '_LENGTH')
-            length_body += '    __' + upper_column_name + '_LENGTH = ' + str(column.type.length) + '\n'
-            length_property_body += '    def get_' + column.name + '_length(cls):\n'
+            length_body += '    __' + upper_column_name + '_LENGTH: int = ' + str(column.type.length) + '\n'
+            length_property_body += '    def get_' + column.name + '_length(cls: Type[T]) -> int:\n'
             length_property_body += '        return ' + local_class_name + '.__' + upper_column_name + '_LENGTH\n'
         data_type += ', '.join(data_type_attr_list) + ')'
         column_attr_list.append(data_type)
@@ -96,7 +93,7 @@ for table in Base.classes:
             updated_at_body += '    ' + column.name + ' = repository.get_db_instance(repository).Column(' + ', '.join(column_attr_list) + ')\n'
         else:
             property_body += '    @declared_attr\n'
-            property_body += '    def ' + column.name + '(cls):\n'
+            property_body += '    def ' + column.name + '(cls: Type[T]) -> Column:\n'
             property_body += '        return repository.get_db_instance(repository).Column(' + ', '.join(column_attr_list) + ')\n'
         # 更新可能カラムのリストを作成
         if hasattr(column, 'autoincrement') and column.autoincrement is True \
@@ -105,6 +102,8 @@ for table in Base.classes:
             pass
         else:
             update_column_name_list_body += "'" + column.name + "', "
+        if data_type_name not in entity_import_list:
+            entity_import_list.append(data_type_name)
     # リレーションの設定
     relation_body = ''
     many_variables_suffix = '_collection'
@@ -126,38 +125,51 @@ for table in Base.classes:
         # TODO: 1対1の場合、これでは動かなさそう
         relation_body += '    @declared_attr\n'
         if prop.backref is None:
-            relation_body += '    def ' + foreign_table_name + many_variables_suffix + '(cls):\n'
+            relation_body += '    def ' + foreign_table_name + many_variables_suffix + '(cls: Type[T]) -> RelationshipProperty:\n'
             relation_body += "        return repository.get_db_instance(repository).relationship('" + foreign_class_name + "', " + primaryjoin + "back_populates='" + local_table_name + "', cascade='save-update, merge, delete', uselist=True)\n"
         else:
-            relation_body += '    def ' + foreign_table_name + '(cls):\n'
+            relation_body += '    def ' + foreign_table_name + '(cls: Type[T]) -> RelationshipProperty:\n'
             relation_body += "        return repository.get_db_instance(repository).relationship('" + foreign_class_name + "', " + primaryjoin + "back_populates='" + local_table_name + many_variables_suffix + "', uselist=False)\n"
+        if 'RelationshipProperty' not in entity_generate_import_list:
+            entity_generate_import_list.append('RelationshipProperty')
+    timestamp_mixin_body = ''
     # created_atとupdated_atが両方存在するか調べる
     if '' != created_at_body:
         if '' != updated_at_body:
-            body += 'timestamp_mixin_entity, '
+            timestamp_mixin_body += 'timestamp_mixin_entity, '
             is_use_timestamp_mixin = True
+            entity_import_list.append('timestamp_mixin_entity')
         else:
             property_body += created_at_body
     elif '' != updated_at_body:
         property_body += updated_at_body
+    body = ''
+    body += 'from src.model.entity import ' + ', '.join(entity_import_list) + '\n'
+    body += 'from src.model.entity.generate import ' + ', '.join(entity_generate_import_list) + '\n'
+    body += 'from src.model.repository import ' + ', '.join(repository_import_list) + '\n'
+    body += '\n'
+    body += "T = TypeVar('T', bound='" + local_class_name + "')\n"
+    body += '\n'
+    body += 'class ' + local_class_name + '('
+    body += timestamp_mixin_body
     body += 'entity):\n'
     body += '    """\n'
     body += '    ' + inspect_table.persist_selectable.comment + 'テーブルエンティティの基底クラス\n'
     body += '    """\n'
-    body += "    __abstract__ = True\n"
+    body += "    __abstract__: bool = True\n"
     body += length_body + '\n'
     if '' != length_property_body:
         body += length_property_body + '\n'
     body += property_body
     body += relation_body + '\n'
     # コンストラクタの設定
-    body += '    def __init__(self):\n'
+    body += '    def __init__(self: Type[T]) -> None:\n'
     if True == is_use_timestamp_mixin:
         super_class_name = 'timestamp_mixin_entity'
     else:
         super_class_name = 'entity'
     body += '        ' + super_class_name + '.__init__(self)\n'
-    body += '    def set_validation_setting(self):\n'
+    body += '    def set_validation_setting(self: Type[T]) -> None:\n'
     body += '        pass\n'
     body += update_column_name_list_body.rstrip(', ') + ']\n'
     f.write(body)
