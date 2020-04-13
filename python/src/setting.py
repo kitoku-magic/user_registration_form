@@ -6,6 +6,7 @@ from jinja2 import Environment, FileSystemLoader
 from logging.handlers import RotatingFileHandler
 
 from src.custom_filter import nl2br
+from src.custom_sql_execution_context import custom_sql_execution_context
 from src.controller.user_registration.user_registration_first_input_controller import user_registration_first_input_controller
 from src.controller.user_registration.user_registration_first_complete_controller import user_registration_first_complete_controller
 from src.controller.user_registration.user_registration_input_controller import user_registration_input_controller
@@ -59,6 +60,11 @@ mail = Mail()
 
 db.init_app(app)
 mail.init_app(app)
+
+app.app_context().push()
+
+# 静的プリペアドステートメントを使う為に、cursorをカスタマイズする為
+db.engine.dialect.execution_ctx_cls = custom_sql_execution_context
 
 # 各リクエストに応じた処理を実行
 @app.route('/', methods=['GET'])
