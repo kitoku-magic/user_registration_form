@@ -29,5 +29,5 @@ from src.model.repository.knew_triggers_repository import knew_triggers_reposito
 from src.model.repository.zip_addresses_repository import zip_addresses_repository
 from src.model.repository.user_contact_methods_repository import user_contact_methods_repository
 from src.model.repository.user_knew_triggers_repository import user_knew_triggers_repository
-from src.controller.controller import controller
+from src.controller.controller import collections, controller
 from src.controller.user_registration.user_registration_common_controller import user_registration_common_controller

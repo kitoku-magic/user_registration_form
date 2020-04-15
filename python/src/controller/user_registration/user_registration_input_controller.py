@@ -13,9 +13,13 @@ class user_registration_input_controller(user_registration_common_controller):
         pre_users_repository_obj = pre_users_repository(pre_users_entity())
         # メールアドレスとトークンが一致して、現在時間が最終更新時間からUSER_REGISTRATION_TIME_LIMIT_SECOND秒経っていなければOK
         pre_users_data = pre_users_repository_obj.find(
-            ('pre_user_id',),
-            'mail_address = %s AND token = %s AND updated_at >= %s',
-            (users_entity_obj.mail_address, users_entity_obj.token, (math.floor(time.time()) - setting.app.config['USER_REGISTRATION_TIME_LIMIT_SECOND']))
+            (pre_users_entity.pre_user_id,),
+            'mail_address = :mail_address AND token = :token AND updated_at >= :updated_at',
+            {
+                'mail_address': users_entity_obj.mail_address,
+                'token': users_entity_obj.token,
+                'updated_at': (math.floor(time.time()) - setting.app.config['USER_REGISTRATION_TIME_LIMIT_SECOND'])
+            }
         )
         if pre_users_data is None:
             raise custom_exception(

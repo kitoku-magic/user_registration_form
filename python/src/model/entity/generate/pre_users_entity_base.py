@@ -1,6 +1,6 @@
-from src.model.entity import declared_attr, entity, BIGINT, VARBINARY, timestamp_mixin_entity
+from src.database import db
+from src.model.entity import declared_attr, entity, BIGINT, my_varbinary, timestamp_mixin_entity
 from src.model.entity.generate import Column, List, Type, TypeVar
-from src.model.repository import repository
 
 T = TypeVar('T', bound='pre_users_entity_base')
 
@@ -19,13 +19,13 @@ class pre_users_entity_base(timestamp_mixin_entity, entity):
 
     @declared_attr
     def pre_user_id(cls: Type[T]) -> Column:
-        return repository.get_db_instance(repository).Column(BIGINT(unsigned = True), nullable = False, autoincrement = True, primary_key = True, comment = 'ユーザーID')
+        return db.Column(BIGINT(unsigned = True), nullable = False, autoincrement = True, primary_key = True, comment = 'ユーザーID')
     @declared_attr
     def mail_address(cls: Type[T]) -> Column:
-        return repository.get_db_instance(repository).Column(VARBINARY(pre_users_entity_base.__MAIL_ADDRESS_LENGTH), nullable = False, server_default = '', comment = 'メールアドレス')
+        return db.Column(my_varbinary(pre_users_entity_base.__MAIL_ADDRESS_LENGTH), nullable = False, server_default = '', comment = 'メールアドレス')
     @declared_attr
     def token(cls: Type[T]) -> Column:
-        return repository.get_db_instance(repository).Column(VARBINARY(pre_users_entity_base.__TOKEN_LENGTH), nullable = False, server_default = '', comment = 'トークン値')
+        return db.Column(my_varbinary(pre_users_entity_base.__TOKEN_LENGTH), nullable = False, server_default = '', comment = 'トークン値')
 
     def __init__(self: Type[T]) -> None:
         timestamp_mixin_entity.__init__(self)

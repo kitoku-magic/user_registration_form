@@ -5,14 +5,13 @@ from flask_mail import Mail
 from jinja2 import Environment, FileSystemLoader
 from logging.handlers import RotatingFileHandler
 
-from src.custom_filter import nl2br
-from src.custom_sql_execution_context import custom_sql_execution_context
 from src.controller.user_registration.user_registration_first_input_controller import user_registration_first_input_controller
 from src.controller.user_registration.user_registration_first_complete_controller import user_registration_first_complete_controller
 from src.controller.user_registration.user_registration_input_controller import user_registration_input_controller
 from src.controller.user_registration.user_registration_confirm_controller import user_registration_confirm_controller
 from src.controller.user_registration.user_registration_complete_controller import user_registration_complete_controller
-from src.database import db
+from src.custom_filter import nl2br
+from src.database import init_db
 
 base_path = '/opt/app/user_registration_form/python'
 
@@ -56,15 +55,12 @@ jinja_environment = Environment(
 jinja_environment.filters['nl2br'] = nl2br
 app.jinja_environment = jinja_environment
 
+# メール
 mail = Mail()
-
-db.init_app(app)
 mail.init_app(app)
 
-app.app_context().push()
-
-# 静的プリペアドステートメントを使う為に、cursorをカスタマイズする為
-db.engine.dialect.execution_ctx_cls = custom_sql_execution_context
+# DB
+app = init_db(app)
 
 # 各リクエストに応じた処理を実行
 @app.route('/', methods=['GET'])

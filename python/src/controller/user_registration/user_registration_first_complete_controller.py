@@ -13,12 +13,16 @@ class user_registration_first_complete_controller(user_registration_common_contr
         pre_users_entity_obj.set_validation_setting();
         validate_result = pre_users_entity_obj.validate();
         if True == validate_result:
-            users_repository_obj = users_repository(self.get_users_entity())
+            users_entity_obj = self.get_users_entity()
+            users_repository_obj = users_repository(users_entity_obj)
             # 既に、ユーザー登録済みなら、メール文言を変える
             users_data = users_repository_obj.find(
-                ('user_id',),
-                'mail_address = %s AND registration_status = %s',
-                (pre_users_entity_obj.mail_address, setting.app.config['USER_REGISTRATION_STATUS_REGISTERED'])
+                (users_entity.user_id,),
+                'mail_address = :mail_address AND registration_status = :registration_status',
+                collections.OrderedDict(
+                    mail_address = pre_users_entity_obj.mail_address,
+                    registration_status = setting.app.config['USER_REGISTRATION_STATUS_REGISTERED']
+                )
             )
             sender = setting.app.config['SENDER_MAIL_ADDRESS']
             recipients = pre_users_entity_obj.mail_address
@@ -36,9 +40,11 @@ class user_registration_first_complete_controller(user_registration_common_contr
                 body += '&token=' + token
                 # まだ、事前情報が未登録なら、登録する
                 pre_users_data = pre_users_repository_obj.find(
-                    ('pre_user_id',),
-                    'mail_address = %s',
-                    (pre_users_entity_obj.mail_address,),
+                    (pre_users_entity.pre_user_id,),
+                    'mail_address = :mail_address',
+                    collections.OrderedDict(
+                        mail_address = pre_users_entity_obj.mail_address
+                    ),
                     '',
                     True
                 )

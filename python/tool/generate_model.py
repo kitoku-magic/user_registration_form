@@ -30,7 +30,6 @@ for table in Base.classes:
     f = open(base_path, mode='w')
     entity_import_list = ['declared_attr', 'entity']
     entity_generate_import_list = ['Column', 'List', 'Type', 'TypeVar']
-    repository_import_list = ['repository']
     length_body = ''
     length_property_body = ''
     property_body = ''
@@ -45,6 +44,9 @@ for table in Base.classes:
         column_attr_list = []
         # データ型の設定
         data_type_name = column.type.__class__.__name__
+        # VARBINARYは、独自の拡張型にする
+        if 'VARBINARY' == data_type_name:
+            data_type_name = 'my_varbinary'
         data_type = data_type_name + '('
         data_type_attr_list = []
         if hasattr(column.type, 'unsigned') and column.type.unsigned is not None:
@@ -61,7 +63,7 @@ for table in Base.classes:
         # 外部キーの設定
         if hasattr(column, 'foreign_keys') and len(column.foreign_keys) > 0:
             for foreign_key in column.foreign_keys:
-                column_attr_list.append("repository.get_db_instance(repository).ForeignKey('" + foreign_key._colspec + "')")
+                column_attr_list.append("db.ForeignKey('" + foreign_key._colspec + "')")
         # NULLの設定
         if hasattr(column, 'nullable') and column.nullable is not None:
             column_attr_list.append('nullable = ' + str(column.nullable))
@@ -88,13 +90,13 @@ for table in Base.classes:
             column_attr_list.append("comment = '" + str(column.comment) + "'")
         # created_atとupdated_atが両方存在する場合は、専用のmixinを使うので、ここではまだ設定しない
         if 'created_at' == column.name:
-            created_at_body += '    ' + column.name + ' = repository.get_db_instance(repository).Column(' + ', '.join(column_attr_list) + ')\n'
+            created_at_body += '    ' + column.name + ' = db.Column(' + ', '.join(column_attr_list) + ')\n'
         elif 'updated_at' == column.name:
-            updated_at_body += '    ' + column.name + ' = repository.get_db_instance(repository).Column(' + ', '.join(column_attr_list) + ')\n'
+            updated_at_body += '    ' + column.name + ' = db.Column(' + ', '.join(column_attr_list) + ')\n'
         else:
             property_body += '    @declared_attr\n'
             property_body += '    def ' + column.name + '(cls: Type[T]) -> Column:\n'
-            property_body += '        return repository.get_db_instance(repository).Column(' + ', '.join(column_attr_list) + ')\n'
+            property_body += '        return db.Column(' + ', '.join(column_attr_list) + ')\n'
         # 更新可能カラムのリストを作成
         if hasattr(column, 'autoincrement') and column.autoincrement is True \
         or 'created_at' == column.name \
@@ -126,10 +128,10 @@ for table in Base.classes:
         relation_body += '    @declared_attr\n'
         if prop.backref is None:
             relation_body += '    def ' + foreign_table_name + many_variables_suffix + '(cls: Type[T]) -> RelationshipProperty:\n'
-            relation_body += "        return repository.get_db_instance(repository).relationship('" + foreign_class_name + "', " + primaryjoin + "back_populates='" + local_table_name + "', cascade='save-update, merge, delete', uselist=True)\n"
+            relation_body += "        return db.relationship('" + foreign_class_name + "', " + primaryjoin + "back_populates='" + local_table_name + "', cascade='save-update, merge, delete', uselist=True)\n"
         else:
             relation_body += '    def ' + foreign_table_name + '(cls: Type[T]) -> RelationshipProperty:\n'
-            relation_body += "        return repository.get_db_instance(repository).relationship('" + foreign_class_name + "', " + primaryjoin + "back_populates='" + local_table_name + many_variables_suffix + "', uselist=False)\n"
+            relation_body += "        return db.relationship('" + foreign_class_name + "', " + primaryjoin + "back_populates='" + local_table_name + many_variables_suffix + "', uselist=False)\n"
         if 'RelationshipProperty' not in entity_generate_import_list:
             entity_generate_import_list.append('RelationshipProperty')
     timestamp_mixin_body = ''
@@ -144,9 +146,9 @@ for table in Base.classes:
     elif '' != updated_at_body:
         property_body += updated_at_body
     body = ''
+    body += 'from src.database import db\n'
     body += 'from src.model.entity import ' + ', '.join(entity_import_list) + '\n'
     body += 'from src.model.entity.generate import ' + ', '.join(entity_generate_import_list) + '\n'
-    body += 'from src.model.repository import ' + ', '.join(repository_import_list) + '\n'
     body += '\n'
     body += "T = TypeVar('T', bound='" + local_class_name + "')\n"
     body += '\n'

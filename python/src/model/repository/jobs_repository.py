@@ -6,7 +6,7 @@ class jobs_repository(repository):
     """
     def __init__(self, jobs_entity):
         super().__init__(jobs_entity)
-    def find_all_order_by_job_other_last(self, columns, where = '', params = (), order_by = ''):
+    def find_all_order_by_job_other_last(self, columns, where = '', params = {}, order_by = ''):
         """
         職業マスタテーブルのデータを全て取得する（その他は末尾にする）
         """
@@ -21,9 +21,9 @@ class jobs_repository(repository):
         for index, row in enumerate(jobs_all_data):
             # その他は末尾にする
             if 0 == index:
-                job_other_dict = {'id': row[0], 'name': row[1]}
+                job_other_dict = {'id': row.job_id, 'name': row.job_name}
             else:
-                jobs_dict = {'id': row[0], 'name': row[1]}
+                jobs_dict = {'id': row.job_id, 'name': row.job_name}
                 jobs.append(jobs_dict)
         jobs.append(job_other_dict)
         return jobs

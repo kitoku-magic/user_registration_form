@@ -41,9 +41,9 @@ class user_registration_common_controller(controller):
             {
                 'repository': sexes_repository(sexes_entity()),
                 'method': 'find_all',
-                'select': ('sex_id','sex_name'),
+                'select': (sexes_entity.sex_id, sexes_entity.sex_name),
                 'where': '',
-                'params': [],
+                'params': {},
                 'order_by': 'sex_id ASC',
                 'template_param_name': 'sexes',
             },
@@ -51,9 +51,9 @@ class user_registration_common_controller(controller):
             {
                 'repository': prefectures_repository(prefectures_entity()),
                 'method': 'find_all',
-                'select': ('prefecture_id','prefecture_name'),
+                'select': (prefectures_entity.prefecture_id, prefectures_entity.prefecture_name),
                 'where': '',
-                'params': [],
+                'params': {},
                 'order_by': 'prefecture_id ASC',
                 'template_param_name': 'prefectures',
             },
@@ -61,9 +61,9 @@ class user_registration_common_controller(controller):
             {
                 'repository': contact_methods_repository(contact_methods_entity()),
                 'method': 'find_all',
-                'select': ('contact_method_id','contact_method_name'),
+                'select': (contact_methods_entity.contact_method_id, contact_methods_entity.contact_method_name),
                 'where': '',
-                'params': [],
+                'params': {},
                 'order_by': 'contact_method_id ASC',
                 'template_param_name': 'contact_methods',
             },
@@ -71,9 +71,9 @@ class user_registration_common_controller(controller):
             {
                 'repository': knew_triggers_repository(knew_triggers_entity()),
                 'method': 'find_all',
-                'select': ('knew_trigger_id','knew_trigger_name'),
+                'select': (knew_triggers_entity.knew_trigger_id, knew_triggers_entity.knew_trigger_name),
                 'where': '',
-                'params': [],
+                'params': {},
                 'order_by': 'knew_trigger_id ASC',
                 'template_param_name': 'knew_triggers',
             },
@@ -94,30 +94,32 @@ class user_registration_common_controller(controller):
         # 誕生日
         birth_days_repository_obj = birth_days_repository(birth_days_entity())
         birth_days_all_data = birth_days_repository_obj.find_all(
-            ('birth_day_id','birth_day'),
+            (birth_days_entity.birth_day_id, birth_days_entity.birth_day),
             '',
-            [],
+            {},
             'birth_day_id ASC'
         )
         birth_years = []
         birth_months = []
         birth_days = []
+        birth_day = None
         for row in birth_days_all_data:
-            if row[1].year not in birth_years:
-                birth_years.append(row[1].year)
-            if row[1].month not in birth_months:
-                birth_months.append(row[1].month)
-            if row[1].day not in birth_days:
-                birth_days.append(row[1].day)
+            birth_day = row.birth_day
+            if birth_day.year not in birth_years:
+                birth_years.append(birth_day.year)
+            if birth_day.month not in birth_months:
+                birth_months.append(birth_day.month)
+            if birth_day.day not in birth_days:
+                birth_days.append(birth_day.day)
         self.add_response_data('birth_years', birth_years)
         self.add_response_data('birth_months', birth_months)
         self.add_response_data('birth_days', birth_days)
         # 職業（その他を末尾に表示させる）
         jobs_repository_obj = jobs_repository(jobs_entity())
         jobs = jobs_repository_obj.find_all_order_by_job_other_last(
-            ('job_id','job_name'),
+            (jobs_entity.job_id, jobs_entity.job_name),
             '',
-            [],
+            {},
             'job_id ASC'
         )
         self.add_response_data('jobs', jobs)

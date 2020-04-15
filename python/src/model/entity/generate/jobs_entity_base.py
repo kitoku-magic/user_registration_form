@@ -1,6 +1,6 @@
-from src.model.entity import declared_attr, entity, TINYINT, VARBINARY, BIGINT, timestamp_mixin_entity
+from src.database import db
+from src.model.entity import declared_attr, entity, TINYINT, my_varbinary, BIGINT, timestamp_mixin_entity
 from src.model.entity.generate import Column, List, Type, TypeVar, RelationshipProperty
-from src.model.repository import repository
 
 T = TypeVar('T', bound='jobs_entity_base')
 
@@ -16,13 +16,13 @@ class jobs_entity_base(timestamp_mixin_entity, entity):
 
     @declared_attr
     def job_id(cls: Type[T]) -> Column:
-        return repository.get_db_instance(repository).Column(TINYINT(unsigned = True), nullable = False, autoincrement = True, primary_key = True, comment = '職業ID')
+        return db.Column(TINYINT(unsigned = True), nullable = False, autoincrement = True, primary_key = True, comment = '職業ID')
     @declared_attr
     def job_name(cls: Type[T]) -> Column:
-        return repository.get_db_instance(repository).Column(VARBINARY(jobs_entity_base.__JOB_NAME_LENGTH), nullable = False, server_default = '', comment = '職業名')
+        return db.Column(my_varbinary(jobs_entity_base.__JOB_NAME_LENGTH), nullable = False, server_default = '', comment = '職業名')
     @declared_attr
     def users_collection(cls: Type[T]) -> RelationshipProperty:
-        return repository.get_db_instance(repository).relationship('users_entity', back_populates='jobs', cascade='save-update, merge, delete', uselist=True)
+        return db.relationship('users_entity', back_populates='jobs', cascade='save-update, merge, delete', uselist=True)
 
     def __init__(self: Type[T]) -> None:
         timestamp_mixin_entity.__init__(self)
