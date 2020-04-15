@@ -44,7 +44,7 @@ class user_registration_common_controller(controller):
                 'select': (sexes_entity.sex_id, sexes_entity.sex_name),
                 'where': '',
                 'params': {},
-                'order_by': 'sex_id ASC',
+                'order_by': 'sexes_sex_id ASC',
                 'template_param_name': 'sexes',
             },
             # 都道府県
@@ -54,7 +54,7 @@ class user_registration_common_controller(controller):
                 'select': (prefectures_entity.prefecture_id, prefectures_entity.prefecture_name),
                 'where': '',
                 'params': {},
-                'order_by': 'prefecture_id ASC',
+                'order_by': 'prefectures_prefecture_id ASC',
                 'template_param_name': 'prefectures',
             },
             # 連絡方法
@@ -64,7 +64,7 @@ class user_registration_common_controller(controller):
                 'select': (contact_methods_entity.contact_method_id, contact_methods_entity.contact_method_name),
                 'where': '',
                 'params': {},
-                'order_by': 'contact_method_id ASC',
+                'order_by': 'contact_methods_contact_method_id ASC',
                 'template_param_name': 'contact_methods',
             },
             # 知ったきっかけ
@@ -74,7 +74,7 @@ class user_registration_common_controller(controller):
                 'select': (knew_triggers_entity.knew_trigger_id, knew_triggers_entity.knew_trigger_name),
                 'where': '',
                 'params': {},
-                'order_by': 'knew_trigger_id ASC',
+                'order_by': 'knew_triggers_knew_trigger_id ASC',
                 'template_param_name': 'knew_triggers',
             },
         ]
@@ -97,7 +97,7 @@ class user_registration_common_controller(controller):
             (birth_days_entity.birth_day_id, birth_days_entity.birth_day),
             '',
             {},
-            'birth_day_id ASC'
+            'birth_days_birth_day_id ASC'
         )
         birth_years = []
         birth_months = []
@@ -120,7 +120,7 @@ class user_registration_common_controller(controller):
             (jobs_entity.job_id, jobs_entity.job_name),
             '',
             {},
-            'job_id ASC'
+            'jobs_job_id ASC'
         )
         self.add_response_data('jobs', jobs)
     def select_value_item(self):

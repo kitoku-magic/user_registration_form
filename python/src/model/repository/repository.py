@@ -26,6 +26,8 @@ class repository():
         query = self.get_db_manager().get_session().query(*columns)
         if 0 < len(params):
             query = query.filter(text(where)).params(**params)
+        if '' != order_by:
+            query = query.order_by(text(order_by))
         if True == for_update:
             query = query.with_for_update()
         return query
