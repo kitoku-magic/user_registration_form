@@ -14,6 +14,7 @@ class repository():
     def __init__(self, main_entity):
         self.__main_entity = main_entity
         self.__table_name = self.__main_entity.__tablename__
+        self.__last_insert_id = None
     def get_db_manager(self):
         return self.__db_manager
     def get_main_entity(self):
@@ -41,27 +42,18 @@ class repository():
         該当するデータを全件取得する
         """
         return self.select(columns, where, params, order_by).all()
-    def insert(self, columns):
+    def insert(self, insert_entity, auto_increment_column_name):
         """
         INSERT文を実行する
         """
-        columns = self.set_timestamp('ins', columns)
-        sql = 'INSERT INTO ' + self.__table_name + '('
-        values = ''
-        bind_values = list()
-        for column in columns:
-            sql += column + ', '
-            values += '%s, '
-            bind_values.append(getattr(self.__main_entity, column))
-        sql = sql.rstrip(', ')
-        values = values.rstrip(', ')
-        sql += ') VALUES(' + values + ');'
-        return self.execute_update(sql, bind_values)
-        #self.get_db_instance().session.add_all(insert_data)
-        #insert_list = list()
-        #for d in insert_data:
-            #insert_list.append(d.__dict__)
-        #self.get_db_instance().session.execute(table.__table__.insert(), insert_list)
+        insert_entities = self.set_timestamp('ins', [insert_entity])
+        self.get_db_manager().get_session().add(insert_entities[0])
+        # flushする前に実行しないと、挿入件数が分からなくなるので、このタイミングで
+        result = self.get_db_manager().get_session().new
+        self.get_db_manager().get_session().flush()
+        # flushすると、entityの内容が更新される
+        self.__last_insert_id = getattr(insert_entities[0], auto_increment_column_name)
+        return len(result)
     def bulk_insert(self, entities):
         """
         BULK INSERT文を実行する
@@ -88,22 +80,19 @@ class repository():
         values = values.rstrip(',')
         sql += column_names + ') VALUES' + values + ';'
         return self.execute_update(sql, bind_values)
-    def update(self, columns, where = '', params = ()):
+    def update(self, table, columns, where = '', where_params = {}, synchronize_session = False):
         """
         UPDATE文を実行する
         """
-        columns = self.set_timestamp('upd', columns)
-        sql = 'UPDATE ' + self.__table_name + ' SET '
-        bind_values = list()
+        query = self.get_db_manager().get_session().query(table)
+        if 0 < len(where_params):
+            query = query.filter(text(where)).params(**where_params)
+        columns = self.set_timestamp_raw('upd', columns)
+        update_params = {}
         for column in columns:
-            sql += column + ' = %s, '
-            bind_values.append(getattr(self.__main_entity, column))
-        sql = sql.rstrip(', ')
-        if '' != where:
-            sql += ' WHERE ' + where
-            for value in params:
-                bind_values.append(value)
-        return self.execute_update(sql, bind_values)
+            update_params[column] = getattr(self.__main_entity, column)
+        row_count = query.update(update_params, synchronize_session = synchronize_session)
+        return row_count
     def delete(self, where = '', params = ()):
         """
         DELETE文を実行する
@@ -115,19 +104,17 @@ class repository():
             for value in params:
                 bind_values.append(value)
         return self.execute_update(sql, bind_values)
-    def set_timestamp(self, mode, columns):
+    def set_timestamp(self, mode, entities):
         """
         タイムスタンプ値を設定する
         """
-        self_dict = self.__main_entity.__dict__
-        if 'ins' == mode:
-            if 'created_at' in self_dict:
-                self.__main_entity.created_at = math.floor(time.time())
-                columns.append('created_at')
-        if 'updated_at' in self_dict:
-            self.__main_entity.updated_at = math.floor(time.time())
-            columns.append('updated_at')
-        return columns
+        for entity in entities:
+            if 'ins' == mode:
+                if True == hasattr(entity, 'created_at'):
+                    entity.created_at = math.floor(time.time())
+            if True == hasattr(entity, 'updated_at'):
+                entity.updated_at = math.floor(time.time())
+        return entities
     def execute_update(self, sql, bind_values):
         """
         データを追加・更新・削除する
@@ -138,24 +125,22 @@ class repository():
         """
         直近の主キーの値を取得
         """
-        return self.get_db_manager().get_cursor().lastrowid
-    def begin(self, consistent_snapshot=False, isolation_level=None, readonly=None):
+        return self.__last_insert_id
+    def begin(self, subtransactions = True):
         """
         トランザクション開始
         """
-        self.get_db_manager().get_connection().start_transaction(consistent_snapshot, isolation_level, readonly)
+        self.get_db_manager().get_session().begin(subtransactions)
     def commit(self):
         """
         トランザクションコミット
         """
-        self.get_db_manager().get_connection().commit()
-        #self.get_db_instance().session.commit()
+        self.get_db_manager().get_session().commit()
     def rollback(self):
         """
         トランザクションロールバック
         """
-        self.get_db_manager().get_connection().rollback()
-        #self.get_db_instance().session.rollback()
+        self.get_db_manager().get_session().rollback()
     # 以下は、ORM機能を用いないでSQLを実行する関数群
     def select_raw(self, columns, where = '', params = (), order_by = '', for_update = False):
         """

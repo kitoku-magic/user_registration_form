@@ -40,7 +40,7 @@ class user_registration_first_complete_controller(user_registration_common_contr
                 body += '&token=' + token
                 # まだ、事前情報が未登録なら、登録する
                 pre_users_data = pre_users_repository_obj.find(
-                    (pre_users_entity.pre_user_id,),
+                    (pre_users_entity.pre_user_id, pre_users_entity.created_at),
                     'mail_address = :mail_address',
                     collections.OrderedDict(
                         mail_address = pre_users_entity_obj.mail_address
@@ -51,7 +51,7 @@ class user_registration_first_complete_controller(user_registration_common_contr
                 update_column_name_list = pre_users_entity_obj.get_update_column_name_list()
                 if pre_users_data is None:
                     try:
-                        row_count = pre_users_repository_obj.insert(update_column_name_list)
+                        row_count = pre_users_repository_obj.insert(pre_users_entity_obj, 'pre_user_id')
                         if row_count > 0:
                             is_db_success = True
                             pre_user_id = pre_users_repository_obj.last_insert_id()
@@ -61,13 +61,17 @@ class user_registration_first_complete_controller(user_registration_common_contr
                 else:
                     try:
                         row_count = pre_users_repository_obj.update(
+                            pre_users_entity,
                             update_column_name_list,
-                            'pre_user_id = %s',
-                            (pre_users_data[0],)
+                            # バインドパラメータ名は、カラム名と同じにするとエラーになる
+                            'pre_user_id = :b_pre_user_id',
+                            collections.OrderedDict(
+                                b_pre_user_id = pre_users_data.pre_user_id
+                            )
                         )
                         if row_count > 0:
                             is_db_success = True
-                            pre_user_id = pre_users_data[0]
+                            pre_user_id = pre_users_data.pre_user_id
                     except Exception as exc:
                         setting.app.logger.exception('{}'.format(exc))
                         is_db_success = False
