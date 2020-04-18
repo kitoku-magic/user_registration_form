@@ -51,9 +51,11 @@ class user_registration_confirm_controller(user_registration_common_controller):
         # 郵便番号から住所情報を取得
         zip_addresses_repository_obj = zip_addresses_repository(zip_addresses_entity())
         street_address_data = zip_addresses_repository_obj.find(
-            ('zip_address_id', 'prefecture_id', 'city_district_county', 'town_village_address'),
-            'zip_code = %s',
-            (zip_codes[0] + zip_codes[1],)
+            (zip_addresses_entity.zip_address_id, zip_addresses_entity.prefecture_id, zip_addresses_entity.city_district_county, zip_addresses_entity.town_village_address),
+            'zip_code = :zip_code',
+            collections.OrderedDict(
+                zip_code = zip_codes[0] + zip_codes[1]
+            )
         )
         if 'street_address_search' == users_entity_obj.clicked_button:
             # 住所検索ボタン押下時は、画面遷移をしない
@@ -63,8 +65,8 @@ class user_registration_confirm_controller(user_registration_common_controller):
                 users_entity_obj.prefecture_id = ''
                 users_entity_obj.city_street_address = ''
             else:
-                users_entity_obj.prefecture_id = street_address_data[1]
-                users_entity_obj.city_street_address = street_address_data[2] + street_address_data[3]
+                users_entity_obj.prefecture_id = street_address_data.prefecture_id
+                users_entity_obj.city_street_address = street_address_data.city_district_county + street_address_data.town_village_address
         elif 'next_page' == users_entity_obj.clicked_button:
             is_next_page_forward = True
             users_entity_obj.set_validation_setting();
@@ -77,7 +79,7 @@ class user_registration_confirm_controller(user_registration_common_controller):
                     users_entity_obj.zip_code_error = setting.app.config['ZIP_CODE_ERROR']
                     users_entity_obj.prefecture_id = ''
                     users_entity_obj.city_street_address = ''
-                elif users_entity_obj.prefecture_id != street_address_data[1]:
+                elif users_entity_obj.prefecture_id != street_address_data.prefecture_id:
                     # 郵便番号が属する都道府県になっていない時のエラー
                     is_next_page_forward = False;
                     users_entity_obj.prefecture_id_error = setting.app.config['ZIP_CODE_CONSISTENCY_ERROR']
@@ -88,15 +90,17 @@ class user_registration_confirm_controller(user_registration_common_controller):
             # 誕生日存在チェック
             birth_days_repository_obj = birth_days_repository(birth_days_entity())
             birth_days_data = birth_days_repository_obj.find(
-                ('birth_day_id',),
-                'birth_day = %s',
-                (users_entity_obj.birth_day_full,)
+                (birth_days_entity.birth_day_id,),
+                'birth_day = :birth_day',
+                collections.OrderedDict(
+                    birth_day = users_entity_obj.birth_day_full
+                )
             )
             if birth_days_data is None:
                 is_next_page_forward = False
                 users_entity_obj.birth_day_full_error = setting.app.config['BIRTH_DAY_NOT_REGISTRATION_ERROR']
             else:
-                users_entity_obj.birth_day_id = birth_days_data[0]
+                users_entity_obj.birth_day_id = birth_days_data.birth_day_id
 
         if True == is_next_page_forward:
             users_repository_obj = users_repository(users_entity_obj)
@@ -105,18 +109,20 @@ class user_registration_confirm_controller(user_registration_common_controller):
                 # ユーザー登録済みチェック
                 is_user_exist = True
                 users_data = users_repository_obj.find(
-                    ('user_id','registration_status'),
-                    'mail_address = %s',
-                    (users_entity_obj.mail_address,),
+                    (users_entity.user_id, users_entity.registration_status),
+                    'mail_address = :mail_address',
+                    collections.OrderedDict(
+                        mail_address = users_entity_obj.mail_address
+                    ),
                     '',
                     True
                 )
                 if users_data is None:
                     is_user_exist = False
                 else:
-                    if setting.app.config['USER_REGISTRATION_STATUS_REGISTERED'] != users_data[1]:
+                    if setting.app.config['USER_REGISTRATION_STATUS_REGISTERED'] != users_data.registration_status:
                         is_user_exist = False
-                        users_entity_obj.user_id = users_data[0]
+                        users_entity_obj.user_id = users_data.user_id
                 if True == is_user_exist:
                     raise custom_exception(
                         setting.app.config['MAIL_ADDRESS_REGISTRATIONED_ERROR'],
@@ -131,16 +137,17 @@ class user_registration_confirm_controller(user_registration_common_controller):
                 users_entity_obj.registration_status = setting.app.config['USER_REGISTRATION_STATUS_REGISTERING']
                 users_entity_obj.token = util.get_token_for_url(setting.app.config['SECRET_TOKEN_FOR_URL_BYTE_LENGTH'])
                 users_entity_obj.zip_code = zip_codes[0] + zip_codes[1]
-                update_column_name_list = users_entity_obj.get_update_column_name_list()
                 if users_entity_obj.user_id is None:
-                    row_count = users_repository_obj.insert(update_column_name_list)
+                    insert_column_name_list = users_entity_obj.get_insert_column_name_list()
+                    row_count = users_repository_obj.insert(insert_column_name_list)
                 else:
+                    update_column_name_list = users_entity_obj.get_update_column_name_list()
                     row_count = users_repository_obj.update(
-                        user_contact_methods_entity(),
-                        user_knew_triggers_entity(),
                         update_column_name_list,
-                        'user_id = %s',
-                        (users_entity_obj.user_id,)
+                        'user_id = :b_user_id',
+                        collections.OrderedDict(
+                            b_user_id = users_entity_obj.user_id
+                        )
                     )
                 if 1 > row_count:
                     raise custom_exception(setting.app.config['USER_TEMPORARY_SAVE_ERROR'])

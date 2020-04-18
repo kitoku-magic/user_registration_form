@@ -13,12 +13,19 @@ class repository():
         return super().__new__(cls)
     def __init__(self, main_entity):
         self.__main_entity = main_entity
+        self.__main_entity_class = self.__main_entity.__class__
         self.__table_name = self.__main_entity.__tablename__
         self.__last_insert_id = None
     def get_db_manager(self):
         return self.__db_manager
+    def set_main_entity(self, main_entity):
+        self.__main_entity = main_entity
     def get_main_entity(self):
         return self.__main_entity
+    def set_main_entity_class(self, main_entity_class):
+        self.__main_entity_class = main_entity_class
+    def get_main_entity_class(self):
+        return self.__main_entity_class
     def select(self, columns, where = '', params = {}, order_by = '', for_update = False):
         """
         SELECT文を作成する
@@ -42,68 +49,52 @@ class repository():
         該当するデータを全件取得する
         """
         return self.select(columns, where, params, order_by).all()
-    def insert(self, insert_entity, auto_increment_column_name):
+    def insert(self, insert_entities, target_column_name_list):
         """
         INSERT文を実行する
         """
-        insert_entities = self.set_timestamp('ins', [insert_entity])
-        self.get_db_manager().get_session().add(insert_entities[0])
-        # flushする前に実行しないと、挿入件数が分からなくなるので、このタイミングで
-        result = self.get_db_manager().get_session().new
-        self.get_db_manager().get_session().flush()
-        # flushすると、entityの内容が更新される
-        self.__last_insert_id = getattr(insert_entities[0], auto_increment_column_name)
-        return len(result)
+        insert_entities = self.set_timestamp('ins', insert_entities)
+        insert_list = []
+        for insert_entity in insert_entities:
+            insert_dict = {}
+            for target_column_name in target_column_name_list:
+                insert_dict[target_column_name] = getattr(insert_entity, target_column_name)
+            insert_list.append(insert_dict)
+        result = self.get_db_manager().get_session().execute(self.__main_entity_class.__table__.insert(), insert_list)
+        if 'inserted_primary_key' in result.context.__dict__:
+            self.__last_insert_id = result.context.inserted_primary_key[-1]
+            return len(result.context.inserted_primary_key)
+        else:
+            # 複数行のINSERT時に、挿入件数を取得する方法は無い？
+            return len(insert_list)
     def bulk_insert(self, entities):
         """
         BULK INSERT文を実行する
         """
-        sql = 'INSERT INTO '
-        table_name = ''
-        column_names = ''
-        values = ''
-        bind_values = list()
-        for entity in entities:
-            self.__main_entity = entity
-            table_name = self.__main_entity.__tablename__
-            columns = self.set_timestamp('ins', self.__main_entity.get_update_column_name_list())
-            tmp_column_names = ''
-            tmp_values = ''
-            for column in columns:
-                tmp_column_names += column + ', '
-                tmp_values += '%s, '
-                bind_values.append(getattr(self.__main_entity, column))
-            column_names = tmp_column_names
-            values += '(' + tmp_values.rstrip(', ') + '),'
-        sql += table_name + '('
-        column_names = column_names.rstrip(', ')
-        values = values.rstrip(',')
-        sql += column_names + ') VALUES' + values + ';'
-        return self.execute_update(sql, bind_values)
-    def update(self, table, columns, where = '', where_params = {}, synchronize_session = False):
+        # ORM機能として、バルクインサート機能は存在しない？（bulk_insert_mappings()も、複数回INSERT文を実行していたので）
+        return self.bulk_insert_raw(entities)
+    def update(self, columns, where = '', where_params = {}, synchronize_session = False):
         """
         UPDATE文を実行する
         """
-        query = self.get_db_manager().get_session().query(table)
+        query = self.get_db_manager().get_session().query(self.__main_entity_class)
         if 0 < len(where_params):
             query = query.filter(text(where)).params(**where_params)
-        columns = self.set_timestamp_raw('upd', columns)
+        self.set_timestamp_raw('upd', columns)
         update_params = {}
         for column in columns:
             update_params[column] = getattr(self.__main_entity, column)
         row_count = query.update(update_params, synchronize_session = synchronize_session)
         return row_count
-    def delete(self, where = '', params = ()):
+    def delete(self, where = '', params = {}, synchronize_session = False):
         """
         DELETE文を実行する
         """
-        sql = 'DELETE FROM ' + self.__table_name
-        bind_values = list()
-        if '' != where:
-            sql += ' WHERE ' + where
-            for value in params:
-                bind_values.append(value)
-        return self.execute_update(sql, bind_values)
+        query = self.get_db_manager().get_session().query(self.__main_entity_class)
+        if 0 < len(params):
+            query = query.filter(text(where)).params(**params)
+        row_count = query.delete(synchronize_session)
+        return row_count
     def set_timestamp(self, mode, entities):
         """
         タイムスタンプ値を設定する
@@ -115,12 +106,6 @@ class repository():
             if True == hasattr(entity, 'updated_at'):
                 entity.updated_at = math.floor(time.time())
         return entities
-    def execute_update(self, sql, bind_values):
-        """
-        データを追加・更新・削除する
-        """
-        self.get_db_manager().get_cursor().execute(sql, tuple(bind_values))
-        return self.get_db_manager().get_cursor().rowcount
     def last_insert_id(self):
         """
         直近の主キーの値を取得
@@ -130,17 +115,23 @@ class repository():
         """
         トランザクション開始
         """
-        self.get_db_manager().get_session().begin(subtransactions)
+        # session.beginだと、session.executeの更新の管理が出来ない？様なので
+        #return self.get_db_manager().get_session().begin(subtransactions)
+        # これはこれで、トランザクションの入れ子に未対応なので微妙
+        # プリペアドステートメントにするとエラーになるので、単発のクエリで実行
+        self.get_db_manager().get_session().connection().connection.cmd_query('START TRANSACTION')
     def commit(self):
         """
         トランザクションコミット
         """
-        self.get_db_manager().get_session().commit()
+        #self.get_db_manager().get_session().commit()
+        self.get_db_manager().get_session().connection().connection.cmd_query('COMMIT')
     def rollback(self):
         """
         トランザクションロールバック
         """
-        self.get_db_manager().get_session().rollback()
+        #self.get_db_manager().get_session().rollback()
+        self.get_db_manager().get_session().connection().connection.cmd_query('ROLLBACK')
     # 以下は、ORM機能を用いないでSQLを実行する関数群
     def select_raw(self, columns, where = '', params = (), order_by = '', for_update = False):
         """
@@ -173,7 +164,7 @@ class repository():
         """
         INSERT文を実行する
         """
-        columns = self.set_timestamp_raw('ins', columns)
+        self.set_timestamp_raw('ins', columns)
         sql = 'INSERT INTO ' + self.__table_name + '('
         values = ''
         bind_values = list()
@@ -197,7 +188,8 @@ class repository():
         for entity in entities:
             self.__main_entity = entity
             table_name = self.__main_entity.__tablename__
-            columns = self.set_timestamp_raw('ins', self.__main_entity.get_update_column_name_list())
+            columns = self.__main_entity.get_insert_column_name_list()
+            self.set_timestamp_raw('ins', columns)
             tmp_column_names = ''
             tmp_values = ''
             for column in columns:
@@ -215,7 +207,7 @@ class repository():
         """
         UPDATE文を実行する
         """
-        columns = self.set_timestamp_raw('upd', columns)
+        self.set_timestamp_raw('upd', columns)
         sql = 'UPDATE ' + self.__table_name + ' SET '
         bind_values = list()
         for column in columns:
@@ -242,15 +234,11 @@ class repository():
         """
         タイムスタンプ値を設定する
         """
-        self_dict = self.__main_entity.__dict__
         if 'ins' == mode:
-            if 'created_at' in self_dict:
+            if 'created_at' in columns:
                 self.__main_entity.created_at = math.floor(time.time())
-                columns.append('created_at')
-        if 'updated_at' in self_dict:
+        if 'updated_at' in columns:
             self.__main_entity.updated_at = math.floor(time.time())
-            columns.append('updated_at')
-        return columns
     def execute_update_raw(self, sql, bind_values):
         """
         データを追加・更新・削除する

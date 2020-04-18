@@ -37,14 +37,16 @@ class zip_addresses_entity_base(timestamp_mixin_entity, entity):
         return db.Column(my_varbinary(zip_addresses_entity_base.__TOWN_VILLAGE_ADDRESS_LENGTH), nullable = False, server_default = '', comment = '町村番地')
     @declared_attr
     def prefectures(cls: Type[T]) -> RelationshipProperty:
-        return db.relationship('prefectures_entity', back_populates='zip_addresses_collection', uselist=False)
+        return db.relationship('prefectures_entity', back_populates='zip_addresses_collection', cascade='merge,save-update', uselist=False)
     @declared_attr
     def users_collection(cls: Type[T]) -> RelationshipProperty:
-        return db.relationship('users_entity', primaryjoin='and_(zip_addresses_entity.zip_code == users_entity.zip_code, zip_addresses_entity.prefecture_id == users_entity.prefecture_id)', back_populates='zip_addresses', cascade='save-update, merge, delete', uselist=True)
+        return db.relationship('users_entity', primaryjoin='and_(zip_addresses_entity.zip_code == users_entity.zip_code, zip_addresses_entity.prefecture_id == users_entity.prefecture_id)', back_populates='zip_addresses', cascade='delete,delete-orphan,expunge,merge,refresh-expire,save-update', uselist=True)
 
     def __init__(self: Type[T]) -> None:
         timestamp_mixin_entity.__init__(self)
     def set_validation_setting(self: Type[T]) -> None:
         pass
+    def get_insert_column_name_list(self: Type[T]) -> List[str]:
+        return ['zip_code', 'prefecture_id', 'city_district_county', 'town_village_address', 'created_at', 'updated_at']
     def get_update_column_name_list(self: Type[T]) -> List[str]:
-        return ['zip_code', 'prefecture_id', 'city_district_county', 'town_village_address']
+        return ['zip_code', 'prefecture_id', 'city_district_county', 'town_village_address', 'updated_at']

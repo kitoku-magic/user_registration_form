@@ -18,14 +18,16 @@ class user_knew_triggers_entity_base(timestamp_mixin_entity, entity):
         return db.Column(TINYINT(unsigned = True), db.ForeignKey('knew_triggers.knew_trigger_id'), nullable = False, server_default = '0', primary_key = True, comment = '知ったきっかけID')
     @declared_attr
     def knew_triggers(cls: Type[T]) -> RelationshipProperty:
-        return db.relationship('knew_triggers_entity', back_populates='user_knew_triggers_collection', uselist=False)
+        return db.relationship('knew_triggers_entity', back_populates='user_knew_triggers_collection', cascade='merge,save-update', uselist=False)
     @declared_attr
     def users(cls: Type[T]) -> RelationshipProperty:
-        return db.relationship('users_entity', back_populates='user_knew_triggers_collection', uselist=False)
+        return db.relationship('users_entity', back_populates='user_knew_triggers_collection', cascade='merge,save-update', uselist=False)
 
     def __init__(self: Type[T]) -> None:
         timestamp_mixin_entity.__init__(self)
     def set_validation_setting(self: Type[T]) -> None:
         pass
+    def get_insert_column_name_list(self: Type[T]) -> List[str]:
+        return ['user_id', 'knew_trigger_id', 'created_at', 'updated_at']
     def get_update_column_name_list(self: Type[T]) -> List[str]:
-        return ['user_id', 'knew_trigger_id']
+        return ['user_id', 'knew_trigger_id', 'updated_at']

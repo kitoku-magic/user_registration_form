@@ -10,8 +10,8 @@ class config(object):
     })
     SQLALCHEMY_ECHO = True
     SQLALCHEMY_TRACK_MODIFICATIONS = True
-    SQLALCHEMY_ENGINE_OPTIONS = {'connect_args': {'charset': 'utf8mb4', 'collation': 'utf8mb4_bin', 'autocommit': True, 'use_pure': False, 'buffered': False}}
-    SQLALCHEMY_SESSION_OPTIONS = {'autocommit': True, 'autoflush': False}
+    SQLALCHEMY_ENGINE_OPTIONS = {'connect_args': {'charset': 'utf8mb4', 'collation': 'utf8mb4_bin', 'autocommit': False, 'use_pure': False, 'buffered': False}}
+    SQLALCHEMY_SESSION_OPTIONS = {'autocommit': False, 'autoflush': True}
     MAIL_SERVER = 'メールサーバー名'
     MAIL_PORT = ポート番号
     MAIL_USE_TLS = True

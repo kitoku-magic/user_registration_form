@@ -12,13 +12,14 @@ class user_registration_complete_controller(user_registration_common_controller)
         users_repository_obj = users_repository(users_entity_obj)
         users_repository_obj.begin()
         try:
-            pre_users_entity_obj = pre_users_entity()
-            get_pre_user_column_name_list = pre_users_entity_obj.get_update_column_name_list()
-            pre_users_repository_obj = pre_users_repository(pre_users_entity_obj)
+            pre_users_repository_obj = pre_users_repository(pre_users_entity())
             pre_users_data = pre_users_repository_obj.find(
-                get_pre_user_column_name_list,
-                'mail_address = %s AND token = %s',
-                (users_entity_obj.mail_address, users_entity_obj.input_token),
+                (pre_users_entity.pre_user_id,),
+                'mail_address = :mail_address AND token = :token',
+                collections.OrderedDict(
+                    mail_address = users_entity_obj.mail_address,
+                    token = users_entity_obj.input_token
+                ),
                 '',
                 True
             )
@@ -26,27 +27,33 @@ class user_registration_complete_controller(user_registration_common_controller)
             if pre_users_data is None:
                 raise custom_exception(setting.app.config['PRE_USER_NOT_EXIST_ERROR'])
             row_count = pre_users_repository_obj.delete(
-                'mail_address = %s AND token = %s',
-                (users_entity_obj.mail_address, users_entity_obj.input_token)
+                'mail_address = :mail_address AND token = :token',
+                collections.OrderedDict(
+                    mail_address = users_entity_obj.mail_address,
+                    token = users_entity_obj.input_token
+                )
             )
             if 0 >= row_count:
                 raise custom_exception(
                     setting.app.config['PRE_USER_DELETE_ERROR']
                 )
-            get_column_name_list = users_entity_obj.get_update_column_name_list()
-            get_column_name_list.insert(0, 'user_id')
             users_data = users_repository_obj.find(
-                get_column_name_list,
-                'mail_address = %s AND token = %s',
-                (users_entity_obj.mail_address, users_entity_obj.token),
+                (users_entity,),
+                'mail_address = :mail_address AND token = :token',
+                collections.OrderedDict(
+                    mail_address = users_entity_obj.mail_address,
+                    token = users_entity_obj.token
+                ),
                 '',
                 True
             )
             # ユーザー登録のレコードが無い場合もエラー
             if users_data is None:
                 raise custom_exception(setting.app.config['USER_NOT_EXIST_ERROR'])
-            for index, value in enumerate(get_column_name_list):
-                setattr(users_entity_obj, value, users_data[index])
+            get_column_name_list = users_entity_obj.get_update_column_name_list()
+            get_column_name_list.insert(0, 'user_id')
+            for column_name in get_column_name_list:
+                setattr(users_entity_obj, column_name, getattr(users_data, column_name))
             old_file_path = users_entity_obj.file_path
             if False == util.is_empty(users_entity_obj.file_path):
                 # 添付ファイルが存在する場合は、ファイルパスの内容を正式な場所に変更する
@@ -57,13 +64,12 @@ class user_registration_complete_controller(user_registration_common_controller)
                 is_file_delete = True
             users_entity_obj.registration_status = setting.app.config['USER_REGISTRATION_STATUS_REGISTERED']
             users_entity_obj.token = util.get_token_for_url(setting.app.config['SECRET_TOKEN_FOR_URL_BYTE_LENGTH'])
-            update_column_name_list = users_entity_obj.get_update_column_name_list()
             row_count = users_repository_obj.update(
-                user_contact_methods_entity(),
-                user_knew_triggers_entity(),
-                update_column_name_list,
-                'user_id = %s',
-                (users_entity_obj.user_id,)
+                users_entity_obj.get_update_column_name_list(),
+                'user_id = :b_user_id',
+                collections.OrderedDict(
+                    b_user_id = users_entity_obj.user_id
+                )
             )
             if 1 > row_count:
                 raise custom_exception(setting.app.config['USER_SAVE_ERROR'])

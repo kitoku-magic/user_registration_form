@@ -36,7 +36,15 @@ def init_db(app):
         SQL実行前に静的プリペアドステートメントを実行出来る様にSQLとパラメータを書き換える
         """
         statement = sql_parameter_replace_pattern.sub('%s', statement)
-        parameters = tuple(parameters.values())
-        return statement, parameters
+        if isinstance(parameters, tuple):
+            # 複数件のINSERTなどは、tupleになっている
+            param_list = []
+            for dictionary in parameters:
+                param_list.append(tuple(dictionary.values()))
+            ret = tuple(param_list)
+            return statement, ret
+        else:
+            parameters = tuple(parameters.values())
+            return statement, parameters
 
     return app

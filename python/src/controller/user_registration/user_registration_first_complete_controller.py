@@ -51,7 +51,10 @@ class user_registration_first_complete_controller(user_registration_common_contr
                 update_column_name_list = pre_users_entity_obj.get_update_column_name_list()
                 if pre_users_data is None:
                     try:
-                        row_count = pre_users_repository_obj.insert(pre_users_entity_obj, 'pre_user_id')
+                        row_count = pre_users_repository_obj.insert(
+                            [pre_users_entity_obj],
+                            pre_users_entity_obj.get_insert_column_name_list()
+                        )
                         if row_count > 0:
                             is_db_success = True
                             pre_user_id = pre_users_repository_obj.last_insert_id()
@@ -61,7 +64,6 @@ class user_registration_first_complete_controller(user_registration_common_contr
                 else:
                     try:
                         row_count = pre_users_repository_obj.update(
-                            pre_users_entity,
                             update_column_name_list,
                             # バインドパラメータ名は、カラム名と同じにするとエラーになる
                             'pre_user_id = :b_pre_user_id',

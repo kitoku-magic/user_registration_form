@@ -1,5 +1,5 @@
 from src.database import db
-from src.model.entity import declared_attr, entity, BIGINT, my_varbinary, TINYINT, SMALLINT, BLOB, timestamp_mixin_entity
+from src.model.entity import declared_attr, entity, BIGINT, my_varbinary, TINYINT, SMALLINT, my_blob, timestamp_mixin_entity
 from src.model.entity.generate import Column, List, Type, TypeVar, RelationshipProperty
 
 T = TypeVar('T', bound='users_entity_base')
@@ -112,32 +112,34 @@ class users_entity_base(timestamp_mixin_entity, entity):
         return db.Column(my_varbinary(users_entity_base.__FILE_PATH_LENGTH), nullable = False, server_default = '', comment = 'ファイルパス')
     @declared_attr
     def remarks(cls: Type[T]) -> Column:
-        return db.Column(BLOB(), nullable = False, comment = '備考')
+        return db.Column(my_blob(), nullable = False, comment = '備考')
     @declared_attr
     def is_personal_information_provide_agreed(cls: Type[T]) -> Column:
         return db.Column(TINYINT(unsigned = True), nullable = False, server_default = '0', comment = '個人情報提供の同意状況')
     @declared_attr
     def birth_days(cls: Type[T]) -> RelationshipProperty:
-        return db.relationship('birth_days_entity', back_populates='users_collection', uselist=False)
+        return db.relationship('birth_days_entity', back_populates='users_collection', cascade='merge,save-update', uselist=False)
     @declared_attr
     def jobs(cls: Type[T]) -> RelationshipProperty:
-        return db.relationship('jobs_entity', back_populates='users_collection', uselist=False)
+        return db.relationship('jobs_entity', back_populates='users_collection', cascade='merge,save-update', uselist=False)
     @declared_attr
     def sexes(cls: Type[T]) -> RelationshipProperty:
-        return db.relationship('sexes_entity', back_populates='users_collection', uselist=False)
+        return db.relationship('sexes_entity', back_populates='users_collection', cascade='merge,save-update', uselist=False)
     @declared_attr
     def user_contact_methods_collection(cls: Type[T]) -> RelationshipProperty:
-        return db.relationship('user_contact_methods_entity', back_populates='users', cascade='save-update, merge, delete', uselist=True)
+        return db.relationship('user_contact_methods_entity', back_populates='users', cascade='delete,delete-orphan,expunge,merge,refresh-expire,save-update', uselist=True)
     @declared_attr
     def user_knew_triggers_collection(cls: Type[T]) -> RelationshipProperty:
-        return db.relationship('user_knew_triggers_entity', back_populates='users', cascade='save-update, merge, delete', uselist=True)
+        return db.relationship('user_knew_triggers_entity', back_populates='users', cascade='delete,delete-orphan,expunge,merge,refresh-expire,save-update', uselist=True)
     @declared_attr
     def zip_addresses(cls: Type[T]) -> RelationshipProperty:
-        return db.relationship('zip_addresses_entity', primaryjoin='and_(users_entity.zip_code == zip_addresses_entity.zip_code, users_entity.prefecture_id == zip_addresses_entity.prefecture_id)', back_populates='users_collection', uselist=False)
+        return db.relationship('zip_addresses_entity', primaryjoin='and_(users_entity.zip_code == zip_addresses_entity.zip_code, users_entity.prefecture_id == zip_addresses_entity.prefecture_id)', back_populates='users_collection', cascade='merge,save-update', uselist=False)
 
     def __init__(self: Type[T]) -> None:
         timestamp_mixin_entity.__init__(self)
     def set_validation_setting(self: Type[T]) -> None:
         pass
+    def get_insert_column_name_list(self: Type[T]) -> List[str]:
+        return ['mail_address', 'token', 'registration_status', 'last_name', 'first_name', 'last_name_hiragana', 'first_name_hiragana', 'sex_id', 'birth_day_id', 'zip_code', 'prefecture_id', 'city_street_address', 'building_room_address', 'telephone_number', 'job_id', 'job_other', 'is_latest_news_hoped', 'file_name', 'file_path', 'remarks', 'is_personal_information_provide_agreed', 'created_at', 'updated_at']
     def get_update_column_name_list(self: Type[T]) -> List[str]:
-        return ['mail_address', 'token', 'registration_status', 'last_name', 'first_name', 'last_name_hiragana', 'first_name_hiragana', 'sex_id', 'birth_day_id', 'zip_code', 'prefecture_id', 'city_street_address', 'building_room_address', 'telephone_number', 'job_id', 'job_other', 'is_latest_news_hoped', 'file_name', 'file_path', 'remarks', 'is_personal_information_provide_agreed']
+        return ['mail_address', 'token', 'registration_status', 'last_name', 'first_name', 'last_name_hiragana', 'first_name_hiragana', 'sex_id', 'birth_day_id', 'zip_code', 'prefecture_id', 'city_street_address', 'building_room_address', 'telephone_number', 'job_id', 'job_other', 'is_latest_news_hoped', 'file_name', 'file_path', 'remarks', 'is_personal_information_provide_agreed', 'updated_at']

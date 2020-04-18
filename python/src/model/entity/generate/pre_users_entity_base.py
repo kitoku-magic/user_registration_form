@@ -31,5 +31,7 @@ class pre_users_entity_base(timestamp_mixin_entity, entity):
         timestamp_mixin_entity.__init__(self)
     def set_validation_setting(self: Type[T]) -> None:
         pass
+    def get_insert_column_name_list(self: Type[T]) -> List[str]:
+        return ['mail_address', 'token', 'created_at', 'updated_at']
     def get_update_column_name_list(self: Type[T]) -> List[str]:
-        return ['mail_address', 'token']
+        return ['mail_address', 'token', 'updated_at']

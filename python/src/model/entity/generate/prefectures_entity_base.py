@@ -22,11 +22,13 @@ class prefectures_entity_base(timestamp_mixin_entity, entity):
         return db.Column(my_varbinary(prefectures_entity_base.__PREFECTURE_NAME_LENGTH), nullable = False, server_default = '', comment = '都道府県名')
     @declared_attr
     def zip_addresses_collection(cls: Type[T]) -> RelationshipProperty:
-        return db.relationship('zip_addresses_entity', back_populates='prefectures', cascade='save-update, merge, delete', uselist=True)
+        return db.relationship('zip_addresses_entity', back_populates='prefectures', cascade='delete,delete-orphan,expunge,merge,refresh-expire,save-update', uselist=True)
 
     def __init__(self: Type[T]) -> None:
         timestamp_mixin_entity.__init__(self)
     def set_validation_setting(self: Type[T]) -> None:
         pass
+    def get_insert_column_name_list(self: Type[T]) -> List[str]:
+        return ['prefecture_name', 'created_at', 'updated_at']
     def get_update_column_name_list(self: Type[T]) -> List[str]:
-        return ['prefecture_name']
+        return ['prefecture_name', 'updated_at']

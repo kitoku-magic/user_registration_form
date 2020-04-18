@@ -11,7 +11,7 @@ from src.controller.user_registration.user_registration_input_controller import 
 from src.controller.user_registration.user_registration_confirm_controller import user_registration_confirm_controller
 from src.controller.user_registration.user_registration_complete_controller import user_registration_complete_controller
 from src.custom_filter import nl2br
-from src.database import init_db
+from src.database import db, init_db
 
 base_path = '/opt/app/user_registration_form/python'
 
@@ -62,6 +62,12 @@ mail.init_app(app)
 # DB
 app = init_db(app)
 
+@app.after_request
+def after_request(response):
+    db.session.remove()
+    # session.remove()だけだと、次のリクエストで同じコネクションを使い回していた
+    db.engine.dispose()
+    return response
 # 各リクエストに応じた処理を実行
 @app.route('/', methods=['GET'])
 def index():

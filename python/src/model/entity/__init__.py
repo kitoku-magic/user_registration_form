@@ -23,6 +23,7 @@ from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.types import TypeDecorator
 from src import setting
 from src.util.util import util
+from .my_blob import my_blob
 from .my_varbinary import my_varbinary
 from .entity import entity
 from .timestamp_mixin_entity import timestamp_mixin_entity

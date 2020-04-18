@@ -22,11 +22,13 @@ class knew_triggers_entity_base(timestamp_mixin_entity, entity):
         return db.Column(my_varbinary(knew_triggers_entity_base.__KNEW_TRIGGER_NAME_LENGTH), nullable = False, server_default = '', comment = '知ったきっかけ名')
     @declared_attr
     def user_knew_triggers_collection(cls: Type[T]) -> RelationshipProperty:
-        return db.relationship('user_knew_triggers_entity', back_populates='knew_triggers', cascade='save-update, merge, delete', uselist=True)
+        return db.relationship('user_knew_triggers_entity', back_populates='knew_triggers', cascade='delete,delete-orphan,expunge,merge,refresh-expire,save-update', uselist=True)
 
     def __init__(self: Type[T]) -> None:
         timestamp_mixin_entity.__init__(self)
     def set_validation_setting(self: Type[T]) -> None:
         pass
+    def get_insert_column_name_list(self: Type[T]) -> List[str]:
+        return ['knew_trigger_name', 'created_at', 'updated_at']
     def get_update_column_name_list(self: Type[T]) -> List[str]:
-        return ['knew_trigger_name']
+        return ['knew_trigger_name', 'updated_at']

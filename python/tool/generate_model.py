@@ -35,6 +35,8 @@ for table in Base.classes:
     property_body = ''
     created_at_body = ''
     updated_at_body = ''
+    insert_column_name_list_body = '    def get_insert_column_name_list(self: Type[T]) -> List[str]:\n'
+    insert_column_name_list_body += '        return ['
     update_column_name_list_body = '    def get_update_column_name_list(self: Type[T]) -> List[str]:\n'
     update_column_name_list_body += '        return ['
     is_use_timestamp_mixin = False
@@ -44,6 +46,9 @@ for table in Base.classes:
         column_attr_list = []
         # データ型の設定
         data_type_name = column.type.__class__.__name__
+        # BLOBは、独自の拡張型にする
+        if 'BLOB' == data_type_name:
+            data_type_name = 'my_blob'
         # VARBINARYは、独自の拡張型にする
         if 'VARBINARY' == data_type_name:
             data_type_name = 'my_varbinary'
@@ -97,15 +102,14 @@ for table in Base.classes:
             property_body += '    @declared_attr\n'
             property_body += '    def ' + column.name + '(cls: Type[T]) -> Column:\n'
             property_body += '        return db.Column(' + ', '.join(column_attr_list) + ')\n'
-        # 更新可能カラムのリストを作成
-        if hasattr(column, 'autoincrement') and column.autoincrement is True \
-        or 'created_at' == column.name \
-        or 'updated_at' == column.name:
-            pass
-        else:
-            update_column_name_list_body += "'" + column.name + "', "
         if data_type_name not in entity_import_list:
             entity_import_list.append(data_type_name)
+        # 追加・更新可能カラムのリストを作成
+        if hasattr(column, 'autoincrement') and column.autoincrement is True:
+            continue
+        insert_column_name_list_body += "'" + column.name + "', "
+        if 'created_at' != column.name:
+            update_column_name_list_body += "'" + column.name + "', "
     # リレーションの設定
     relation_body = ''
     many_variables_suffix = '_collection'
@@ -124,14 +128,15 @@ for table in Base.classes:
             primaryjoin = primaryjoin.rstrip(', ') + ")', "
         else:
             primaryjoin = ''
+        cascade = ",".join([x for x in sorted(prop._cascade)])
         # TODO: 1対1の場合、これでは動かなさそう
         relation_body += '    @declared_attr\n'
         if prop.backref is None:
             relation_body += '    def ' + foreign_table_name + many_variables_suffix + '(cls: Type[T]) -> RelationshipProperty:\n'
-            relation_body += "        return db.relationship('" + foreign_class_name + "', " + primaryjoin + "back_populates='" + local_table_name + "', cascade='save-update, merge, delete', uselist=True)\n"
+            relation_body += "        return db.relationship('" + foreign_class_name + "', " + primaryjoin + "back_populates='" + local_table_name + "', cascade='" + cascade + "', uselist=True)\n"
         else:
             relation_body += '    def ' + foreign_table_name + '(cls: Type[T]) -> RelationshipProperty:\n'
-            relation_body += "        return db.relationship('" + foreign_class_name + "', " + primaryjoin + "back_populates='" + local_table_name + many_variables_suffix + "', uselist=False)\n"
+            relation_body += "        return db.relationship('" + foreign_class_name + "', " + primaryjoin + "back_populates='" + local_table_name + many_variables_suffix + "', cascade='" + cascade + "', uselist=False)\n"
         if 'RelationshipProperty' not in entity_generate_import_list:
             entity_generate_import_list.append('RelationshipProperty')
     timestamp_mixin_body = ''
@@ -173,6 +178,7 @@ for table in Base.classes:
     body += '        ' + super_class_name + '.__init__(self)\n'
     body += '    def set_validation_setting(self: Type[T]) -> None:\n'
     body += '        pass\n'
+    body += insert_column_name_list_body.rstrip(', ') + ']\n'
     body += update_column_name_list_body.rstrip(', ') + ']\n'
     f.write(body)
     f.close()

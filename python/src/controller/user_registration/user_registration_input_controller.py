@@ -15,11 +15,11 @@ class user_registration_input_controller(user_registration_common_controller):
         pre_users_data = pre_users_repository_obj.find(
             (pre_users_entity.pre_user_id,),
             'mail_address = :mail_address AND token = :token AND updated_at >= :updated_at',
-            {
-                'mail_address': users_entity_obj.mail_address,
-                'token': users_entity_obj.token,
-                'updated_at': (math.floor(time.time()) - setting.app.config['USER_REGISTRATION_TIME_LIMIT_SECOND'])
-            }
+            collections.OrderedDict(
+                mail_address = users_entity_obj.mail_address,
+                token = users_entity_obj.token,
+                updated_at = (math.floor(time.time()) - setting.app.config['USER_REGISTRATION_TIME_LIMIT_SECOND'])
+            )
         )
         if pre_users_data is None:
             raise custom_exception(
@@ -37,15 +37,18 @@ class user_registration_input_controller(user_registration_common_controller):
             try:
                 # 確認画面で設定されたデータの取得
                 users_data = users_repository_obj.find(
-                    get_column_name_list,
-                    'mail_address = %s AND token = %s',
-                    (users_entity_obj.mail_address, confirm_token),
+                    (users_entity,),
+                    'mail_address = :mail_address AND token = :token',
+                    collections.OrderedDict(
+                        mail_address = users_entity_obj.mail_address,
+                        token = confirm_token
+                    ),
                     '',
                     True
                 )
                 if users_data is not None:
-                    for index, value in enumerate(get_column_name_list):
-                        setattr(users_entity_obj, value, users_data[index])
+                    for column_name in get_column_name_list:
+                        setattr(users_entity_obj, column_name, getattr(users_data, column_name))
                     # アップロードされたファイルの削除と、DB内のファイル情報の初期化
                     tmp_users_entity_obj = users_entity()
                     tmp_users_entity_obj.file_name = users_entity_obj.file_name
@@ -53,11 +56,11 @@ class user_registration_input_controller(user_registration_common_controller):
                     users_entity_obj.file_name = ''
                     users_entity_obj.file_path = ''
                     row_count = users_repository_obj.update(
-                        user_contact_methods_entity(),
-                        user_knew_triggers_entity(),
-                        ['file_name', 'file_path'],
-                        'user_id = %s',
-                        (users_entity_obj.user_id,)
+                        ['file_name', 'file_path', 'updated_at'],
+                        'user_id = :b_user_id',
+                        collections.OrderedDict(
+                            b_user_id = users_entity_obj.user_id
+                        )
                     )
                     if 1 > row_count:
                         raise custom_exception(setting.app.config['FILE_UPDATE_ERROR'])
@@ -75,41 +78,48 @@ class user_registration_input_controller(user_registration_common_controller):
             get_column_name_list = birth_days_entity_obj.get_update_column_name_list()
             birth_days_repository_obj = birth_days_repository(birth_days_entity_obj)
             birth_days_data = birth_days_repository_obj.find(
-                ('birth_day',),
-                'birth_day_id = %s',
-                (users_entity_obj.birth_day_id,)
+                (birth_days_entity.birth_day,),
+                'birth_day_id = :birth_day_id',
+                collections.OrderedDict(
+                    birth_day_id = users_entity_obj.birth_day_id
+                )
             )
             if birth_days_data is not None:
-                users_entity_obj.birth_year = birth_days_data[0].year
-                users_entity_obj.birth_month = birth_days_data[0].month
-                users_entity_obj.birth_day = birth_days_data[0].day
+                birth_day = birth_days_data.birth_day
+                users_entity_obj.birth_year = birth_day.year
+                users_entity_obj.birth_month = birth_day.month
+                users_entity_obj.birth_day = birth_day.day
             # 連絡方法
             user_contact_methods_entity_obj = user_contact_methods_entity()
             get_column_name_list = user_contact_methods_entity_obj.get_update_column_name_list()
             user_contact_methods_repository_obj = user_contact_methods_repository(user_contact_methods_entity_obj)
             user_contact_methods_data_list = user_contact_methods_repository_obj.find_all(
-                ('contact_method_id',),
-                'user_id = %s',
-                (users_entity_obj.user_id,)
+                (user_contact_methods_entity.contact_method_id,),
+                'user_id = :user_id',
+                collections.OrderedDict(
+                    user_id = users_entity_obj.user_id
+                )
             )
             if 0 < len(user_contact_methods_data_list):
                 for user_contact_methods_data in user_contact_methods_data_list:
                     user_contact_methods_entity_obj = user_contact_methods_entity()
-                    user_contact_methods_entity_obj.contact_method_id = user_contact_methods_data[0]
+                    user_contact_methods_entity_obj.contact_method_id = user_contact_methods_data.contact_method_id
                     users_entity_obj.user_contact_methods_collection.append(user_contact_methods_entity_obj)
             # 知ったきっかけ
             user_knew_triggers_entity_obj = user_knew_triggers_entity()
             get_column_name_list = user_knew_triggers_entity_obj.get_update_column_name_list()
             user_knew_triggers_repository_obj = user_knew_triggers_repository(user_knew_triggers_entity_obj)
             user_knew_triggers_data_list = user_knew_triggers_repository_obj.find_all(
-                ('knew_trigger_id',),
-                'user_id = %s',
-                (users_entity_obj.user_id,)
+                (user_knew_triggers_entity.knew_trigger_id,),
+                'user_id = :user_id',
+                collections.OrderedDict(
+                    user_id = users_entity_obj.user_id
+                )
             )
             if 0 < len(user_knew_triggers_data_list):
                 for user_knew_triggers_data in user_knew_triggers_data_list:
                     user_knew_triggers_entity_obj = user_knew_triggers_entity()
-                    user_knew_triggers_entity_obj.knew_trigger_id = user_knew_triggers_data[0]
+                    user_knew_triggers_entity_obj.knew_trigger_id = user_knew_triggers_data.knew_trigger_id
                     users_entity_obj.user_knew_triggers_collection.append(user_knew_triggers_entity_obj)
         # 全てのフォーム項目に値を設定する
         self.assign_all_form_data()
