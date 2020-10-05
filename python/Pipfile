@@ -1,0 +1,19 @@
+[[source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+
+[dev-packages]
+
+[packages]
+dnspython = "~=1.16"
+Flask-Mail = "~=0.9"
+Flask-SQLAlchemy = "~=2.4"
+jaconv = "~=0.2"
+mypy = "~=0.770"
+mysql-connector-python = "~=8.0"
+python-magic = "~=0.4"
+uWSGI = "~=2.0"
+
+[requires]
+python_version = "3.8"

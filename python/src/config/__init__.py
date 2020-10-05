@@ -27,6 +27,7 @@ class config(object):
     FILE_UPLOAD_IDENTIFIER_USER_REGISTRATION = 'user_registration'
     APP_FILE_TMP_SAVE_PATH = '/tmp/app'
     APP_FILE_SAVE_PATH = '/upload/app'
+    # /opt/file配下は、新たにインストールしたfileコマンドのインストール先で、デフォルトのマジックファイルは/usr/share/misc/magic.mgc
     MAGIC_FILE_PATH = '/opt/file/share/misc/magic.mgc'
     SECRET_TOKEN_BYTE_LENGTH = 96
     SECRET_TOKEN_FOR_URL_BYTE_LENGTH = 96
