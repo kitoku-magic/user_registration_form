@@ -7,7 +7,7 @@
 
 ユーザー登録フォーム（比較的メジャーな機能だと思いますので）を作ったのが基になっています。
 
-# Requirements
+# 要件
 ## PHP版
 以下は、実装と動作確認をした時のバージョンなので、もっと新しいバージョンでも問題ないかもしれません。
 - PHP 5.2.17（著者の最近の業務経験と、2019年6月現在の https://w3techs.com/technologies/details/pl-php/5/all を参考にしました）
@@ -29,7 +29,7 @@ https://github.com/kitoku-magic/final_magic
 
 https://liginc.co.jp/398057
 
-# Disclaimer
+# 免責事項
 実際の業務でも使う事を意識して作っていますが、
 
 当然、業務によって仕様なども違いますので、
