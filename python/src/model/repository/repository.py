@@ -61,9 +61,9 @@ class repository():
                 insert_dict[target_column_name] = getattr(insert_entity, target_column_name)
             insert_list.append(insert_dict)
         result = self.get_db_manager().get_session().execute(self.__main_entity_class.__table__.insert(), insert_list)
-        if 'inserted_primary_key' in result.context.__dict__:
-            self.__last_insert_id = result.context.inserted_primary_key[-1]
-            return len(result.context.inserted_primary_key)
+        if 'inserted_primary_key_rows' in result.context.__dict__:
+            self.__last_insert_id = result.context.inserted_primary_key_rows[-1][0]
+            return len(result.context.inserted_primary_key_rows)
         else:
             # 複数行のINSERT時に、挿入件数を取得する方法は無い？
             return len(insert_list)
