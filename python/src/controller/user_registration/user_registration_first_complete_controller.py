@@ -1,4 +1,14 @@
-from src.controller.user_registration import *
+from python_library.src import flask_mail
+from python_library.src.original.custom_exception import custom_exception
+from python_library.src.original.util import util
+from src import collections
+from src.application import app
+from src.application import mail
+from src.controller.user_registration.user_registration_common_controller import user_registration_common_controller
+from src.model.entity.pre_users_entity import pre_users_entity
+from src.model.entity.users_entity import users_entity
+from src.model.repository.pre_users_repository import pre_users_repository
+from src.model.repository.users_repository import users_repository
 
 class user_registration_first_complete_controller(user_registration_common_controller):
     """
@@ -21,10 +31,10 @@ class user_registration_first_complete_controller(user_registration_common_contr
                 'mail_address = :mail_address AND registration_status = :registration_status',
                 collections.OrderedDict(
                     mail_address = pre_users_entity_obj.mail_address,
-                    registration_status = setting.app.config['USER_REGISTRATION_STATUS_REGISTERED']
+                    registration_status = app.config['USER_REGISTRATION_STATUS_REGISTERED']
                 )
             )
-            sender = setting.app.config['SENDER_MAIL_ADDRESS']
+            sender = app.config['SENDER_MAIL_ADDRESS']
             recipients = pre_users_entity_obj.mail_address
             pre_user_id = 0
             token = ''
@@ -32,10 +42,10 @@ class user_registration_first_complete_controller(user_registration_common_contr
             pre_users_repository_obj = pre_users_repository(pre_users_entity_obj)
             pre_users_repository_obj.begin()
             if users_data is None:
-                body = setting.app.config['USER_REGISTRATION_FIRST_COMPLETE_REGISTERED_MESSAGE']
-                token = util.get_token_for_url(setting.app.config['SECRET_TOKEN_FOR_URL_BYTE_LENGTH'])
+                body = app.config['USER_REGISTRATION_FIRST_COMPLETE_REGISTERED_MESSAGE']
+                token = util.get_token_for_url(app.config['SECRET_TOKEN_FOR_URL_BYTE_LENGTH'])
                 pre_users_entity_obj.token = token
-                body += setting.app.config['URI_SCHEME'] + '://' + setting.app.config['HOST_NAME'] + '/user_registration/input?mail_address='
+                body += app.config['URI_SCHEME'] + '://' + app.config['HOST_NAME'] + '/user_registration/input?mail_address='
                 body += recipients
                 body += '&token=' + token
                 # まだ、事前情報が未登録なら、登録する
@@ -59,7 +69,7 @@ class user_registration_first_complete_controller(user_registration_common_contr
                             is_db_success = True
                             pre_user_id = pre_users_repository_obj.last_insert_id()
                     except Exception as exc:
-                        setting.app.logger.exception('{}'.format(exc))
+                        app.logger.exception('{}'.format(exc))
                         is_db_success = False
                 else:
                     try:
@@ -75,23 +85,23 @@ class user_registration_first_complete_controller(user_registration_common_contr
                             is_db_success = True
                             pre_user_id = pre_users_data.pre_user_id
                     except Exception as exc:
-                        setting.app.logger.exception('{}'.format(exc))
+                        app.logger.exception('{}'.format(exc))
                         is_db_success = False
             else:
-                body = setting.app.config['USER_REGISTRATION_FIRST_COMPLETE_ALREADY_REGISTERED_MESSAGE']
+                body = app.config['USER_REGISTRATION_FIRST_COMPLETE_ALREADY_REGISTERED_MESSAGE']
                 is_db_success = True
                 pre_user_id = users_data[0]
-            title = setting.app.config['USER_REGISTRATION_FIRST_COMPLETE_MAIL_TITLE']
+            title = app.config['USER_REGISTRATION_FIRST_COMPLETE_MAIL_TITLE']
             is_mail_send = False
             if True == is_db_success:
                 try:
                     # 入力されたメールアドレス宛にメールを送信する
-                    msg = Message(title, sender=sender, recipients=[recipients])
+                    msg = flask_mail.Message(title, sender=sender, recipients=[recipients])
                     msg.body = body
-                    setting.mail.send(msg)
+                    mail.send(msg)
                     is_mail_send = True
                 except Exception as exc:
-                    setting.app.logger.exception('{}'.format(exc))
+                    app.logger.exception('{}'.format(exc))
                     is_mail_send = False
             error_message = ''
             if True == is_db_success:
@@ -99,13 +109,13 @@ class user_registration_first_complete_controller(user_registration_common_contr
                     pre_users_repository_obj.commit()
                 else:
                     pre_users_repository_obj.rollback()
-                    error_message = setting.app.config['MAIL_SEND_ERROR']
+                    error_message = app.config['MAIL_SEND_ERROR']
             else:
                 pre_users_repository_obj.rollback()
-                error_message = setting.app.config['DB_REGISTRATION_ERROR']
+                error_message = app.config['DB_REGISTRATION_ERROR']
             if '' != error_message:
-                raise custom_exception(error_message, setting.app.config['SHOW_FIRST_COMPLETE_ERROR'])
-            setting.app.logger.info('pre_user_id:' + str(pre_user_id) + 'にメールを送信しました。')
+                raise custom_exception(error_message, app.config['SHOW_FIRST_COMPLETE_ERROR'])
+            app.logger.info('pre_user_id:' + str(pre_user_id) + 'にメールを送信しました。')
             template_file_name = 'user_registration/first_complete'
         else:
             # CSRFトークンを作成する
@@ -113,4 +123,4 @@ class user_registration_first_complete_controller(user_registration_common_contr
             self.add_response_data('mail_address_error', pre_users_entity_obj.mail_address_error)
             template_file_name = 'user_registration/index'
 
-        self.set_template_common_data(setting.app.config['USER_REGISTRATION_FIRST_COMPLETE_TITLE'], template_file_name)
+        self.set_template_common_data(app.config['USER_REGISTRATION_FIRST_COMPLETE_TITLE'], template_file_name)

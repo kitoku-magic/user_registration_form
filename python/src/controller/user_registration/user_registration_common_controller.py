@@ -1,4 +1,19 @@
-from src.controller.user_registration import *
+from python_library.src.custom_flask.controller import controller
+from src import abc
+from src import os
+from src.model.entity.birth_days_entity import birth_days_entity
+from src.model.entity.contact_methods_entity import contact_methods_entity
+from src.model.entity.jobs_entity import jobs_entity
+from src.model.entity.knew_triggers_entity import knew_triggers_entity
+from src.model.entity.prefectures_entity import prefectures_entity
+from src.model.entity.sexes_entity import sexes_entity
+from src.model.entity.users_entity import users_entity
+from src.model.repository.birth_days_repository import birth_days_repository
+from src.model.repository.contact_methods_repository import contact_methods_repository
+from src.model.repository.jobs_repository import jobs_repository
+from src.model.repository.knew_triggers_repository import knew_triggers_repository
+from src.model.repository.prefectures_repository import prefectures_repository
+from src.model.repository.sexes_repository import sexes_repository
 
 class user_registration_common_controller(controller):
     """
@@ -15,7 +30,7 @@ class user_registration_common_controller(controller):
             request_data = request.form
         self.__users_entity = users_entity()
         self.__users_entity.set_request_to_entity(request_data)
-    @abstractmethod
+    @abc.abstractmethod
     def execute(self):
         pass
     def get_users_entity(self):

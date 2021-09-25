@@ -1,4 +1,19 @@
-from src.controller.user_registration import *
+from python_library.src.original.custom_exception import custom_exception
+from python_library.src.original.util import util
+from src import collections
+from src import dt
+from src.application import app
+from src.controller.user_registration.user_registration_common_controller import user_registration_common_controller
+from src.model.entity.birth_days_entity import birth_days_entity
+from src.model.entity.pre_users_entity import pre_users_entity
+from src.model.entity.users_entity import users_entity
+from src.model.entity.user_contact_methods_entity import user_contact_methods_entity
+from src.model.entity.user_knew_triggers_entity import user_knew_triggers_entity
+from src.model.repository.birth_days_repository import birth_days_repository
+from src.model.repository.pre_users_repository import pre_users_repository
+from src.model.repository.users_repository import users_repository
+from src.model.repository.user_contact_methods_repository import user_contact_methods_repository
+from src.model.repository.user_knew_triggers_repository import user_knew_triggers_repository
 
 class user_registration_input_controller(user_registration_common_controller):
     """
@@ -18,13 +33,13 @@ class user_registration_input_controller(user_registration_common_controller):
             collections.OrderedDict(
                 mail_address = users_entity_obj.mail_address,
                 token = users_entity_obj.token,
-                updated_at = (math.floor(time.time()) - setting.app.config['USER_REGISTRATION_TIME_LIMIT_SECOND'])
+                updated_at = util.get_current_datetime() + dt.timedelta(seconds = (-1 * app.config['USER_REGISTRATION_TIME_LIMIT_SECOND']))
             )
         )
         if pre_users_data is None:
             raise custom_exception(
-                setting.app.config['USER_REGISTRATION_URL_EXPIRE_DATE_ERROR'],
-                setting.app.config['SHOW_USER_REGISTRATION_URL_EXPIRE_DATE_ERROR']
+                app.config['USER_REGISTRATION_URL_EXPIRE_DATE_ERROR'],
+                app.config['SHOW_USER_REGISTRATION_URL_EXPIRE_DATE_ERROR']
             )
         if 'previous_page' == users_entity_obj.clicked_button:
             get_column_name_list = users_entity_obj.get_update_column_name_list()
@@ -63,14 +78,14 @@ class user_registration_input_controller(user_registration_common_controller):
                         )
                     )
                     if 1 > row_count:
-                        raise custom_exception(setting.app.config['FILE_UPDATE_ERROR'])
+                        raise custom_exception(app.config['FILE_UPDATE_ERROR'])
                     self.remove_upload_file(tmp_users_entity_obj)
                 users_repository_obj.commit()
             except Exception as exc:
                 users_repository_obj.rollback()
                 raise custom_exception(
                     str(exc),
-                    setting.app.config['SHOW_SYSTEM_ERROR']
+                    app.config['SHOW_SYSTEM_ERROR']
                 )
             # 以下は、特殊なケースの項目
             # 誕生日
@@ -129,4 +144,4 @@ class user_registration_input_controller(user_registration_common_controller):
         self.select_value_item()
 
         # ユーザー登録入力画面を表示する
-        self.set_template_common_data(setting.app.config['USER_REGISTRATION_INPUT_TITLE'], 'user_registration/input')
+        self.set_template_common_data(app.config['USER_REGISTRATION_INPUT_TITLE'], 'user_registration/input')

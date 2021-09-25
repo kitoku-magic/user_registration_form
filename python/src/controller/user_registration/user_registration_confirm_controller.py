@@ -1,4 +1,17 @@
-from src.controller.user_registration import *
+from python_library.src.original.custom_exception import custom_exception
+from python_library.src.original.util import util
+from src import collections
+from src import jaconv
+from src.application import app
+from src.controller.user_registration.user_registration_common_controller import user_registration_common_controller
+from src.model.entity.birth_days_entity import birth_days_entity
+from src.model.entity.users_entity import users_entity
+from src.model.entity.user_contact_methods_entity import user_contact_methods_entity
+from src.model.entity.user_knew_triggers_entity import user_knew_triggers_entity
+from src.model.entity.zip_addresses_entity import zip_addresses_entity
+from src.model.repository.birth_days_repository import birth_days_repository
+from src.model.repository.zip_addresses_repository import zip_addresses_repository
+from src.model.repository.users_repository import users_repository
 
 class user_registration_confirm_controller(user_registration_common_controller):
     """
@@ -61,7 +74,7 @@ class user_registration_confirm_controller(user_registration_common_controller):
             # 住所検索ボタン押下時は、画面遷移をしない
             is_next_page_forward = False
             if street_address_data is None:
-                users_entity_obj.zip_code_error = setting.app.config['ZIP_CODE_ERROR']
+                users_entity_obj.zip_code_error = app.config['ZIP_CODE_ERROR']
                 users_entity_obj.prefecture_id = ''
                 users_entity_obj.city_street_address = ''
             else:
@@ -76,15 +89,15 @@ class user_registration_confirm_controller(user_registration_common_controller):
             if users_entity_obj.zip_code_error is None:
                 if street_address_data is None:
                     is_next_page_forward = False;
-                    users_entity_obj.zip_code_error = setting.app.config['ZIP_CODE_ERROR']
+                    users_entity_obj.zip_code_error = app.config['ZIP_CODE_ERROR']
                     users_entity_obj.prefecture_id = ''
                     users_entity_obj.city_street_address = ''
                 elif users_entity_obj.prefecture_id != street_address_data.prefecture_id:
                     # 郵便番号が属する都道府県になっていない時のエラー
                     is_next_page_forward = False;
-                    users_entity_obj.prefecture_id_error = setting.app.config['ZIP_CODE_CONSISTENCY_ERROR']
+                    users_entity_obj.prefecture_id_error = app.config['ZIP_CODE_CONSISTENCY_ERROR']
         else:
-            raise custom_exception(setting.app.config['INVALID_REQUEST_ERROR'])
+            raise custom_exception(app.config['INVALID_REQUEST_ERROR'])
 
         if True == is_next_page_forward:
             # 誕生日存在チェック
@@ -98,7 +111,7 @@ class user_registration_confirm_controller(user_registration_common_controller):
             )
             if birth_days_data is None:
                 is_next_page_forward = False
-                users_entity_obj.birth_day_full_error = setting.app.config['BIRTH_DAY_NOT_REGISTRATION_ERROR']
+                users_entity_obj.birth_day_full_error = app.config['BIRTH_DAY_NOT_REGISTRATION_ERROR']
             else:
                 users_entity_obj.birth_day_id = birth_days_data.birth_day_id
 
@@ -120,22 +133,22 @@ class user_registration_confirm_controller(user_registration_common_controller):
                 if users_data is None:
                     is_user_exist = False
                 else:
-                    if setting.app.config['USER_REGISTRATION_STATUS_REGISTERED'] != users_data.registration_status:
+                    if app.config['USER_REGISTRATION_STATUS_REGISTERED'] != users_data.registration_status:
                         is_user_exist = False
                         users_entity_obj.user_id = users_data.user_id
                 if True == is_user_exist:
                     raise custom_exception(
-                        setting.app.config['MAIL_ADDRESS_REGISTRATIONED_ERROR'],
-                        setting.app.config['SHOW_MAIL_ADDRESS_REGISTRATIONED_ERROR']
+                        app.config['MAIL_ADDRESS_REGISTRATIONED_ERROR'],
+                        app.config['SHOW_MAIL_ADDRESS_REGISTRATIONED_ERROR']
                     )
                 if users_entity_obj.file_path is None:
                     users_entity_obj.file_name = ''
                     users_entity_obj.file_path = ''
-                if setting.app.config['JOB_ID_OTHER'] != users_entity_obj.job_id:
+                if app.config['JOB_ID_OTHER'] != users_entity_obj.job_id:
                     users_entity_obj.job_other = ''
                 users_entity_obj.input_token = users_entity_obj.token
-                users_entity_obj.registration_status = setting.app.config['USER_REGISTRATION_STATUS_REGISTERING']
-                users_entity_obj.token = util.get_token_for_url(setting.app.config['SECRET_TOKEN_FOR_URL_BYTE_LENGTH'])
+                users_entity_obj.registration_status = app.config['USER_REGISTRATION_STATUS_REGISTERING']
+                users_entity_obj.token = util.get_token_for_url(app.config['SECRET_TOKEN_FOR_URL_BYTE_LENGTH'])
                 users_entity_obj.zip_code = zip_codes[0] + zip_codes[1]
                 if users_entity_obj.user_id is None:
                     insert_column_name_list = users_entity_obj.get_insert_column_name_list()
@@ -150,7 +163,7 @@ class user_registration_confirm_controller(user_registration_common_controller):
                         )
                     )
                 if 1 > row_count:
-                    raise custom_exception(setting.app.config['USER_TEMPORARY_SAVE_ERROR'])
+                    raise custom_exception(app.config['USER_TEMPORARY_SAVE_ERROR'])
                 users_repository_obj.commit()
             except Exception as exc:
                 users_repository_obj.rollback()
@@ -159,20 +172,20 @@ class user_registration_confirm_controller(user_registration_common_controller):
                     if 1 < len(exc.args):
                         show_error_message = exc.args[1]
                     else:
-                        show_error_message = setting.app.config['SHOW_SYSTEM_ERROR']
+                        show_error_message = app.config['SHOW_SYSTEM_ERROR']
                 else:
-                    show_error_message = setting.app.config['SHOW_SYSTEM_ERROR']
+                    show_error_message = app.config['SHOW_SYSTEM_ERROR']
                 raise custom_exception(
                     str(exc),
                     show_error_message
                 )
             # ユーザー登録確認画面を表示する
-            self.set_template_common_data(setting.app.config['USER_REGISTRATION_CONFIRM_TITLE'], 'user_registration/confirm')
+            self.set_template_common_data(app.config['USER_REGISTRATION_CONFIRM_TITLE'], 'user_registration/confirm')
         else:
             # 画面遷移しない時は、アップロードされたファイルを削除
             self.remove_upload_file(users_entity_obj)
             # ユーザー登録入力画面を表示する
-            self.set_template_common_data(setting.app.config['USER_REGISTRATION_INPUT_TITLE'], 'user_registration/input')
+            self.set_template_common_data(app.config['USER_REGISTRATION_INPUT_TITLE'], 'user_registration/input')
 
         # 全てのフォーム項目に値を設定する
         self.assign_all_form_data()

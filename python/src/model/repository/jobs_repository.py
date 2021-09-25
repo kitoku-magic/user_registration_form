@@ -1,12 +1,16 @@
-from src.model.repository import *
+from python_library.src.custom_sqlalchemy.repository import repository
+from src import typing
+from src.model.entity.jobs_entity import jobs_entity
+
+T = typing.TypeVar('T', bound='jobs_repository')
 
 class jobs_repository(repository):
     """
     職業マスタテーブルのリポジトリクラス
     """
-    def __init__(self, jobs_entity):
+    def __init__(self: typing.Type[T], jobs_entity: jobs_entity) -> None:
         super().__init__(jobs_entity)
-    def find_all_order_by_job_other_last(self, columns, where = '', params = {}, order_by = ''):
+    def find_all_order_by_job_other_last(self: typing.Type[T], columns, where = '', params = {}, order_by = ''):
         """
         職業マスタテーブルのデータを全て取得する（その他は末尾にする）
         """

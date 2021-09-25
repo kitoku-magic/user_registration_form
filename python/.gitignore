@@ -1,6 +1,6 @@
-*__pycache__/*
-*.mypy_cache/*
-/src/instance/__init__.py
+.app_env
+uwsgi.ini
+/src/application.py
+/src/instance/instance.py
 /log/*
-/socket/*
 !.gitkeep

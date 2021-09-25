@@ -64,5 +64,5 @@ SET
     END,
   city_district_county = trim(@field8),
   town_village_address = CASE right(@field3, 2) WHEN '00' THEN '' ELSE trim(@field9) END,
-  created_at = UNIX_TIMESTAMP(),
-  updated_at = UNIX_TIMESTAMP();
+  created_at = CURRENT_TIMESTAMP(),
+  updated_at = CURRENT_TIMESTAMP();

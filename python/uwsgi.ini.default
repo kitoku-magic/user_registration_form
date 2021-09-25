@@ -1,7 +1,9 @@
 [uwsgi]
-base_path = /opt/app/user_registration_form/python
+library_path = {共有ライブラリの基底ディレクトリ}
+base_path = {アプリケーションの基底ディレクトリ}
+python-path = %(library_path)
 python-path = %(base_path)
-wsgi-file = %(base_path)/index.py
+wsgi-file = %(base_path)/src/index.py
 callable = app
 master = true
 processes = 2

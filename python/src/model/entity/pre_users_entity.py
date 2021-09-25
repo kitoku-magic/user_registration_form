@@ -1,13 +1,15 @@
-from src.model.entity import *
-from src.model.entity.generate import *
+from src import typing
+from src.model.entity.generate.pre_users_entity_base import pre_users_entity_base
+
+T = typing.TypeVar('T', bound='pre_users_entity')
 
 class pre_users_entity(pre_users_entity_base):
     """
-    ユーザー事前登録情報テーブルエンティティクラス
+    ユーザー事前登録情報テーブルのエンティティクラス
     """
-    def __init__(self):
+    def __init__(self: typing.Type[T]) -> None:
         super().__init__()
-    def set_validation_setting(self):
+    def set_validation_setting(self: typing.Type[T]):
         validation_settings = [
             {
                 'name': 'mail_address',

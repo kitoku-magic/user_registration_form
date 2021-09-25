@@ -1,4 +1,4 @@
-class config(object):
+class instance(object):
     URI_SCHEME = 'URIスキーム'
     HOST_NAME = 'ホスト名'
     SQL_CONNECTION_STRING = 'mysql+mysqlconnector://{user}:{password}@{host}/{db_name}'
@@ -10,7 +10,7 @@ class config(object):
     })
     SQLALCHEMY_ECHO = True
     SQLALCHEMY_TRACK_MODIFICATIONS = True
-    SQLALCHEMY_ENGINE_OPTIONS = {'connect_args': {'charset': 'utf8mb4', 'collation': 'utf8mb4_bin', 'autocommit': False, 'use_pure': False, 'buffered': False}}
+    SQLALCHEMY_ENGINE_OPTIONS = {'charset': 'utf8mb4', 'collation': 'utf8mb4_bin', 'autocommit': False, 'use_pure': False, 'buffered': False}
     SQLALCHEMY_SESSION_OPTIONS = {'autocommit': False, 'autoflush': True}
     MAIL_SERVER = 'メールサーバー名'
     MAIL_PORT = ポート番号
@@ -19,18 +19,18 @@ class config(object):
     MAIL_PASSWORD = 'メールパスワード'
     SENDER_MAIL_ADDRESS = '送信元メールアドレス'
 
-class testing(config):
+class testing(instance):
     SECRET_KEY = 'シークレットキー'
 
-class development(config):
+class development(instance):
     SECRET_KEY = 'シークレットキー'
     HOST_NAME = 'ホスト名'
 
-class production(config):
+class production(instance):
     SECRET_KEY = 'シークレットキー'
     URI_SCHEME = 'URIスキーム'
     HOST_NAME = 'ホスト名'
-    SQLALCHEMY_DATABASE_URI = config.SQL_CONNECTION_STRING.format(**{
+    SQLALCHEMY_DATABASE_URI = instance.SQL_CONNECTION_STRING.format(**{
         'user': 'DBユーザー名',
         'password': 'DBパスワード',
         'host': 'DBホスト名',

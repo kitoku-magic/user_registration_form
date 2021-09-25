@@ -1,11 +1,14 @@
-from src.model.entity import *
-from src.model.entity.generate import *
+from src import typing
+from src.application import app
+from src.model.entity.generate.users_entity_base import users_entity_base
+
+T = typing.TypeVar('T', bound='users_entity')
 
 class users_entity(users_entity_base):
     """
-    ユーザーテーブルエンティティクラス
+    ユーザーテーブルのエンティティクラス
     """
-    def __init__(self):
+    def __init__(self: typing.Type[T]) -> None:
         super().__init__()
         # BLOB型はデフォルト値が設定出来ない為
         self.remarks = ''
@@ -16,7 +19,7 @@ class users_entity(users_entity_base):
         self.clicked_button = None
         self.zip_code_error = None
         self.input_token = ''
-    def set_validation_setting(self):
+    def set_validation_setting(self: typing.Type[T]):
         validation_settings = [
             {
                 'name': 'mail_address',
@@ -185,7 +188,7 @@ class users_entity(users_entity_base):
 
         rules = {}
         # 職業でその他を選択時のみ必須
-        if setting.app.config['JOB_ID_OTHER'] == self.job_id:
+        if app.config['JOB_ID_OTHER'] == self.job_id:
             rules['required'] = {}
             rules['not_empty'] = {}
         else:
@@ -256,7 +259,7 @@ class users_entity(users_entity_base):
                         },
                         'is_file_name_check': True,
                         'max_length': self.get_file_name_length(),
-                        'save_path_identifier': setting.app.config['FILE_UPLOAD_IDENTIFIER_USER_REGISTRATION'],
+                        'save_path_identifier': app.config['FILE_UPLOAD_IDENTIFIER_USER_REGISTRATION'],
                         'is_secret': True,
                         'path': 'file_path',
                     },

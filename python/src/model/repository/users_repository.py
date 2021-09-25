@@ -1,15 +1,19 @@
-from src.model.repository import *
+from python_library.src.custom_sqlalchemy.repository import repository
+from src import collections
+from src import typing
 from src.model.entity.users_entity import users_entity
 from src.model.entity.user_contact_methods_entity import user_contact_methods_entity
 from src.model.entity.user_knew_triggers_entity import user_knew_triggers_entity
+
+T = typing.TypeVar('T', bound='users_repository')
 
 class users_repository(repository):
     """
     ユーザーテーブルのリポジトリクラス
     """
-    def __init__(self, users_entity):
+    def __init__(self: typing.Type[T], users_entity: users_entity) -> None:
         super().__init__(users_entity)
-    def insert(self, target_column_name_list):
+    def insert(self: typing.Type[T], target_column_name_list):
 
         """
         INSERT文を実行する（データが存在していれば関連テーブルも）
@@ -39,7 +43,7 @@ class users_repository(repository):
         row_count = super().insert(entity.user_knew_triggers_collection, target_column_name_list)
         self.set_main_entity_class(users_entity)
         return row_count
-    def update(self, target_column_name_list, where = '', params = {}):
+    def update(self: typing.Type[T], target_column_name_list, where = '', params = {}):
         """
         UPDATE文を実行する（データが存在していれば関連テーブルも）
         """
