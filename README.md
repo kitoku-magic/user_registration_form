@@ -19,10 +19,14 @@ https://github.com/kitoku-magic/final_magic
 
 ## Python版
 以下は、実装と動作確認をした時のバージョンなので、もっと古いバージョンでも問題ないかもしれません。
-- Python 3.7.3（プログラム作成時の最新バージョンを用いました）
-- Flask 1.1.1
-- SQLAlchemy 1.3.10
-- MySQL 5.7.23
+- Python 3.8.3
+- Flask 2.0.1
+- SQLAlchemy 1.4.25
+- MySQL 5.7.30
+
+また、以下の共通ライブラリの導入も必要です。
+
+https://github.com/kitoku-magic/python_library
 
 また、PHP版と仕様が若干異なり、こちらはパスワードの登録が不要となっています。
 以下などを、参考にしました。
